@@ -5,9 +5,12 @@ import type { GenerateRequest } from "../../../lib/domain/types";
 export const runtime = "nodejs";
 
 function isValidInput(input: Partial<GenerateRequest>): input is GenerateRequest {
+  const hasTopic = Boolean(input.presetId || input.freeTopic?.trim());
   return Boolean(
-    input.topic?.trim() &&
-      input.tone &&
+    input.platformId &&
+      hasTopic &&
+      input.styleId &&
+      input.structureId &&
       input.length &&
       Number.isInteger(input.imageCount) &&
       Number(input.imageCount) >= 2 &&
@@ -19,10 +22,10 @@ export async function POST(request: Request) {
   try {
     const input = (await request.json()) as Partial<GenerateRequest>;
     if (!isValidInput(input)) {
-      return NextResponse.json({ error: "핵심 주제와 이미지 개수를 확인해 주세요." }, { status: 400 });
+      return NextResponse.json({ error: "플랫폼, 주제, 출력 설정을 확인해 주세요." }, { status: 400 });
     }
 
-    const result = await generateBlogDraft(input);
+    const result = await generateBlogDraft({ ...input, attributes: input.attributes ?? {} });
     return NextResponse.json(result);
   } catch (error) {
     console.error(error);

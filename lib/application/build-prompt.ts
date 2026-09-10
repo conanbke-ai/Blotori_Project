@@ -1,46 +1,78 @@
+import { FIELD_DEFINITIONS, getCategory, getPlatform, getPreset, getStructure, getStyle } from "../domain/content-config";
 import type { GenerateRequest } from "../domain/types";
 
-function optionalLine(label: string, value?: string) {
-  const normalized = value?.trim();
-  return normalized ? `- ${label}: ${normalized}` : null;
+function clean(value?: string) {
+  return value?.trim() || "";
 }
 
 export function buildPrompt(input: GenerateRequest) {
-  const contextLines = [
-    `- 핵심 주제: ${input.topic.trim()}`,
-    optionalLine("카테고리", input.category),
-    optionalLine("대상 연령대", input.ageGroup),
-    optionalLine("치료/관심 부위", input.bodyPart),
-    optionalLine("치료/관리 방법", input.treatmentMethod),
-    optionalLine("관련 자세/생활상황", input.posture),
-    `- 문체: ${input.tone}`,
-    `- 글 길이: ${input.length}`,
-    `- 이미지 제작 가이드 수: ${input.imageCount}`,
-    optionalLine("추가 메모", input.clinicNote),
+  const platform = getPlatform(input.platformId);
+  const category = getCategory(input.categoryId);
+  const preset = getPreset(input.categoryId, input.presetId);
+  const style = getStyle(input.styleId);
+  const structure = getStructure(input.structureId);
+
+  const attributes = Object.entries(input.attributes ?? {})
+    .filter(([, value]) => clean(value))
+    .map(([key, value]) => `- ${FIELD_DEFINITIONS[key]?.label ?? key}: ${clean(value)}`)
+    .join("\n");
+
+  const topicParts = [
+    preset ? `- 선택 주제: ${preset.label}` : null,
+    clean(input.freeTopic) ? `- 자유 주제/설명: ${clean(input.freeTopic)}` : null,
+    category ? `- 상위 카테고리: ${category.label}` : null,
   ].filter(Boolean).join("\n");
 
-  return `당신은 한국어 건강정보 블로그 편집자다. 의료광고성 과장 표현을 피하고, 일반 독자가 쉽게 이해할 수 있는 정보성 글을 작성한다.
+  const styleInstruction = input.styleId === "auto"
+    ? `주제·플랫폼·독자에 가장 적절한 문체를 1개 선택해 styleUsed에 한국어 이름으로 기록한다. 추천 후보가 있다면 우선 고려하되 억지로 맞추지 않는다.`
+    : input.styleId === "custom"
+      ? `사용자 지정 문체: ${clean(input.customStyle) || "자연스럽고 읽기 쉬운 블로그 문체"}`
+      : `선택 문체: ${style?.label ?? input.styleId} — ${style?.description ?? ""}`;
 
-요청 조건:
-${contextLines}
+  const structureInstruction = input.structureId === "auto"
+    ? `주제·플랫폼에 가장 적절한 글 구성을 1개 선택해 structureUsed에 한국어 이름으로 기록한다.`
+    : input.structureId === "custom"
+      ? `사용자 지정 글 구성: ${clean(input.customStructure) || "주제에 맞는 자연스러운 구성"}`
+      : `선택 글 구성: ${structure?.label ?? input.structureId} — ${structure?.description ?? ""}`;
+
+  return `당신은 다양한 플랫폼용 한국어 블로그 콘텐츠를 설계하는 전문 편집자다. 사용자의 주제와 목적을 존중하고, 입력되지 않은 사실을 임의로 만들어 핵심 정보처럼 쓰지 않는다.
+
+[플랫폼]
+- 플랫폼: ${input.otherPlatform?.trim() || platform.label}
+- 작성 힌트: ${platform.writingHint}
+- 내보내기 힌트: ${platform.exportHint}
+
+[주제]
+${topicParts || "- 자유주제"}
+
+[추가 조건]
+${attributes || "- 없음"}
+${clean(input.extraConditions) ? `- 기타 조건: ${clean(input.extraConditions)}` : ""}
+
+[출력 설정]
+- 글 길이: ${input.length}
+- 이미지 제작 가이드 수: ${input.imageCount}
+- 문체: ${styleInstruction}
+- 글 구성: ${structureInstruction}
 
 반드시 아래 원칙을 지켜라.
-1. 핵심 주제만 필수 입력이다. 카테고리·연령대·부위·치료방법·자세 등 비어 있는 선택 항목을 임의로 추측하거나 글의 핵심축으로 만들어서는 안 된다.
-2. 사용자가 특정 치료방법을 입력하지 않았다면 도수치료, 물리치료 등 임의의 치료방법을 새로 선택하지 않는다.
-3. 치료 효과를 보장하거나 완치·즉시 개선·100% 같은 단정 표현을 쓰지 않는다.
-4. 진단처럼 단정하지 말고 증상이 지속되거나 심하면 의료진 평가가 필요할 수 있음을 필요한 경우에만 자연스럽게 안내한다.
-5. AI 이미지 자체는 생성하지 않는다. 대신 외부 이미지 생성기에 그대로 복사할 수 있는 상세한 한국어 프롬프트를 만든다.
-6. 이미지 프롬프트에는 이미지 안의 한글/텍스트 생성을 요청하지 않는다. 정보 카드가 필요하면 그래픽 요소만 요청하고 텍스트는 별도 편집을 권장한다.
-7. 각 이미지에는 role, placement, afterSectionId, ratio, size를 지정한다. HERO는 맨 위이므로 afterSectionId=null이다.
-8. 첫 이미지는 HERO로 한다. 나머지 이미지는 실제 본문 내용에 맞춰 CONTEXT, EXPLAINER, PROCESS, TIP, CAUTION 중 적절한 역할을 선택한다. 특정 역할을 억지로 포함하지 않는다.
-9. 이미지를 연속 배치하지 않고, 각 이미지가 설명하는 내용과 직접 연결되는 섹션 뒤에 배치한다.
-10. 글은 제목, 짧은 도입, 3~5개 소제목, 마무리로 구성한다. 같은 말을 반복하지 않는다.
-11. 일반적인 교육·정보 제공 목적의 문구로 작성한다.
+1. 카테고리와 주제는 의료에 한정되지 않는다. 음식, 일상, 여행, 리뷰, 교육, 취미 등 입력된 주제에 맞춰 작성한다.
+2. 비어 있는 선택 조건은 추측해서 핵심 사실로 만들지 않는다. 특히 연령대, 가격, 장소, 치료방법, 사용기간 같은 구체값을 임의 생성하지 않는다.
+3. 건강·의료 주제일 때만 의료광고성 과장 표현과 단정적 진단·치료 보장을 피한다. 다른 카테고리에는 불필요한 의료 경고를 넣지 않는다.
+4. 플랫폼 특성에 맞게 문단 길이, 소제목 호흡, 이미지 간격을 조정한다.
+5. 이미지 자체는 생성하지 않는다. 외부 이미지 생성기에 그대로 복사할 수 있는 상세 한국어 프롬프트를 만든다.
+6. 이미지에는 한글 문구 생성을 요구하지 않는다. 정보 카드가 필요하면 텍스트 없는 그래픽 구성으로 요청한다.
+7. 첫 이미지는 HERO이며 afterSectionId=null이다. 나머지는 CONTEXT, EXPLAINER, PROCESS, TIP, CAUTION 중 내용에 맞는 역할을 고른다.
+8. 이미지는 연속 배치하지 않고 관련 섹션 뒤에 둔다. placement는 사람이 복붙 후 바로 찾을 수 있게 구체적으로 쓴다.
+9. 동일한 내용을 반복하지 않고, 플랫폼과 선택한 글 구성에 맞는 3~6개 섹션으로 작성한다.
+10. styleUsed와 structureUsed를 반드시 반환한다.
 
-JSON 외의 문장을 절대 출력하지 마라. 다음 형식을 정확히 따른다.
+JSON 외의 문장을 출력하지 마라.
 {
   "title": "string",
   "summary": "string",
+  "styleUsed": "string",
+  "structureUsed": "string",
   "intro": ["paragraph"],
   "sections": [
     { "id": "sec-1", "heading": "string", "paragraphs": ["paragraph"] }
@@ -49,10 +81,10 @@ JSON 외의 문장을 절대 출력하지 마라. 다음 형식을 정확히 따
   "tags": ["tag"],
   "images": [
     {
-      "id": "임시 ID",
+      "id": "temporary",
       "role": "HERO|CONTEXT|EXPLAINER|PROCESS|TIP|CAUTION",
       "label": "짧은 설명",
-      "placement": "사람이 읽고 바로 찾을 수 있는 삽입 위치 설명",
+      "placement": "정확한 삽입 위치",
       "afterSectionId": null,
       "ratio": "16:9|4:3|1:1|4:5|3:2",
       "size": "예: 1200×675",
