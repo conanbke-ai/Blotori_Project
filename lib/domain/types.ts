@@ -66,6 +66,8 @@ export interface BlogSection {
 
 export interface BlogDraft {
   title: string;
+  titleCandidates?: string[];
+  titlePurpose?: string;
   summary: string;
   styleUsed?: string;
   structureUsed?: string;
@@ -76,4 +78,13 @@ export interface BlogDraft {
   tags: string[];
   images: ImagePlan[];
   warnings: string[];
+}
+
+export interface PlatformExport {
+  platformId: PlatformId;
+  label: string;
+  plainText: string;
+  html?: string;
+  tagsText: string;
+  clipboardMode: "plain" | "rich";
 }
