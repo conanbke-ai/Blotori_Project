@@ -1,0 +1,328 @@
+/* Blotori application states: route loading, generation, success, error. */
+
+.blotoriRouteLoading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(105, 199, 213, .16), transparent 27%),
+    linear-gradient(180deg, #fbfeff 0%, #f6fbfc 56%, #fffaf5 100%);
+}
+
+.blotoriStateCard {
+  width: min(430px, 100%);
+  padding: 34px 30px 30px;
+  border: 1px solid #cfe7eb;
+  border-radius: 28px;
+  background: rgba(255, 253, 249, .96);
+  box-shadow: 0 24px 70px rgba(49, 91, 122, .12);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.blotoriStateCard::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(69, 174, 190, .24);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.blotoriStateCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+.blotoriStateEyebrow {
+  color: #2d8fa0;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .18em;
+  margin-bottom: 10px;
+}
+
+.blotoriStateCard h1,
+.blotoriStateCard h2 {
+  margin: 0;
+  color: #315b7a;
+  letter-spacing: -.035em;
+}
+
+.blotoriStateCard h1 { font-size: 25px; }
+.blotoriStateCard h2 { font-size: 22px; }
+
+.blotoriStateCard p {
+  margin: 10px auto 0;
+  max-width: 340px;
+  color: #78909c;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.blotoriPawLoader {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 18px;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.blotoriPawLoader .pawPad,
+.blotoriPawLoader .pawToe {
+  position: absolute;
+  display: block;
+  background: linear-gradient(145deg, #fffdf9, #eaf8fa);
+  border: 2px solid #2d8fa0;
+  box-shadow: 0 6px 18px rgba(49,91,122,.10);
+}
+
+.blotoriPawLoader .pawPad {
+  width: 42px;
+  height: 36px;
+  left: 23px;
+  top: 39px;
+  border-radius: 48% 48% 44% 44%;
+  background: linear-gradient(145deg, rgba(105,199,213,.72), #fffdf9 75%);
+}
+
+.blotoriPawLoader .pawToe {
+  width: 20px;
+  height: 25px;
+  border-radius: 50%;
+}
+
+.blotoriPawLoader .toe1 { left: 4px; top: 24px; transform: rotate(-22deg); }
+.blotoriPawLoader .toe2 { left: 23px; top: 5px; transform: rotate(-8deg); }
+.blotoriPawLoader .toe3 { right: 23px; top: 5px; transform: rotate(8deg); }
+.blotoriPawLoader .toe4 { right: 4px; top: 24px; transform: rotate(22deg); }
+
+.blotoriPawLoader .pawSpark {
+  position: absolute;
+  right: -1px;
+  bottom: 8px;
+  color: #ff8b72;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.blotoriPawLoader.isLoading {
+  animation: blotoriPawFloat 1.45s ease-in-out infinite;
+}
+
+.blotoriPawLoader.isLoading .pawPad {
+  animation: blotoriPadPress 1.45s ease-in-out infinite;
+}
+
+@keyframes blotoriPawFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  45% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes blotoriPadPress {
+  0%, 100% { transform: scale(1); }
+  52% { transform: scale(.92, .88); }
+}
+
+.blotoriProgressTrack {
+  height: 8px;
+  margin: 22px 0 15px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eaf4f5;
+}
+
+.blotoriProgressBar {
+  height: 100%;
+  width: 44%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2d8fa0, #69c7d5, #ff8b72);
+  animation: blotoriProgressMove 1.8s ease-in-out infinite;
+}
+
+@keyframes blotoriProgressMove {
+  0% { transform: translateX(-105%); }
+  55% { transform: translateX(125%); }
+  100% { transform: translateX(245%); }
+}
+
+.blotoriStageList {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+
+.blotoriStageRow {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 9px;
+  align-items: center;
+  min-height: 36px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  color: #8a9aa4;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.blotoriStageRow .stageDot {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid #d5e8eb;
+  background: #fff;
+  color: #9db0b8;
+  font-size: 9px;
+}
+
+.blotoriStageRow.active {
+  color: #315b7a;
+  background: #eff9fa;
+}
+
+.blotoriStageRow.active .stageDot {
+  border-color: #69c7d5;
+  background: #69c7d5;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(105,199,213,.14);
+}
+
+.blotoriStageRow.done {
+  color: #5f7d87;
+}
+
+.blotoriStageRow.done .stageDot {
+  border-color: #2d8fa0;
+  background: #eaf8fa;
+  color: #2d8fa0;
+}
+
+.generationOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(247, 251, 252, .76);
+  backdrop-filter: blur(9px);
+}
+
+.generationOverlay .blotoriStateCard {
+  width: min(470px, 100%);
+}
+
+.generationMeta {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid #dcecef;
+  border-radius: 999px;
+  background: #fff;
+  color: #66848f;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.successToast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  z-index: 110;
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 28px));
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: 11px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid #cfe7eb;
+  border-radius: 17px;
+  background: rgba(255, 253, 249, .97);
+  box-shadow: 0 16px 44px rgba(49,91,122,.16);
+  animation: blotoriToastIn .26s ease-out both;
+}
+
+@keyframes blotoriToastIn {
+  from { opacity: 0; transform: translate(-50%, -12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.successPaw {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #eaf8fa, #fff1e9);
+  color: #2d8fa0;
+  font-size: 22px;
+}
+
+.successToast strong {
+  display: block;
+  color: #315b7a;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.successToast span {
+  color: #78909c;
+  font-size: 11px;
+}
+
+.successToast button {
+  min-width: 40px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #78909c;
+  font-size: 17px;
+}
+
+.appErrorActions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.appErrorActions button {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 13px;
+  border: 1px solid #d3e7ea;
+  background: #fff;
+  color: #315b7a;
+  font-weight: 800;
+}
+
+.appErrorActions button:first-child {
+  border-color: transparent;
+  background: linear-gradient(135deg, #2d8fa0, #69c7d5);
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .blotoriStateCard { padding: 28px 20px 24px; border-radius: 23px; }
+  .blotoriStateCard h1 { font-size: 22px; }
+  .blotoriStageRow { font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blotoriPawLoader.isLoading,
+  .blotoriPawLoader.isLoading .pawPad,
+  .blotoriProgressBar,
+  .successToast {
+    animation: none !important;
+  }
+}
