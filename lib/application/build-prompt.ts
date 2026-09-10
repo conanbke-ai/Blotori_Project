@@ -1,5 +1,7 @@
 import { FIELD_DEFINITIONS, getCategory, getPlatform, getPreset, getStructure, getStyle } from "../domain/content-config";
 import { getPlatformStrategy } from "../domain/platform-strategy";
+import { getStyleStrategy } from "../domain/style-strategy";
+import { buildTitleInstruction } from "../domain/title-strategy";
 import type { GenerateRequest } from "../domain/types";
 
 function clean(value?: string) {
@@ -7,12 +9,8 @@ function clean(value?: string) {
 }
 
 function lengthGuide(length: GenerateRequest["length"]) {
-  if (length === "short") {
-    return "전체 본문 기준 약 1,000~1,500자. 도입 1개, 본문 3~4개 섹션, 각 섹션 1~2개 문단.";
-  }
-  if (length === "long") {
-    return "전체 본문 기준 약 3,500~5,000자. 도입 2개 문단, 본문 5~7개 섹션, 각 섹션 2~4개 충분한 문단. 각 소제목 아래에 실제 정보·설명·예시·주의점 중 필요한 내용을 구체적으로 채운다.";
-  }
+  if (length === "short") return "전체 본문 기준 약 1,000~1,500자. 도입 1개, 본문 3~4개 섹션, 각 섹션 1~2개 문단.";
+  if (length === "long") return "전체 본문 기준 약 3,500~5,000자. 도입 2개 문단, 본문 5~7개 섹션, 각 섹션 2~4개 충분한 문단. 각 소제목 아래에 실제 정보·설명·예시·주의점 중 필요한 내용을 구체적으로 채운다.";
   return "전체 본문 기준 약 2,000~3,000자. 도입 1~2개 문단, 본문 4~6개 섹션, 각 섹션 1~3개 문단.";
 }
 
@@ -22,6 +20,7 @@ export function buildPrompt(input: GenerateRequest) {
   const category = getCategory(input.categoryId);
   const preset = getPreset(input.categoryId, input.presetId);
   const style = getStyle(input.styleId);
+  const styleStrategy = getStyleStrategy(input.styleId);
   const structure = getStructure(input.structureId);
 
   const attributes = Object.entries(input.attributes ?? {})
@@ -37,18 +36,19 @@ export function buildPrompt(input: GenerateRequest) {
   ].filter(Boolean).join("\n");
 
   const styleInstruction = input.styleId === "auto"
-    ? "주제·플랫폼·독자에 가장 적절한 문체를 1개 선택해 styleUsed에 한국어 이름으로 기록한다. 추천 후보가 있다면 우선 고려하되 억지로 맞추지 않는다."
+    ? "주제·플랫폼·독자·글 목적에 가장 적절한 문체를 1개 선택하고 실제 문장 리듬과 어휘까지 그 문체로 작성한다. styleUsed에 한국어 이름을 기록한다."
     : input.styleId === "custom"
       ? `사용자 지정 문체: ${clean(input.customStyle) || "자연스럽고 읽기 쉬운 블로그 문체"}`
-      : `선택 문체: ${style?.label ?? input.styleId} — ${style?.description ?? ""}`;
+      : `선택 문체: ${style?.label ?? input.styleId} — ${style?.description ?? ""}\n구체적 문체 규칙: ${styleStrategy?.instruction ?? "선택한 문체를 실제 문장에 분명히 반영한다."}`;
 
   const structureInstruction = input.structureId === "auto"
-    ? "주제·플랫폼에 가장 적절한 글 구성을 1개 선택해 structureUsed에 한국어 이름으로 기록한다."
+    ? "주제·목적·플랫폼에 가장 적절한 글 구성을 1개 선택해 structureUsed에 한국어 이름으로 기록하고 실제 섹션 구조에 반영한다."
     : input.structureId === "custom"
       ? `사용자 지정 글 구성: ${clean(input.customStructure) || "주제에 맞는 자연스러운 구성"}`
       : `선택 글 구성: ${structure?.label ?? input.structureId} — ${structure?.description ?? ""}`;
 
   const platformRules = platformStrategy.generationRules.map((rule, index) => `${index + 1}. ${rule}`).join("\n");
+  const titleInstruction = buildTitleInstruction(input);
 
   return `당신은 다양한 플랫폼용 한국어 블로그 콘텐츠를 설계하는 전문 편집자다. 사용자의 실제 주제와 목적을 중심으로, 곧바로 게시 초안으로 사용할 수 있는 완성도 있는 원고를 작성한다. 입력되지 않은 사실을 임의로 만들어 핵심 정보처럼 쓰지 않는다.
 
@@ -78,6 +78,11 @@ ${clean(input.extraConditions) ? `- 기타 조건: ${clean(input.extraConditions
 - 문체: ${styleInstruction}
 - 글 구성: ${structureInstruction}
 
+[제목 전략]
+${titleInstruction}
+- titlePurpose에는 이번 제목이 최우선으로 반영한 목적을 짧은 한국어로 기록한다.
+- titleCandidates에는 후보를 정확히 3개 반환하고, title은 그중 하나와 완전히 동일해야 한다.
+
 [시각 표현 계획]
 본문 내용만 생성하지 말고 presentation 정보를 함께 설계한다.
 - titleAlign/introAlign은 left 또는 center 중 실제 컨셉에 맞는 값만 사용한다.
@@ -87,6 +92,12 @@ ${clean(input.extraConditions) ? `- 기타 조건: ${clean(input.extraConditions
 - 중앙 정렬은 제목, 짧은 도입, 핵심 메시지처럼 실제로 어울리는 경우에만 사용하고 긴 설명문 전체를 중앙 정렬하지 않는다.
 - 이미지가 더 적합한 강조라면 텍스트 장식을 늘리지 말고 해당 섹션과 연결되는 ImagePlan을 사용한다.
 - 시각 표현은 플랫폼 특성보다 앞설 수 없다. 해당 플랫폼에서 어색한 표현은 사용하지 않는다.
+
+[이미지 연속성]
+- 인물 이미지가 2장 이상이고 같은 사람을 이어 보여주는 편이 자연스러우면 continuityMode="series", continuityGroup을 같은 값으로 주고 subjectProfile을 구체적으로 동일하게 유지한다.
+- 독립 설명 이미지가 더 자연스러우면 continuityMode="independent"로 둔다.
+- series의 첫 이미지는 referenceImageId=null, 이후 이미지는 첫 이미지 id를 referenceImageId로 지정한다.
+- 성별·연령대 등 사용자가 입력한 인물 조건이 있으면 subjectProfile에 정확히 반영하고, 입력하지 않은 민감한 개인 특성을 임의로 확정하지 않는다.
 
 반드시 아래 원칙을 지켜라.
 1. 작성 대상은 사용자가 지정한 '주제 그 자체'다. Blotori, 블로그 생성기, API, 프롬프트, 입력 폼, 설정값, 생성 과정, 샘플 모드 같은 도구 사용법을 본문 내용으로 설명하지 않는다. 사용자가 명시적으로 그것을 주제로 지정한 경우만 예외다.
@@ -107,6 +118,8 @@ ${clean(input.extraConditions) ? `- 기타 조건: ${clean(input.extraConditions
 JSON 외의 문장을 출력하지 마라.
 {
   "title": "string",
+  "titleCandidates": ["candidate 1", "candidate 2", "candidate 3"],
+  "titlePurpose": "string",
   "summary": "string",
   "styleUsed": "string",
   "structureUsed": "string",
@@ -125,9 +138,7 @@ JSON 외의 문장을 출력하지 마라.
         "headingAlign": "left|center",
         "bodyAlign": "left|center",
         "visualStyle": "standard|key-point|callout|quote",
-        "emphasis": [
-          { "phrase": "paragraph 안에 실제 존재하는 짧은 구절", "kind": "bold|accent|highlight" }
-        ]
+        "emphasis": [{ "phrase": "paragraph 안에 실제 존재하는 짧은 구절", "kind": "bold|accent|highlight" }]
       }
     }
   ],
@@ -142,7 +153,11 @@ JSON 외의 문장을 출력하지 마라.
       "afterSectionId": null,
       "ratio": "16:9|4:3|1:1|4:5|3:2",
       "size": "예: 1200×675",
-      "prompt": "외부 이미지 생성기에 복사할 상세 프롬프트"
+      "prompt": "외부 이미지 생성기에 복사할 상세 프롬프트",
+      "continuityMode": "independent|series",
+      "continuityGroup": null,
+      "subjectProfile": "",
+      "referenceImageId": null
     }
   ],
   "warnings": []
