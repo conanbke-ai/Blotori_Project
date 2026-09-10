@@ -15,6 +15,7 @@
 - Blotori canonical character/icon asset 적용 + hydration 안정화 + loading motion QA
 - 일반 독자용 전문용어 footnote / glossary 생성·정규화·플랫폼 export QA
 - 건강·의료 전문자료 Knowledge Base / OpenAI File Search RAG 통합 QA
+- Knowledge source manifest / 라이선스 게이트 / 상용·연구 profile 분리 QA
 
 ## V1 scope
 
@@ -45,6 +46,11 @@
 - [x] `knowledge:sync` 새 vector store 생성/업로드/색인/환경변수 기록
 - [x] `knowledge:append` 기존 vector store 추가 동기화
 - [x] 건강 카테고리 기본 RAG routing + source filename 메타데이터
+- [x] `_meta/SOURCES.csv` source catalog / license status / attribution metadata
+- [x] commercial/research Knowledge profile 분리
+- [x] manifest 미등록·검토중·비상업 자료 기본 색인 차단
+- [x] `knowledge:plan` dry-run 포함/제외 사전검증
+- [x] vector-store file source/evidence metadata 기록
 - [x] Blotori character canonical lock
 - [x] Blotori TORI Family 디자인 토큰/테마
 - [x] TORI common paw canonical 공통 저장소 등록
@@ -62,7 +68,8 @@
 - [x] GitHub Actions `Blotori Validate` 추가
 - [x] CI TypeScript check 통과
 - [x] CI Next.js production build 통과
-- [ ] 실제 전문자료를 `knowledge-base/`에 배치 후 최초 vector store 동기화
+- [ ] 실제 허용 전문자료를 `knowledge-base/`에 배치 후 `knowledge:plan` 검증
+- [ ] 최초 commercial vector store 동기화
 - [ ] 실제 OpenAI API + file_search 응답 통합 QA
 - [ ] 실제 OpenAI API 응답 통합 QA
 - [ ] 실제 네이버 스마트에디터 복붙 보존 테스트
@@ -100,7 +107,10 @@
 - 자료가 없거나 vector store가 설정되지 않으면 기존 non-RAG 생성 경로로 fallback한다.
 - 전문자료 원문은 저장소에 커밋하지 않는다.
 - 실제 검색 여부와 source filename은 `BlogDraft.knowledgeGrounding`에 기록한다.
-- 상용화 전 각 자료의 라이선스/출처를 확인한다.
+- `_meta/SOURCES.csv`를 유일한 ingest allowlist로 사용한다.
+- 기본 `commercial` profile은 `ALLOW`/`ALLOW_WITH_ATTRIBUTION` + `ingest_default=true`만 색인한다.
+- `REVIEW_REQUIRED`, `RESEARCH_ONLY`, `EXCLUDE`, manifest 미등록 자료는 기본 상용 색인에서 제외한다.
+- `research` profile은 명시적으로 허용된 연구용 자료까지 포함할 수 있으나 상용 vector store와 분리한다.
 
 상세 기준: `docs/BLOTORI_RAG_KNOWLEDGE_BASE_STANDARD.md`
 
@@ -144,6 +154,7 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - 레이아웃·라벨·복사 변환은 가능한 한 코드 기반으로 처리한다.
 - 네이버 자동 로그인/자동 발행 기능은 구현하지 않는다.
 - 근거 자료 검색이 실패했을 때 세부 임상 주장을 임의 생성하지 않는다.
+- 라이선스/출처가 명확히 승인되지 않은 자료를 상용 Knowledge Base에 자동 색인하지 않는다.
 - 승인된 Blotori canonical 캐릭터를 새로 생성한 유사 캐릭터로 대체하지 않는다.
 - common paw shape를 프로젝트별로 재해석하지 않는다.
 - 캐릭터 cutout은 canonical sheet의 캐릭터 픽셀을 유지하고 배경/주변 sheet 요소만 제거한다.
