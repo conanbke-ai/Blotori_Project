@@ -1,8 +1,8 @@
 # Blotori Writing Style QA Fixture
 
-Purpose: verify prompt/style changes before spending API calls.
+Purpose: verify prompt/style design before spending API calls.
 
-This is a manual acceptance fixture, not a replacement for final model integration QA.
+This document is a **development-time acceptance fixture only**. It must not be implemented as a runtime `generate → reject → call AI again` loop. Blotori's normal generation remains one AI request per post; style quality should be improved by better first-call instructions, not paid retries.
 
 ## Fixture input
 
@@ -13,49 +13,51 @@ This is a manual acceptance fixture, not a replacement for final model integrati
 - Structure: information
 - Length: medium
 
-## PLAYFUL acceptance
+## PLAYFUL target
 
 Expected tone:
 
-- clearly sounds like a light, lively Korean information blog
-- still medically cautious and accurate
-- headings may be conversational questions/statements
-- does not fall back to hospital brochure prose
-- `-합니다/-됩니다` is not repeated mechanically
-- at least several sections contain natural spoken connectors or light reactions
-- no forced meme slang, excessive emoji, or jokes about pain/patients
+- clearly reads like a lively Korean personal/information blog, not a hospital brochure
+- information and safety boundaries remain accurate
+- conversational rhythm appears in title, intro, headings, transitions, and closing — not only one joke sentence
+- short reactions, parenthetical asides, light everyday comparisons, and direct reader address are allowed
+- `-합니다/-됩니다/-해야 합니다` never becomes the dominant rhythm
+- humor must never trivialize pain, patients, safety, or medical uncertainty
 
-### PASS-style example
+### Target-style example
 
 Title example:
 
-`목이 뻣뻣할 때, 무조건 세게 늘리면 더 잘 풀릴까요?`
+`목이 뻣뻣하다? 일단 목부터 쭉쭉 늘리는 건 잠깐만요 👀`
 
-Body example:
+Intro example:
 
-`아침에 고개를 돌리는데 “어라, 왜 여기서 멈추지?” 싶은 날이 있죠. 이럴 때 가장 먼저 떠올리는 게 목을 쭉쭉 늘리는 스트레칭인데요. 세게 당긴다고 더 빨리 풀리는 건 아니에요. 오히려 통증이 커지거나 움직임이 더 불편해진다면 강도를 낮추고 상태부터 확인하는 게 먼저예요.`
+`아침에 고개 한 번 돌렸는데 “어? 여기까지만 가네?” 싶은 날 있죠. 이럴 때 괜히 승부욕(?)이 생겨서 목을 더 세게 돌리고 싶어지는데요. 잠깐만요. 목 스트레칭은 누가 더 많이 꺾나 겨루는 게임이 아니거든요.`
 
 Heading example:
 
-`목이 안 돌아간다고 바로 끝까지 돌릴 필요는 없어요`
+`목이 안 돌아간다고 끝까지 밀어붙이기? 목 입장도 좀 들어봅시다`
 
 Body example:
 
-`스트레칭은 ‘얼마나 많이 움직였느냐’보다 불편하지 않은 범위에서 부드럽게 반복했느냐가 더 중요해요. 특정 방향에서 유독 당기거나 아프다면 거기서 억지로 밀어붙이지 않는 게 포인트예요. 몸이 “오늘은 여기까지!” 하고 신호를 보내는데 굳이 설득전(?)을 벌일 필요는 없으니까요.`
+`편하게 움직이는 범위 안에서 좌우로 천천히 움직여 보는 것부터 시작해도 충분해요. 특정 방향에서 갑자기 찌릿하거나 통증이 확 올라오면 거기서 스톱. 몸이 이미 “오늘은 여기까지!”라고 알려주고 있는데 굳이 협상 테이블까지 끌고 갈 필요는 없죠 ㅋㅋ.`
 
-## PLAYFUL fail examples
+`그렇다고 하루 종일 목을 봉인(?)해둘 필요도 없어요. 무리 없는 범위에서 조금씩 움직이면서 변화를 보는 게 포인트예요. 세게 한 번보다 편하게 여러 번. 생각보다 이쪽이 훨씬 현실적인 접근입니다.`
 
-The following tone is a FAIL when `playful` was selected:
+## Brochure-tone anti-pattern
+
+When `playful` is selected, an article dominated by sentences like the following indicates that the prompt profile is too weak and should be fixed **before release**, not automatically retried at runtime:
 
 `목 디스크의 상태와 신경 자극 정도는 사람마다 다르기 때문에 주변 사람의 운동법을 그대로 따라 하기보다 전문의료진의 안내를 우선해야 합니다.`
 
-Reason: information may be valid, but the wording is indistinguishable from formal patient guidance when used throughout the post.
+The factual content may be valid, but if most of the post uses this rhythm, the selected style has disappeared.
 
-Another FAIL pattern:
+Other anti-patterns:
 
 - every heading ends in `~방법`, `~정리`, `~안내`
 - every paragraph uses only `~합니다 / ~됩니다 / ~해야 합니다`
 - only one playful sentence appears in an otherwise formal article
+- humor appears only in parentheses while all main sentences remain brochure-like
 
 ## PATIENT GUIDE contrast
 
@@ -65,6 +67,6 @@ Expected:
 
 This should feel calmer and more instructional than PLAYFUL.
 
-## Review rule
+## Development review rule
 
-If PLAYFUL and PATIENT GUIDE could be swapped without the reader noticing a meaningful tone difference, style generation is not accepted.
+If PLAYFUL and PATIENT GUIDE could be swapped without a reader noticing a meaningful tone difference, strengthen the style profile itself. Do not solve that problem by silently spending another API call.
