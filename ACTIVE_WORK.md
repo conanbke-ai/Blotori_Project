@@ -12,6 +12,7 @@
 
 - `main` 기준 V1 runtime QA / 플랫폼 붙여넣기 검증 / visual acceptance
 - TORI 표준 기반 Blotori Composer UI / 플랫폼별 생성·복사 품질 / 제목·문체 전략
+- Blotori canonical character/icon asset 적용 + hydration 안정화 + loading motion QA
 
 ## V1 scope
 
@@ -44,6 +45,10 @@
 - [x] 콘텐츠 생성 중 Blotori 로딩 오버레이
 - [x] 생성 완료 토스트
 - [x] 앱 Error / 재시도 화면
+- [x] Style preview hydration mismatch 제거
+- [x] canonical sheet 기반 Blotori 배경 제거(character cutout) WebP 적용
+- [x] Blotori 투명 app icon/fav icon 적용
+- [x] canonical Blotori 캐릭터 loading motion 적용
 - [ ] 실제 OpenAI API 응답 통합 QA
 - [ ] 실제 네이버 스마트에디터 복붙 보존 테스트
 - [ ] rich clipboard 플랫폼 실제 붙여넣기 검증
@@ -68,16 +73,20 @@
 - Blotori derivative assets:
   - `public/blotori-paw-default.png`
   - `public/blotori-paw-pressed.png`
+- Blotori canonical UI assets:
+  - `public/blotori-character-transparent.webp`
+  - `public/blotori-icon-transparent.webp`
+  - legacy UI paths `public/blotori-canonical-mini.webp`, `public/blotori-face-ui.webp` point to the same transparent canonical-derived assets for compatibility.
 - Shape/anatomy must remain common; only Blotori palette adaptation is permitted.
 
 ## App state UX
 
 Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여준다.
 
-1. `route loading` — 앱/라우트 진입 준비
+1. `route loading` — canonical Blotori가 노트/카드와 함께 움직이는 진입 모션
 2. `empty` — 플랫폼/주제 입력 전 상태
-3. `generating` — 단일 AI 요청 대기 중 상태 안내
-4. `success` — 생성 완료 피드백
+3. `generating` — canonical Blotori 캐릭터 모션 + 단일 AI 요청 대기 중 상태 안내
+4. `success` — Blotori icon 기반 생성 완료 피드백
 5. `error` — 오류 원인 + 재시도 가능 상태
 
 생성 중 단계 문구는 실제 별도 AI 호출 단계를 의미하지 않는다. 사용자 대기 경험을 위한 진행 안내이며 AI 호출 원칙은 글 1건당 기본 1회를 유지한다.
@@ -90,4 +99,5 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - 네이버 자동 로그인/자동 발행 기능은 구현하지 않는다.
 - 승인된 Blotori canonical 캐릭터를 새로 생성한 유사 캐릭터로 대체하지 않는다.
 - common paw shape를 프로젝트별로 재해석하지 않는다.
+- 캐릭터 cutout은 canonical sheet의 캐릭터 픽셀을 유지하고 배경/주변 sheet 요소만 제거한다.
 - 코드 구현 완료를 visual acceptance로 간주하지 않는다.
