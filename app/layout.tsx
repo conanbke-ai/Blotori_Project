@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import ToriPawCursor from "./ToriPawCursor";
 import "./globals.css";
 import "./blotori-theme.css";
 import "./blotori-states.css";
 import "./blotori-ui-enhancements.css";
+import "./tori-paw-cursor.css";
 
 export const metadata: Metadata = {
   title: "Blotori",
@@ -13,7 +15,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        {children}
+        <ToriPawCursor />
+      </body>
     </html>
   );
 }
