@@ -10,11 +10,13 @@
     "qa:platform": "node scripts/validate-platform-export.mjs",
     "knowledge:organize:plan": "node scripts/organize-knowledge-base.mjs",
     "knowledge:organize": "node scripts/organize-knowledge-base.mjs --apply",
-    "knowledge:plan": "node scripts/sync-knowledge-base.mjs --dry-run",
-    "knowledge:plan:research": "node scripts/sync-knowledge-base.mjs --dry-run --profile=research",
-    "knowledge:sync": "node scripts/sync-knowledge-base.mjs --profile=commercial",
-    "knowledge:sync:research": "node scripts/sync-knowledge-base.mjs --profile=research",
-    "knowledge:append": "node scripts/sync-knowledge-base.mjs --append --profile=commercial"
+    "knowledge:audit": "node scripts/audit-knowledge-base.mjs",
+    "knowledge:audit:strict": "node scripts/audit-knowledge-base.mjs --strict",
+    "knowledge:plan": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --dry-run",
+    "knowledge:plan:research": "node scripts/audit-knowledge-base.mjs && node scripts/sync-knowledge-base.mjs --dry-run --profile=research",
+    "knowledge:sync": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --profile=commercial",
+    "knowledge:sync:research": "node scripts/audit-knowledge-base.mjs && node scripts/sync-knowledge-base.mjs --profile=research",
+    "knowledge:append": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --append --profile=commercial"
   },
   "dependencies": {
     "next": "16.3.4",
