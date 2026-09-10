@@ -15,7 +15,7 @@ export interface PlatformStrategy {
 const strategies: Record<PlatformId, PlatformStrategy> = {
   naver: {
     id: "naver",
-    clipboardMode: "plain",
+    clipboardMode: "rich",
     headingRule: "소제목은 스마트에디터 ONE에서 별도 텍스트 블록으로 옮기기 쉽게 짧은 한글 문장형으로 작성한다. Markdown(#, ##)이나 HTML 태그를 본문에 쓰지 않는다.",
     paragraphRule: "모바일 가독성을 우선해 한 문단을 대체로 2~4문장으로 끊고, 긴 문단이 연속되지 않게 한다. 소제목-설명-이미지-추가설명의 리듬을 만든다.",
     imageRule: "대표 이미지는 제목 아래 첫 시각요소로 두고, 나머지 이미지는 관련 설명 직후에 둔다. 이미지는 본문 복붙에 포함시키지 않고 IMG 라벨로 위치만 표시해 네이버 포토업로더로 따로 넣을 수 있게 한다.",
@@ -25,6 +25,7 @@ const strategies: Record<PlatformId, PlatformStrategy> = {
       "정보형 글도 소제목만 나열하지 말고 각 소제목 아래 충분한 설명을 넣되 모바일에서 숨이 막히지 않도록 문단을 나눈다.",
       "본문에 H2, H3, Markdown 기호, HTML 태그, 목차용 앵커 문법을 직접 출력하지 않는다.",
       "이미지 앞뒤 문장이 이미지의 역할을 자연스럽게 이어주도록 한다.",
+      "시각 강조가 필요한 문장은 presentation metadata로 표현하고 본문 문자열에는 Markdown 기호를 넣지 않는다.",
     ],
   },
   tistory: {
