@@ -10,7 +10,7 @@
 
 ## Current workstream
 
-- `feature/platform-export-title-strategy`
+- `main` 기준 V1 runtime QA / 플랫폼 붙여넣기 검증 / visual acceptance
 - TORI 표준 기반 Blotori Composer UI / 플랫폼별 생성·복사 품질 / 제목·문체 전략
 
 ## V1 scope
