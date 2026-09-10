@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type {
   BlogDraft,
   BlogSection,
@@ -41,6 +41,12 @@ const initialForm: ComposerForm = {
 };
 
 const lengthLabel: Record<Length, string> = { short: "짧게", medium: "보통", long: "길게" };
+const loadingStages = [
+  "주제와 플랫폼 조건을 정리하고 있어요.",
+  "본문 구성과 문체를 맞추고 있어요.",
+  "강조 포인트와 이미지 위치를 정리하고 있어요.",
+  "최종 미리보기를 정돈하고 있어요.",
+];
 
 function imagePlaceholder(image: ImagePlan) {
   return `\n[${image.id} 삽입]\n위치: ${image.placement}\n권장: ${image.size} · ${image.ratio}\n`;
@@ -91,6 +97,8 @@ export default function Home() {
   const [form, setForm] = useState<ComposerForm>(initialForm);
   const [draft, setDraft] = useState<BlogDraft | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState(0);
+  const [successVisible, setSuccessVisible] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<"mock" | "api" | null>(null);
   const [copied, setCopied] = useState("");
@@ -119,6 +127,23 @@ export default function Home() {
   const hasTopic = Boolean(form.presetId || form.freeTopic?.trim());
   const canGenerate = Boolean(form.platformId) && (form.platformId !== "other" || Boolean(form.otherPlatform?.trim())) && hasTopic;
 
+  useEffect(() => {
+    if (!loading) {
+      setLoadingStage(0);
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setLoadingStage((current) => Math.min(current + 1, loadingStages.length - 1));
+    }, 1150);
+    return () => window.clearInterval(timer);
+  }, [loading]);
+
+  useEffect(() => {
+    if (!successVisible) return;
+    const timer = window.setTimeout(() => setSuccessVisible(false), 2600);
+    return () => window.clearTimeout(timer);
+  }, [successVisible]);
+
   function patch(next: Partial<ComposerForm>) {
     setForm((prev) => ({ ...prev, ...next }));
   }
@@ -133,6 +158,8 @@ export default function Home() {
     if (!hasTopic) return setError("추천 주제를 선택하거나 자유 주제를 입력해 주세요.");
 
     setLoading(true);
+    setLoadingStage(0);
+    setSuccessVisible(false);
     setError("");
     try {
       const payload: GenerateRequest = { ...form, platformId: form.platformId };
@@ -146,6 +173,7 @@ export default function Home() {
       setDraft(data.draft);
       setMode(data.mode);
       setEditMode(false);
+      setSuccessVisible(true);
       requestAnimationFrame(() => previewScrollRef.current?.scrollTo({ top: 0 }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "오류가 발생했습니다.");
@@ -178,7 +206,7 @@ export default function Home() {
   const platformClass = form.platformId ? `platform-${form.platformId}` : "platform-generic";
 
   return (
-    <main className="shell appShell">
+    <main className="shell appShell" aria-busy={loading}>
       <header className="topbar">
         <div>
           <div className="eyebrow">BLOTORI · MULTI-PLATFORM BLOG COMPOSER</div>
@@ -228,8 +256,8 @@ export default function Home() {
             <Field label="문체"><select value={form.styleId} onChange={(e) => patch({ styleId: e.target.value as StyleId })}><option value="auto">자동 추천</option>{recommendedStyles.length > 0 && <optgroup label="이 주제 추천">{recommendedStyles.map((id) => { const item = STYLE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 문체">{STYLE_DEFINITIONS.filter((x) => !recommendedStyles.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>
             {form.styleId === "custom" && <Field label="직접 문체"><input value={form.customStyle ?? ""} onChange={(e) => patch({ customStyle: e.target.value })} /></Field>}
             <div className="splitRow"><Field label="글 길이"><select value={form.length} onChange={(e) => patch({ length: e.target.value as Length })}>{(Object.keys(lengthLabel) as Length[]).map((key) => <option key={key} value={key}>{lengthLabel[key]}</option>)}</select></Field><Field label="이미지 수"><select value={form.imageCount} onChange={(e) => patch({ imageCount: Number(e.target.value) })}>{[2,3,4,5].map((n) => <option key={n} value={n}>{n}장</option>)}</select></Field></div>
-            <button className="primary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "구성 중…" : "✦ 블로그 콘텐츠 생성"}</button>
-            {error && <div className="errorBox">{error}</div>}
+            <button className="primary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "블로토리 작업 중…" : "✦ 블로그 콘텐츠 생성"}</button>
+            {error && <div className="errorBox" role="alert"><strong>생성하지 못했어요.</strong><br />{error}</div>}
           </aside>
         )}
 
@@ -266,8 +294,35 @@ export default function Home() {
       </div>
 
       {draft && <div className="scrollNav" aria-label="미리보기 빠른 이동"><button onClick={() => scrollPreview("top")} title="맨 위로">TOP</button><button onClick={() => scrollPreview("bottom")} title="맨 아래로">BOTTOM</button></div>}
+      {loading && <GenerationOverlay stage={loadingStage} platformLabel={platformProfile?.label} />}
+      {successVisible && <SuccessToast onClose={() => setSuccessVisible(false)} />}
     </main>
   );
+}
+
+function PawLoader({ loading = false }: { loading?: boolean }) {
+  return <div className={`blotoriPawLoader ${loading ? "isLoading" : ""}`} aria-hidden="true"><span className="pawToe toe1" /><span className="pawToe toe2" /><span className="pawToe toe3" /><span className="pawToe toe4" /><span className="pawPad" /><span className="pawSpark">✦</span></div>;
+}
+
+function GenerationOverlay({ stage, platformLabel }: { stage: number; platformLabel?: string }) {
+  return <div className="generationOverlay" role="status" aria-live="polite" aria-label="블로그 콘텐츠 생성 중">
+    <section className="blotoriStateCard">
+      <div className="blotoriStateEyebrow">BLOTORI · COMPOSING</div>
+      <PawLoader loading />
+      <h2>블로토리가 원고를 정리하고 있어요.</h2>
+      <p>{loadingStages[stage]}</p>
+      <span className="generationMeta">{platformLabel ?? "선택 플랫폼"} · AI 호출 1회</span>
+      <div className="blotoriProgressTrack" aria-hidden="true"><div className="blotoriProgressBar" /></div>
+      <div className="blotoriStageList">
+        {loadingStages.map((label, index) => <div key={label} className={`blotoriStageRow ${index < stage ? "done" : index === stage ? "active" : ""}`}><span className="stageDot">{index < stage ? "✓" : index + 1}</span><span>{label}</span></div>)}
+      </div>
+      <p>표시되는 단계는 기다리는 동안의 작업 안내이며 API를 추가 호출하지 않습니다.</p>
+    </section>
+  </div>;
+}
+
+function SuccessToast({ onClose }: { onClose: () => void }) {
+  return <div className="successToast" role="status"><div className="successPaw">♡</div><div><strong>원고 구성이 끝났어요.</strong><span>미리보기와 이미지 제작 가이드를 확인해 주세요.</span></div><button onClick={onClose} aria-label="완료 알림 닫기">×</button></div>;
 }
 
 function SectionPreview({ section, editMode, updateParagraph, children }: { section: BlogSection; editMode: boolean; updateParagraph: (sectionId: string, index: number, value: string) => void; children: ReactNode }) {
