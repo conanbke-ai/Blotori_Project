@@ -1,0 +1,200 @@
+/* Visual enhancements: turn the Blotori identity into a UI language, not a pasted image. */
+
+:root {
+  --icon-doc: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='M6 3.5h8l4 4V20.5H6zM14 3.5v4h4M9 12h6M9 15.5h5'/%3E%3C/svg%3E");
+  --icon-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3.5' y='5' width='17' height='14' rx='2.5' fill='none' stroke='%23000' stroke-width='1.8'/%3E%3Ccircle cx='9' cy='10' r='1.4' fill='%23000'/%3E%3Cpath d='m6 17 4.2-4.2 2.8 2.7 2-2 3 3.5' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --icon-settings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' d='M5 7h14M5 12h14M5 17h14M9 5v4M15 10v4M11 15v4'/%3E%3C/svg%3E");
+  --icon-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' d='m10 13.8 4-3.6m-6.7 6.6-1.1 1.1a3 3 0 0 1-4.2-4.2l3.3-3.3a3 3 0 0 1 4.2 0m7.2-3.2 1.1-1.1a3 3 0 1 1 4.2 4.2l-3.3 3.3a3 3 0 0 1-4.2 0'/%3E%3C/svg%3E");
+  --icon-copy: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='8' y='8' width='10' height='11' rx='2' fill='none' stroke='%23000' stroke-width='1.8'/%3E%3Cpath d='M6 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1' fill='none' stroke='%23000' stroke-width='1.8'/%3E%3C/svg%3E");
+  --icon-spark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.8c.7 3.1 2.2 4.7 5.4 5.4-3.2.7-4.7 2.2-5.4 5.4-.7-3.2-2.2-4.7-5.4-5.4C9.8 7.5 11.3 6 12 2.8Zm6.2 11.3c.4 1.8 1.3 2.7 3 3.1-1.7.4-2.6 1.3-3 3.1-.4-1.8-1.3-2.7-3.1-3.1 1.8-.4 2.7-1.3 3.1-3.1Z' fill='%23000'/%3E%3C/svg%3E");
+}
+
+.blotoriMascotTop {
+  width: 64px;
+  height: 64px;
+  padding: 5px;
+  border-radius: 20px;
+  object-fit: cover;
+  object-position: center 34%;
+  background: linear-gradient(145deg, #eefafa, #fff4ee);
+  border: 1px solid #d4e9ec;
+  box-shadow: 0 8px 22px rgba(49, 91, 122, .12);
+  filter: none;
+}
+
+.brandIntro::after {
+  content: "";
+  width: 28px;
+  height: 28px;
+  margin-left: 2px;
+  background: var(--blotori-coral);
+  -webkit-mask: var(--icon-spark) center / contain no-repeat;
+  mask: var(--icon-spark) center / contain no-repeat;
+  opacity: .72;
+}
+
+.controls .panelHeader h2::before,
+.previewHeader h2::before,
+.guideTitle strong::before {
+  content: "";
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  margin-right: 7px;
+  vertical-align: -3px;
+  background: var(--blotori-teal);
+}
+.controls .panelHeader h2::before {
+  -webkit-mask: var(--icon-settings) center / contain no-repeat;
+  mask: var(--icon-settings) center / contain no-repeat;
+}
+.previewHeader h2::before {
+  -webkit-mask: var(--icon-doc) center / contain no-repeat;
+  mask: var(--icon-doc) center / contain no-repeat;
+}
+.guideTitle strong::before {
+  -webkit-mask: var(--icon-image) center / contain no-repeat;
+  mask: var(--icon-image) center / contain no-repeat;
+}
+
+.topActions .ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.topActions .ghost::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  background: currentColor;
+}
+.topActions .ghost:nth-of-type(1)::before {
+  -webkit-mask: var(--icon-link) center / contain no-repeat;
+  mask: var(--icon-link) center / contain no-repeat;
+}
+.topActions .ghost:nth-of-type(2)::before {
+  -webkit-mask: var(--icon-settings) center / contain no-repeat;
+  mask: var(--icon-settings) center / contain no-repeat;
+}
+.topActions .ghost:nth-of-type(3)::before {
+  -webkit-mask: var(--icon-image) center / contain no-repeat;
+  mask: var(--icon-image) center / contain no-repeat;
+}
+
+.headerActions .ghost:last-child::before,
+.copyButton::before,
+.slotInfo button::before {
+  content: "";
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  margin-right: 5px;
+  vertical-align: -2px;
+  background: currentColor;
+  -webkit-mask: var(--icon-copy) center / contain no-repeat;
+  mask: var(--icon-copy) center / contain no-repeat;
+}
+
+.blotoriEmptyState {
+  position: relative;
+  overflow: hidden;
+  min-height: 560px;
+}
+.blotoriEmptyState::before,
+.blotoriEmptyState::after {
+  content: "";
+  position: absolute;
+  width: 116px;
+  height: 88px;
+  border-radius: 20px;
+  border: 1px solid #d7eaed;
+  background: rgba(255,255,255,.84);
+  box-shadow: 0 14px 28px rgba(49,91,122,.07);
+  pointer-events: none;
+}
+.blotoriEmptyState::before {
+  left: calc(50% - 230px);
+  top: calc(50% - 126px);
+  transform: rotate(-8deg);
+  background:
+    linear-gradient(#69c7d5,#69c7d5) 24px 26px / 43px 7px no-repeat,
+    linear-gradient(#d9ecef,#d9ecef) 24px 43px / 67px 5px no-repeat,
+    linear-gradient(#d9ecef,#d9ecef) 24px 56px / 54px 5px no-repeat,
+    rgba(255,255,255,.9);
+}
+.blotoriEmptyState::after {
+  right: calc(50% - 234px);
+  bottom: calc(50% - 138px);
+  transform: rotate(7deg);
+  background: linear-gradient(145deg, #effafa, #fff6f1);
+}
+
+.blotoriMascotEmpty {
+  width: 138px;
+  height: 138px;
+  padding: 8px;
+  border-radius: 32px;
+  object-fit: cover;
+  object-position: center 33%;
+  background: linear-gradient(145deg, #eaf8fa, #fff1e9);
+  border: 1px solid #d5e9ec;
+  box-shadow: 0 18px 34px rgba(49,91,122,.11);
+  filter: none;
+  z-index: 2;
+}
+
+.blotoriEmptyState > div {
+  position: relative;
+  z-index: 2;
+}
+.blotoriEmptyState > div::before {
+  content: "Aa";
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: #eef9fa;
+  color: var(--blotori-teal);
+  font-size: 13px;
+  font-weight: 900;
+  border: 1px solid #d6e9ec;
+}
+
+.imageSlot .slotArt::before {
+  content: "";
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  background: var(--blotori-teal);
+  -webkit-mask: var(--icon-image) center / contain no-repeat;
+  mask: var(--icon-image) center / contain no-repeat;
+  opacity: .72;
+}
+.slotArt {
+  grid-template-columns: auto auto;
+  align-content: center;
+  justify-content: center;
+}
+
+.loadingMascot {
+  width: 98px;
+  height: 98px;
+  padding: 6px;
+  border-radius: 26px;
+  object-fit: cover;
+  object-position: center 33%;
+  background: linear-gradient(145deg, #eefafa, #fff4ee);
+  border: 1px solid #d6eaed;
+  filter: none;
+}
+
+@media (max-width: 860px) {
+  .brandIntro::after { display: none; }
+  .blotoriMascotTop { width: 52px; height: 52px; border-radius: 16px; }
+  .blotoriEmptyState::before,
+  .blotoriEmptyState::after { opacity: .55; transform: scale(.82); }
+  .blotoriMascotEmpty { width: 108px; height: 108px; }
+}
