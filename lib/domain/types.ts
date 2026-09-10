@@ -1,5 +1,6 @@
 export type PlatformId = "naver" | "tistory" | "blogger" | "wordpress" | "brunch" | "other";
-export type StyleId = "auto" | "custom" | "easy-expert" | "patient-guide" | "professional-column" | "honest-review" | "casual-daily" | "emotional-essay" | "concise-record" | "friendly-info" | "playful";
+export type StyleId = "auto" | "custom" | "easy-expert" | "patient-guide" | "professional-column" | "honest-review" | "casual-daily" | "emotional-essay" | "concise-record" | "friendly-info" | "playful" | "shareable-info";
+export type StyleIntensity = 1 | 2 | 3 | 4 | 5;
 export type StructureId = "auto" | "custom" | "information" | "guide" | "review" | "story" | "faq" | "checklist" | "comparison";
 export type Length = "short" | "medium" | "long";
 export type ImageRole = "HERO" | "CONTEXT" | "EXPLAINER" | "PROCESS" | "TIP" | "CAUTION";
@@ -17,6 +18,7 @@ export interface GenerateRequest {
   attributes: Record<string, string>;
   extraConditions?: string;
   styleId: StyleId;
+  styleIntensity?: StyleIntensity;
   customStyle?: string;
   structureId: StructureId;
   customStructure?: string;
