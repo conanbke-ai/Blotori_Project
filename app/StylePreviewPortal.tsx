@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { getStylePreviewFixture } from "../lib/domain/style-preview-fixtures";
 import type { StyleId, StyleIntensity } from "../lib/domain/types";
 
@@ -13,18 +12,42 @@ const intensityLabel: Record<StyleIntensity, string> = {
   5: "개성 강함",
 };
 
+type AnchorRect = {
+  left: number;
+  top: number;
+  width: number;
+};
+
 function findField(label: string): HTMLElement | null {
   return Array.from(document.querySelectorAll<HTMLElement>("label.field"))
     .find((field) => field.querySelector(":scope > span")?.textContent?.trim() === label) ?? null;
 }
 
+function getAnchorRect(field: HTMLElement): AnchorRect {
+  const rect = field.getBoundingClientRect();
+  const viewportPadding = 12;
+  const preferredWidth = Math.min(Math.max(rect.width, 260), 340);
+  const left = Math.min(
+    Math.max(viewportPadding, rect.left),
+    Math.max(viewportPadding, window.innerWidth - preferredWidth - viewportPadding),
+  );
+
+  return {
+    left,
+    top: Math.min(rect.bottom + 8, Math.max(viewportPadding, window.innerHeight - 330)),
+    width: preferredWidth,
+  };
+}
+
 export default function StylePreviewPortal() {
-  const [target, setTarget] = useState<HTMLElement | null>(null);
+  const [anchor, setAnchor] = useState<AnchorRect | null>(null);
   const [styleId, setStyleId] = useState<StyleId>("auto");
   const [intensity, setIntensity] = useState<StyleIntensity>(3);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     let cleanup: (() => void) | undefined;
+    let observer: MutationObserver | undefined;
 
     const bind = () => {
       const styleField = findField("문체");
@@ -34,38 +57,71 @@ export default function StylePreviewPortal() {
 
       if (!styleField || !intensityField || !styleSelect || !intensitySelect) return false;
 
-      setTarget(intensityField);
       const sync = () => {
         setStyleId(styleSelect.value as StyleId);
         setIntensity(Number(intensitySelect.value || 3) as StyleIntensity);
+        setAnchor(getAnchorRect(intensityField));
       };
+
+      const show = () => {
+        sync();
+        setVisible(true);
+      };
+      const hide = (event: FocusEvent | MouseEvent) => {
+        const next = event.relatedTarget;
+        if (next instanceof Node && (styleField.contains(next) || intensityField.contains(next))) return;
+        setVisible(false);
+      };
+      const reposition = () => setAnchor(getAnchorRect(intensityField));
+
       sync();
       styleSelect.addEventListener("change", sync);
       intensitySelect.addEventListener("change", sync);
+      styleField.addEventListener("focusin", show);
+      intensityField.addEventListener("focusin", show);
+      styleField.addEventListener("mouseenter", show);
+      intensityField.addEventListener("mouseenter", show);
+      styleField.addEventListener("focusout", hide);
+      intensityField.addEventListener("focusout", hide);
+      styleField.addEventListener("mouseleave", hide);
+      intensityField.addEventListener("mouseleave", hide);
+      window.addEventListener("resize", reposition);
+      window.addEventListener("scroll", reposition, true);
+
       cleanup = () => {
         styleSelect.removeEventListener("change", sync);
         intensitySelect.removeEventListener("change", sync);
+        styleField.removeEventListener("focusin", show);
+        intensityField.removeEventListener("focusin", show);
+        styleField.removeEventListener("mouseenter", show);
+        intensityField.removeEventListener("mouseenter", show);
+        styleField.removeEventListener("focusout", hide);
+        intensityField.removeEventListener("focusout", hide);
+        styleField.removeEventListener("mouseleave", hide);
+        intensityField.removeEventListener("mouseleave", hide);
+        window.removeEventListener("resize", reposition);
+        window.removeEventListener("scroll", reposition, true);
       };
       return true;
     };
 
-    if (bind()) return () => cleanup?.();
+    if (!bind()) {
+      observer = new MutationObserver(() => {
+        if (bind()) observer?.disconnect();
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
 
-    const observer = new MutationObserver(() => {
-      if (bind()) observer.disconnect();
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
     return () => {
-      observer.disconnect();
+      observer?.disconnect();
       cleanup?.();
     };
   }, []);
 
-  if (!target) return null;
+  if (!anchor || !visible) return null;
 
   const fixture = getStylePreviewFixture(styleId, intensity);
   const sample = fixture?.samples[intensity];
-
   const content = sample ? (
     <div className="stylePreviewCard" aria-live="polite">
       <div className="stylePreviewHeader">
@@ -86,5 +142,14 @@ export default function StylePreviewPortal() {
   ) : null;
 
   if (!content) return null;
-  return createPortal(<div className="stylePreviewPortalMount">{content}</div>, target);
+
+  return (
+    <div
+      className="stylePreviewFloating"
+      style={{ left: anchor.left, top: anchor.top, width: anchor.width }}
+      aria-hidden={!visible}
+    >
+      {content}
+    </div>
+  );
 }
