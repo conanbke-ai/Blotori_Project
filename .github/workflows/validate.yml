@@ -33,5 +33,8 @@ jobs:
       - name: TypeScript check
         run: npm run lint
 
+      - name: Platform export QA
+        run: npm run qa:platform
+
       - name: Next.js production build
         run: npm run build
