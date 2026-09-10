@@ -59,6 +59,9 @@
 - [x] canonical sheet 기반 Blotori 배경 제거(character cutout) WebP 적용
 - [x] Blotori 투명 app icon/fav icon 적용
 - [x] canonical Blotori 캐릭터 loading motion 적용
+- [x] GitHub Actions `Blotori Validate` 추가
+- [x] CI TypeScript check 통과
+- [x] CI Next.js production build 통과
 - [ ] 실제 전문자료를 `knowledge-base/`에 배치 후 최초 vector store 동기화
 - [ ] 실제 OpenAI API + file_search 응답 통합 QA
 - [ ] 실제 OpenAI API 응답 통합 QA
@@ -125,6 +128,14 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 5. `error` — 오류 원인 + 재시도 가능 상태
 
 생성 중 단계 문구는 실제 별도 AI 호출 단계를 의미하지 않는다. 사용자 대기 경험을 위한 진행 안내이며 AI 호출 원칙은 글 1건당 기본 1회를 유지한다.
+
+## Validation
+
+- GitHub Actions workflow: `.github/workflows/validate.yml`
+- Node 22
+- `npm run lint` = TypeScript `tsc --noEmit`
+- `npm run build` = Next.js production build
+- 2026-09-10 최초 CI run에서 TypeScript check / production build 모두 PASS
 
 ## Guardrails
 
