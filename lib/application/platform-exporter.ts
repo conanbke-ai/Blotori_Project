@@ -31,8 +31,7 @@ function applyHtmlEmphasis(text: string, emphasis: TextEmphasis[] = [], platform
     if (item.kind === "bold") {
       replacement = `<strong style="font-weight:700;">${phrase}</strong>`;
     } else if (item.kind === "accent") {
-      const accent = platformId === "naver" ? "#2D8FA0" : "#2D8FA0";
-      replacement = `<strong style="font-weight:700;color:${accent};">${phrase}</strong>`;
+      replacement = `<strong style="font-weight:700;color:#2D8FA0;">${phrase}</strong>`;
     } else {
       replacement = `<span style="background-color:#FFF0A8;font-weight:600;">${phrase}</span>`;
     }
@@ -52,16 +51,23 @@ function buildImageMap(images: ImagePlan[]) {
 
 function buildPlainBody(draft: BlogDraft, platformId: PlatformId) {
   const imageMap = buildImageMap(draft.images);
+  const regularSections = draft.sections.filter((section) => section.presentation?.visualStyle !== "glossary");
+  const glossarySections = draft.sections.filter((section) => section.presentation?.visualStyle === "glossary");
   const parts: string[] = [draft.title];
 
   for (const image of imageMap.get(null) ?? []) parts.push(imageMarker(image));
   parts.push(...draft.intro);
 
-  for (const section of draft.sections) {
+  for (const section of regularSections) {
     parts.push(section.heading, ...section.paragraphs);
     for (const image of imageMap.get(section.id) ?? []) parts.push(imageMarker(image));
   }
+
   parts.push(...draft.closing);
+
+  for (const section of glossarySections) {
+    parts.push(section.heading, ...section.paragraphs);
+  }
 
   if (platformId === "other") {
     parts.push(`태그: ${draft.tags.map((tag) => `#${tag.replace(/^#/, "")}`).join(" ")}`);
@@ -72,13 +78,13 @@ function buildPlainBody(draft: BlogDraft, platformId: PlatformId) {
 
 function buildNaverRichHtml(draft: BlogDraft) {
   const imageMap = buildImageMap(draft.images);
+  const regularSections = draft.sections.filter((section) => section.presentation?.visualStyle !== "glossary");
+  const glossarySections = draft.sections.filter((section) => section.presentation?.visualStyle === "glossary");
   const body: string[] = [];
   const titleAlign = alignStyle(draft.presentation?.titleAlign);
   const introAlign = alignStyle(draft.presentation?.introAlign);
 
-  body.push(
-    `<div style="${titleAlign}font-size:28px;line-height:1.45;font-weight:700;margin:0 0 28px;">${escapeHtml(draft.title)}</div>`,
-  );
+  body.push(`<div style="${titleAlign}font-size:28px;line-height:1.45;font-weight:700;margin:0 0 28px;">${escapeHtml(draft.title)}</div>`);
 
   for (const image of imageMap.get(null) ?? []) {
     body.push(`<div style="text-align:center;margin:26px 0;color:#6B7C86;"><strong>${escapeHtml(imageMarker(image))}</strong></div>`);
@@ -88,7 +94,7 @@ function buildNaverRichHtml(draft: BlogDraft) {
     body.push(`<div style="${introAlign}font-size:16px;line-height:1.9;margin:0 0 18px;">${escapeHtml(paragraph)}</div>`);
   }
 
-  for (const section of draft.sections) {
+  for (const section of regularSections) {
     const headingAlign = alignStyle(section.presentation?.headingAlign);
     const bodyAlign = alignStyle(section.presentation?.bodyAlign);
     const visualStyle = section.presentation?.visualStyle ?? "standard";
@@ -115,6 +121,15 @@ function buildNaverRichHtml(draft: BlogDraft) {
     body.push(`<div style="font-size:16px;line-height:1.9;margin:0 0 18px;">${escapeHtml(paragraph)}</div>`);
   }
 
+  for (const section of glossarySections) {
+    body.push(`<div style="border-top:1px solid #E7EAED;margin-top:34px;padding-top:14px;color:#7B8794;">`);
+    body.push(`<div style="font-size:12px;font-weight:700;line-height:1.6;margin:0 0 8px;">${escapeHtml(section.heading)}</div>`);
+    for (const paragraph of section.paragraphs) {
+      body.push(`<div style="font-size:11px;line-height:1.7;margin:0 0 6px;">${escapeHtml(paragraph)}</div>`);
+    }
+    body.push(`</div>`);
+  }
+
   return `<div style="font-family:Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#222;">${body.join("")}</div>`;
 }
 
@@ -127,6 +142,8 @@ function buildRichHtml(draft: BlogDraft, platformId: PlatformId) {
   if (platformId === "naver") return buildNaverRichHtml(draft);
 
   const imageMap = buildImageMap(draft.images);
+  const regularSections = draft.sections.filter((section) => section.presentation?.visualStyle !== "glossary");
+  const glossarySections = draft.sections.filter((section) => section.presentation?.visualStyle === "glossary");
   const titleAlign = alignStyle(draft.presentation?.titleAlign);
   const body: string[] = [`<h1 style="${titleAlign}">${escapeHtml(draft.title)}</h1>`];
 
@@ -136,7 +153,7 @@ function buildRichHtml(draft: BlogDraft, platformId: PlatformId) {
 
   for (const paragraph of draft.intro) body.push(`<p style="${alignStyle(draft.presentation?.introAlign)}">${escapeHtml(paragraph)}</p>`);
 
-  for (const section of draft.sections) {
+  for (const section of regularSections) {
     body.push(`<section${sectionClass(section.presentation?.visualStyle)}>`, `<h2 style="${alignStyle(section.presentation?.headingAlign)}">${escapeHtml(section.heading)}</h2>`);
     for (const paragraph of section.paragraphs) {
       body.push(`<p style="${alignStyle(section.presentation?.bodyAlign)}">${applyHtmlEmphasis(paragraph, section.presentation?.emphasis, platformId)}</p>`);
@@ -148,6 +165,13 @@ function buildRichHtml(draft: BlogDraft, platformId: PlatformId) {
   }
 
   for (const paragraph of draft.closing) body.push(`<p>${escapeHtml(paragraph)}</p>`);
+
+  for (const section of glossarySections) {
+    body.push(`<section class="blotori-glossary" style="border-top:1px solid #e7eaed;margin-top:32px;padding-top:14px;color:#7b8794;">`);
+    body.push(`<h2 style="font-size:12px;line-height:1.6;margin:0 0 8px;">${escapeHtml(section.heading)}</h2>`);
+    for (const paragraph of section.paragraphs) body.push(`<p style="font-size:11px;line-height:1.7;margin:0 0 6px;">${escapeHtml(paragraph)}</p>`);
+    body.push("</section>");
+  }
 
   if (platformId === "other") {
     body.push(`<p>${draft.tags.map((tag) => `#${escapeHtml(tag.replace(/^#/, ""))}`).join(" ")}</p>`);
