@@ -105,6 +105,7 @@ export const STYLE_DEFINITIONS: StyleDefinition[] = [
   { id: "concise-record", label: "짧고 담백한 기록형", description: "군더더기 없이 핵심 경험과 정보만 정리" },
   { id: "friendly-info", label: "친근한 정보형", description: "정보 전달과 친근한 블로그 말투를 균형 있게 사용" },
   { id: "playful", label: "가볍고 유쾌한 문체", description: "적당한 리액션과 위트를 살린 밝은 톤" },
+  { id: "shareable-info", label: "저장·공유형 정보 콘텐츠", description: "짧은 문단·핵심 강조·체크 포인트·요약으로 빠르게 읽고 저장하기 좋은 정보형 콘텐츠" },
 ];
 
 export const STRUCTURE_DEFINITIONS: StructureDefinition[] = [
@@ -146,7 +147,7 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     defaultFieldIds: ["event", "mood", "people"],
     presets: [
       { id: "daily-record", label: "일상 기록", description: "하루의 장면과 감정을 자연스럽게 기록", fieldIds: ["event", "mood", "people", "highlight"], recommendedStyleIds: ["casual-daily", "concise-record", "emotional-essay"], recommendedStructureIds: ["story", "information"], suggestedImageRoles: ["HERO", "CONTEXT", "TIP"] },
-      { id: "routine-share", label: "루틴·생활 팁 공유", description: "반복하는 습관이나 루틴을 정리", fieldIds: ["event", "audience", "situation", "highlight"], recommendedStyleIds: ["friendly-info", "casual-daily", "concise-record"], recommendedStructureIds: ["guide", "checklist", "story"], suggestedImageRoles: ["HERO", "PROCESS", "TIP"] },
+      { id: "routine-share", label: "루틴·생활 팁 공유", description: "반복하는 습관이나 루틴을 정리", fieldIds: ["event", "audience", "situation", "highlight"], recommendedStyleIds: ["friendly-info", "shareable-info", "casual-daily"], recommendedStructureIds: ["guide", "checklist", "story"], suggestedImageRoles: ["HERO", "PROCESS", "TIP"] },
     ],
   },
   {
@@ -156,7 +157,7 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     defaultFieldIds: ["destination", "tripType", "highlight"],
     presets: [
       { id: "travel-review", label: "여행·장소 후기", description: "직접 다녀온 경험을 중심으로 정리", fieldIds: ["destination", "tripType", "duration", "people", "highlight"], recommendedStyleIds: ["casual-daily", "emotional-essay", "friendly-info"], recommendedStructureIds: ["story", "review", "guide"], suggestedImageRoles: ["HERO", "CONTEXT", "PROCESS", "TIP"] },
-      { id: "destination-guide", label: "여행지 가이드", description: "장소 정보와 방문 팁 중심", fieldIds: ["destination", "tripType", "duration", "audience", "highlight"], recommendedStyleIds: ["friendly-info", "concise-record", "easy-expert"], recommendedStructureIds: ["guide", "checklist", "information"], suggestedImageRoles: ["HERO", "CONTEXT", "EXPLAINER", "TIP"] },
+      { id: "destination-guide", label: "여행지 가이드", description: "장소 정보와 방문 팁 중심", fieldIds: ["destination", "tripType", "duration", "audience", "highlight"], recommendedStyleIds: ["friendly-info", "shareable-info", "easy-expert"], recommendedStructureIds: ["guide", "checklist", "information"], suggestedImageRoles: ["HERO", "CONTEXT", "EXPLAINER", "TIP"] },
     ],
   },
   {
@@ -175,8 +176,8 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     description: "개념, 강의, 책, 자료를 읽기 쉽게 재구성",
     defaultFieldIds: ["material", "audience", "learningGoal"],
     presets: [
-      { id: "concept-summary", label: "개념 정리", description: "어려운 개념을 단계적으로 설명", fieldIds: ["material", "difficulty", "audience", "learningGoal", "keywords"], recommendedStyleIds: ["easy-expert", "friendly-info", "professional-column"], recommendedStructureIds: ["information", "guide", "faq"], suggestedImageRoles: ["HERO", "EXPLAINER", "PROCESS", "TIP"] },
-      { id: "material-summary", label: "교육자료 요약·정리", description: "자료 내용을 독자 수준에 맞춰 재구성", fieldIds: ["material", "difficulty", "audience", "learningGoal", "keywords"], recommendedStyleIds: ["easy-expert", "concise-record", "professional-column"], recommendedStructureIds: ["information", "checklist", "guide"], suggestedImageRoles: ["HERO", "EXPLAINER", "TIP"] },
+      { id: "concept-summary", label: "개념 정리", description: "어려운 개념을 단계적으로 설명", fieldIds: ["material", "difficulty", "audience", "learningGoal", "keywords"], recommendedStyleIds: ["easy-expert", "shareable-info", "friendly-info"], recommendedStructureIds: ["information", "guide", "faq"], suggestedImageRoles: ["HERO", "EXPLAINER", "PROCESS", "TIP"] },
+      { id: "material-summary", label: "교육자료 요약·정리", description: "자료 내용을 독자 수준에 맞춰 재구성", fieldIds: ["material", "difficulty", "audience", "learningGoal", "keywords"], recommendedStyleIds: ["easy-expert", "shareable-info", "concise-record"], recommendedStructureIds: ["information", "checklist", "guide"], suggestedImageRoles: ["HERO", "EXPLAINER", "TIP"] },
     ],
   },
   {
@@ -186,7 +187,7 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     defaultFieldIds: ["activity", "experienceLevel", "highlight"],
     presets: [
       { id: "experience-share", label: "경험 공유", description: "직접 해본 경험과 느낌을 중심으로 작성", fieldIds: ["activity", "experienceLevel", "people", "highlight"], recommendedStyleIds: ["casual-daily", "honest-review", "emotional-essay"], recommendedStructureIds: ["story", "review", "information"], suggestedImageRoles: ["HERO", "CONTEXT", "TIP"] },
-      { id: "recommendation", label: "추천·입문 가이드", description: "처음 시작하는 독자에게 추천과 팁 제공", fieldIds: ["activity", "experienceLevel", "audience", "highlight"], recommendedStyleIds: ["friendly-info", "easy-expert", "casual-daily"], recommendedStructureIds: ["guide", "checklist", "information"], suggestedImageRoles: ["HERO", "EXPLAINER", "PROCESS", "TIP"] },
+      { id: "recommendation", label: "추천·입문 가이드", description: "처음 시작하는 독자에게 추천과 팁 제공", fieldIds: ["activity", "experienceLevel", "audience", "highlight"], recommendedStyleIds: ["friendly-info", "shareable-info", "easy-expert"], recommendedStructureIds: ["guide", "checklist", "information"], suggestedImageRoles: ["HERO", "EXPLAINER", "PROCESS", "TIP"] },
     ],
   },
   {
