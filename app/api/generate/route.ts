@@ -1,0 +1,37 @@
+import { NextResponse } from "next/server";
+import { generateBlogDraft } from "../../../lib/application/generate-blog-draft";
+import type { GenerateRequest } from "../../../lib/domain/types";
+
+export const runtime = "nodejs";
+
+function isValidInput(input: Partial<GenerateRequest>): input is GenerateRequest {
+  return Boolean(
+    input.ageGroup &&
+      input.bodyPart &&
+      input.treatmentMethod &&
+      input.posture &&
+      input.tone &&
+      input.length &&
+      Number.isInteger(input.imageCount) &&
+      Number(input.imageCount) >= 2 &&
+      Number(input.imageCount) <= 5,
+  );
+}
+
+export async function POST(request: Request) {
+  try {
+    const input = (await request.json()) as Partial<GenerateRequest>;
+    if (!isValidInput(input)) {
+      return NextResponse.json({ error: "필수 입력값 또는 이미지 개수를 확인해 주세요." }, { status: 400 });
+    }
+
+    const result = await generateBlogDraft(input);
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "생성 중 오류가 발생했습니다." },
+      { status: 500 },
+    );
+  }
+}
