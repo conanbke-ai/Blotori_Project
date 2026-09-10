@@ -29,7 +29,7 @@ export function findRiskyExpressions(draft: BlogDraft): string[] {
 }
 
 export function normalizeImagePlans(images: ImagePlan[], maxImages: number): ImagePlan[] {
-  const roleOrder = ["HERO", "POSTURE", "BODY", "TREATMENT", "TIP", "CAUTION"];
+  const roleOrder = ["HERO", "CONTEXT", "EXPLAINER", "PROCESS", "TIP", "CAUTION"];
   return images
     .slice(0, Math.max(1, Math.min(6, maxImages)))
     .sort((a, b) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role))

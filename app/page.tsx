@@ -4,18 +4,29 @@ import { useMemo, useState, type ReactNode } from "react";
 import type { BlogDraft, GenerateRequest, ImagePlan, Tone, Length } from "../lib/domain/types";
 
 const initialForm: GenerateRequest = {
-  ageGroup: "30대",
-  bodyPart: "목·어깨",
-  treatmentMethod: "도수치료",
-  posture: "장시간 컴퓨터 사용",
+  topic: "",
+  category: "",
+  ageGroup: "",
+  bodyPart: "",
+  treatmentMethod: "",
+  posture: "",
   tone: "friendly",
   length: "medium",
   imageCount: 4,
   clinicNote: "",
 };
 
-const toneLabel: Record<Tone, string> = { friendly: "친절한 설명형", professional: "전문 정보형", warm: "부드러운 상담형" };
-const lengthLabel: Record<Length, string> = { short: "짧게", medium: "보통", long: "길게" };
+const toneLabel: Record<Tone, string> = {
+  friendly: "친절한 설명형",
+  professional: "전문 정보형",
+  warm: "부드러운 상담형",
+};
+
+const lengthLabel: Record<Length, string> = {
+  short: "짧게",
+  medium: "보통",
+  long: "길게",
+};
 
 function imagePlaceholder(image: ImagePlan) {
   return `\n[${image.id} 삽입]\n위치: ${image.placement}\n권장: ${image.size} · ${image.ratio}\n`;
@@ -41,7 +52,7 @@ function buildPlainText(draft: BlogDraft) {
 }
 
 export default function Home() {
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState<GenerateRequest>(initialForm);
   const [draft, setDraft] = useState<BlogDraft | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -59,6 +70,11 @@ export default function Home() {
   }, [draft]);
 
   async function generate() {
+    if (!form.topic.trim()) {
+      setError("핵심 주제를 입력해 주세요.");
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {
@@ -113,7 +129,7 @@ export default function Home() {
         <div>
           <div className="eyebrow">NAVER BLOG CONTENT COMPOSER</div>
           <h1>건강정보 블로그를 한 번에 구성하세요.</h1>
-          <p>본문·소제목·이미지 프롬프트·삽입 위치를 1회 생성하고, 마지막 편집은 직접 가볍게.</p>
+          <p>핵심 주제만 정하고, 필요한 조건만 선택적으로 더해 본문·이미지 프롬프트·삽입 위치를 함께 구성합니다.</p>
         </div>
         <div className="costBadge"><span>AI 기본 호출</span><strong>1회 / 글</strong></div>
       </header>
@@ -122,26 +138,54 @@ export default function Home() {
         <aside className="panel controls">
           <div className="panelHeader">
             <div><span className="step">01</span><h2>콘텐츠 설정</h2></div>
-            <span className="subtle">필수 조건만 선택</span>
+            <span className="subtle">주제만 필수</span>
           </div>
 
-          <Field label="연령대">
-            <select value={form.ageGroup} onChange={(e) => setForm({ ...form, ageGroup: e.target.value })}>
-              {["20대", "30대", "40대", "50대", "60대 이상"].map((v) => <option key={v}>{v}</option>)}
+          <Field label="핵심 주제 *">
+            <input
+              value={form.topic}
+              onChange={(e) => setForm({ ...form, topic: e.target.value })}
+              placeholder="예: 거북목이 생기는 이유, 허리 통증과 생활습관"
+            />
+          </Field>
+
+          <Field label="카테고리 (선택)">
+            <input
+              value={form.category ?? ""}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              placeholder="아직 미정이면 비워두세요"
+            />
+          </Field>
+
+          <Field label="대상 연령대 (선택)">
+            <select value={form.ageGroup ?? ""} onChange={(e) => setForm({ ...form, ageGroup: e.target.value })}>
+              <option value="">지정 안 함</option>
+              {["10대", "20대", "30대", "40대", "50대", "60대 이상"].map((v) => <option key={v}>{v}</option>)}
             </select>
           </Field>
-          <Field label="치료·관심 부위">
-            <select value={form.bodyPart} onChange={(e) => setForm({ ...form, bodyPart: e.target.value })}>
-              {["목·어깨", "허리", "골반", "무릎", "손목·팔꿈치", "발목·발"].map((v) => <option key={v}>{v}</option>)}
-            </select>
+
+          <Field label="치료·관심 부위 (선택)">
+            <input
+              value={form.bodyPart ?? ""}
+              onChange={(e) => setForm({ ...form, bodyPart: e.target.value })}
+              placeholder="예: 목·어깨, 허리 / 필요 없으면 비움"
+            />
           </Field>
-          <Field label="치료·관리 방법">
-            <select value={form.treatmentMethod} onChange={(e) => setForm({ ...form, treatmentMethod: e.target.value })}>
-              {["도수치료", "물리치료", "운동치료", "자세교육", "스트레칭 관리"].map((v) => <option key={v}>{v}</option>)}
-            </select>
+
+          <Field label="치료·관리 방법 (선택)">
+            <input
+              value={form.treatmentMethod ?? ""}
+              onChange={(e) => setForm({ ...form, treatmentMethod: e.target.value })}
+              placeholder="예: 도수치료 / 정하지 않았으면 비움"
+            />
           </Field>
-          <Field label="자세·생활 상황">
-            <input value={form.posture} onChange={(e) => setForm({ ...form, posture: e.target.value })} placeholder="예: 장시간 컴퓨터 사용" />
+
+          <Field label="자세·생활 상황 (선택)">
+            <input
+              value={form.posture ?? ""}
+              onChange={(e) => setForm({ ...form, posture: e.target.value })}
+              placeholder="예: 장시간 컴퓨터 사용 / 필요 없으면 비움"
+            />
           </Field>
 
           <div className="splitRow">
@@ -161,13 +205,21 @@ export default function Home() {
             <input type="range" min="2" max="5" value={form.imageCount} onChange={(e) => setForm({ ...form, imageCount: Number(e.target.value) })} />
             <div className="rangeLegend"><span>2</span><span>3</span><span>4</span><span>5</span></div>
           </Field>
+
           <Field label="추가 메모 (선택)">
-            <textarea value={form.clinicNote} onChange={(e) => setForm({ ...form, clinicNote: e.target.value })} placeholder="예: 너무 광고처럼 쓰지 말 것, 생활관리 팁 강조" rows={3} />
+            <textarea
+              value={form.clinicNote ?? ""}
+              onChange={(e) => setForm({ ...form, clinicNote: e.target.value })}
+              placeholder="예: 너무 광고처럼 쓰지 말 것, 생활관리 팁 강조"
+              rows={3}
+            />
           </Field>
 
-          <button className="primary" onClick={generate} disabled={loading}>{loading ? "구성 중…" : "✦ 블로그 콘텐츠 생성"}</button>
+          <button className="primary" onClick={generate} disabled={loading || !form.topic.trim()}>
+            {loading ? "구성 중…" : "✦ 블로그 콘텐츠 생성"}
+          </button>
           {error && <div className="errorBox">{error}</div>}
-          <p className="hint">API 키가 없으면 샘플 모드로 동작합니다. 실제 이미지 생성 API는 호출하지 않습니다.</p>
+          <p className="hint">비어 있는 선택 조건은 AI가 임의로 추측하지 않습니다. API 키가 없으면 샘플 모드로 동작하며 실제 이미지 생성 API는 호출하지 않습니다.</p>
         </aside>
 
         <section className="panel previewPanel">
@@ -182,9 +234,9 @@ export default function Home() {
           {!draft ? (
             <div className="emptyState">
               <div className="emptyIcon">✦</div>
-              <h3>설정을 고르고 콘텐츠를 생성해 보세요.</h3>
-              <p>이미지 프롬프트와 정확한 삽입 위치까지 한 번에 표시됩니다.</p>
-              <div className="flow"><span>조건 입력</span><b>→</b><span>AI 1회</span><b>→</b><span>원고 + 이미지 가이드</span></div>
+              <h3>먼저 쓰고 싶은 주제를 입력해 주세요.</h3>
+              <p>카테고리나 치료방법이 아직 정해지지 않았다면 비워둔 채 시작해도 됩니다.</p>
+              <div className="flow"><span>주제 입력</span><b>→</b><span>AI 1회</span><b>→</b><span>원고 + 이미지 가이드</span></div>
             </div>
           ) : (
             <div className="previewLayout">

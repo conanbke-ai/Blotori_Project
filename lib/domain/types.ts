@@ -1,12 +1,14 @@
 export type Tone = "friendly" | "professional" | "warm";
 export type Length = "short" | "medium" | "long";
-export type ImageRole = "HERO" | "POSTURE" | "BODY" | "TREATMENT" | "TIP" | "CAUTION";
+export type ImageRole = "HERO" | "CONTEXT" | "EXPLAINER" | "PROCESS" | "TIP" | "CAUTION";
 
 export interface GenerateRequest {
-  ageGroup: string;
-  bodyPart: string;
-  treatmentMethod: string;
-  posture: string;
+  topic: string;
+  category?: string;
+  ageGroup?: string;
+  bodyPart?: string;
+  treatmentMethod?: string;
+  posture?: string;
   tone: Tone;
   length: Length;
   imageCount: number;

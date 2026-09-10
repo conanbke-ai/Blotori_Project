@@ -6,10 +6,7 @@ export const runtime = "nodejs";
 
 function isValidInput(input: Partial<GenerateRequest>): input is GenerateRequest {
   return Boolean(
-    input.ageGroup &&
-      input.bodyPart &&
-      input.treatmentMethod &&
-      input.posture &&
+    input.topic?.trim() &&
       input.tone &&
       input.length &&
       Number.isInteger(input.imageCount) &&
@@ -22,7 +19,7 @@ export async function POST(request: Request) {
   try {
     const input = (await request.json()) as Partial<GenerateRequest>;
     if (!isValidInput(input)) {
-      return NextResponse.json({ error: "필수 입력값 또는 이미지 개수를 확인해 주세요." }, { status: 400 });
+      return NextResponse.json({ error: "핵심 주제와 이미지 개수를 확인해 주세요." }, { status: 400 });
     }
 
     const result = await generateBlogDraft(input);
