@@ -16,6 +16,7 @@
 - 일반 독자용 전문용어 footnote / glossary 생성·정규화·플랫폼 export QA
 - 건강·의료 전문자료 Knowledge Base / OpenAI File Search RAG 통합 QA
 - Knowledge source manifest / 라이선스 게이트 / 상용·연구 profile 분리 QA
+- 외부 생성 이미지 슬롯 drag/drop + 로컬 미리보기 UX
 
 ## V1 scope
 
@@ -68,6 +69,12 @@
 - [x] GitHub Actions `Blotori Validate` 추가
 - [x] CI TypeScript check 통과
 - [x] CI Next.js production build 통과
+- [x] 사용자 생성 이미지 슬롯 업로드/미리보기
+- [x] 슬롯별 클릭 파일 선택 + drag/drop
+- [x] PNG/JPG/WebP 제한 + 15MB 파일 크기 제한
+- [x] 업로드 이미지 실제 비율 미리보기 + 교체/삭제
+- [x] 새 원고 생성 시 이전 Object URL 정리
+- [x] 이미지 슬롯 변경 CI TypeScript / production build 통과
 - [ ] 실제 허용 전문자료를 `knowledge-base/`에 배치 후 `knowledge:plan` 검증
 - [ ] 최초 commercial vector store 동기화
 - [ ] 실제 OpenAI API + file_search 응답 통합 QA
@@ -75,7 +82,6 @@
 - [ ] 실제 네이버 스마트에디터 복붙 보존 테스트
 - [ ] rich clipboard 플랫폼 실제 붙여넣기 검증
 - [ ] glossary가 포함된 실제 API 응답 / 네이버 붙여넣기 QA
-- [ ] 사용자 생성 이미지 슬롯 업로드/미리보기
 - [ ] desktop / tablet / mobile visual acceptance
 
 ## Writing style intensity
@@ -139,6 +145,15 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 
 생성 중 단계 문구는 실제 별도 AI 호출 단계를 의미하지 않는다. 사용자 대기 경험을 위한 진행 안내이며 AI 호출 원칙은 글 1건당 기본 1회를 유지한다.
 
+## Image slot local preview
+
+- 외부에서 ChatGPT/Gemini 등으로 생성한 이미지를 각 `IMG-XX` 슬롯에 바로 넣어 최종 게시물 배치를 확인한다.
+- V1에서는 이미지 파일을 서버에 저장하지 않고 브라우저 Object URL로만 미리보기한다.
+- 허용 파일: PNG/JPG/WebP, 한 장당 최대 15MB.
+- 슬롯 클릭 또는 drag/drop으로 등록하고 `교체`/`삭제`가 가능하다.
+- 새 글 생성 시작 시 기존 local preview를 정리해 이전 글 이미지가 새 글에 남지 않게 한다.
+- 실제 게시 시 플랫폼 업로더에는 사용자가 원본 파일을 직접 올린다.
+
 ## Validation
 
 - GitHub Actions workflow: `.github/workflows/validate.yml`
@@ -146,6 +161,7 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - `npm run lint` = TypeScript `tsc --noEmit`
 - `npm run build` = Next.js production build
 - 2026-09-10 최초 CI run에서 TypeScript check / production build 모두 PASS
+- 이미지 슬롯 업로드 적용 commit `a0658f75ed03d7a86d2a745d725976999d352629`도 TypeScript check / production build PASS
 
 ## Guardrails
 
@@ -158,4 +174,5 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - 승인된 Blotori canonical 캐릭터를 새로 생성한 유사 캐릭터로 대체하지 않는다.
 - common paw shape를 프로젝트별로 재해석하지 않는다.
 - 캐릭터 cutout은 canonical sheet의 캐릭터 픽셀을 유지하고 배경/주변 sheet 요소만 제거한다.
+- 사용자 local preview 이미지는 브라우저 세션용이며 서버 업로드/영구 저장으로 간주하지 않는다.
 - 코드 구현 완료를 visual acceptance로 간주하지 않는다.
