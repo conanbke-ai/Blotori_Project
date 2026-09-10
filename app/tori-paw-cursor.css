@@ -1,0 +1,71 @@
+/* Blotori derivative of the common TORI paw cursor.
+ * The visual layer follows the pointer; native text cursors remain untouched.
+ */
+
+.toriPawCursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  z-index: 9999;
+  pointer-events: none;
+  transform-origin: 50% 35%;
+  margin-left: -9px;
+  margin-top: -7px;
+  will-change: transform;
+}
+
+.toriPawCursor img {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 5px rgba(49, 91, 122, .13));
+  transition: transform 80ms ease, filter 80ms ease;
+  user-select: none;
+}
+
+.toriPawCursor.pressed img {
+  transform: translateY(3px) scaleX(1.08) scaleY(.82);
+  filter: drop-shadow(0 1px 3px rgba(49, 91, 122, .12));
+}
+
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  body,
+  .appShell,
+  .panel,
+  .blogPaper,
+  .imageSlot,
+  button,
+  a,
+  [role='button'],
+  select,
+  input[type='checkbox'],
+  input[type='radio'],
+  input[type='range'] {
+    cursor: none !important;
+  }
+
+  input[type='text'],
+  input:not([type]),
+  input[type='search'],
+  input[type='email'],
+  input[type='url'],
+  input[type='number'],
+  textarea,
+  [contenteditable='true'],
+  [role='textbox'],
+  .titleEdit,
+  .summaryEdit,
+  .sectionHeadingEdit,
+  .promptEdit,
+  .promptTextarea,
+  .tagsEditing input {
+    cursor: text !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  .toriPawCursor { display: none !important; }
+}
