@@ -5,14 +5,12 @@ export default function ErrorScreen({ error, reset }: { error: Error & { digest?
     <main className="blotoriRouteLoading">
       <section className="blotoriStateCard" role="alert">
         <div className="blotoriStateEyebrow">BLOTORI · ERROR</div>
-        <div className="blotoriPawLoader" aria-hidden="true">
-          <span className="pawToe toe1" />
-          <span className="pawToe toe2" />
-          <span className="pawToe toe3" />
-          <span className="pawToe toe4" />
-          <span className="pawPad" />
-          <span className="pawSpark">!</span>
-        </div>
+        <img
+          className="loadingMascot"
+          src="/blotori-character-transparent.webp"
+          alt="블로토리"
+          style={{ animation: "none", margin: "0 auto 14px" }}
+        />
         <h2>작업 노트가 잠깐 꼬였어요.</h2>
         <p>{error.message || "화면을 불러오는 중 문제가 생겼습니다."}</p>
         <div className="appErrorActions">
