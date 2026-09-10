@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import ImageSlotUploadEnhancer from "./ImageSlotUploadEnhancer";
 import StylePreviewPortal from "./StylePreviewPortal";
 import ToriPawCursor from "./ToriPawCursor";
 import "./globals.css";
@@ -8,6 +9,7 @@ import "./blotori-states.css";
 import "./blotori-ui-enhancements.css";
 import "./style-preview.css";
 import "./glossary.css";
+import "./image-slot-upload.css";
 import "./tori-paw-cursor.css";
 
 export const metadata: Metadata = {
@@ -25,6 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html lang="ko">
       <body>
         {children}
+        <ImageSlotUploadEnhancer />
         <StylePreviewPortal />
         <ToriPawCursor />
       </body>
