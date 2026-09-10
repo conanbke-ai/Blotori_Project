@@ -16,6 +16,7 @@
 - 일반 독자용 전문용어 footnote / glossary 생성·정규화·플랫폼 export QA
 - 건강·의료 전문자료 Knowledge Base / OpenAI File Search RAG 통합 QA
 - Knowledge source manifest / 라이선스 게이트 / 상용·연구 profile 분리 QA
+- Knowledge Base canonical 디렉터리 확장 + 로컬 자동 분류/정리 QA
 
 ## V1 scope
 
@@ -51,6 +52,12 @@
 - [x] manifest 미등록·검토중·비상업 자료 기본 색인 차단
 - [x] `knowledge:plan` dry-run 포함/제외 사전검증
 - [x] vector-store file source/evidence metadata 기록
+- [x] Knowledge Base 확장 canonical 구조 정의
+- [x] `knowledge:organize:plan` 로컬 파일 이동 사전검증
+- [x] `knowledge:organize` source_id/manifest/키워드 기반 자동 분류
+- [x] 미분류 파일 `_incoming/unclassified` 보존
+- [x] `RESEARCH_ONLY` 파일 `_research-only` 분리
+- [x] 기존 `.url` 출처 링크 `_meta/source-links` 분리
 - [x] Blotori character canonical lock
 - [x] Blotori TORI Family 디자인 토큰/테마
 - [x] TORI common paw canonical 공통 저장소 등록
@@ -68,7 +75,10 @@
 - [x] GitHub Actions `Blotori Validate` 추가
 - [x] CI TypeScript check 통과
 - [x] CI Next.js production build 통과
-- [ ] 실제 허용 전문자료를 `knowledge-base/`에 배치 후 `knowledge:plan` 검증
+- [ ] 로컬 `knowledge-base/`에서 `npm run knowledge:organize:plan` 확인
+- [ ] 로컬 `knowledge-base/`에서 `npm run knowledge:organize` 실제 이동
+- [ ] `_incoming/unclassified` 잔여 파일 수동 확인 및 SOURCES.csv 보완
+- [ ] 실제 허용 전문자료 `knowledge:plan` 검증
 - [ ] 최초 commercial vector store 동기화
 - [ ] 실제 OpenAI API + file_search 응답 통합 QA
 - [ ] 실제 OpenAI API 응답 통합 QA
@@ -112,7 +122,19 @@
 - `REVIEW_REQUIRED`, `RESEARCH_ONLY`, `EXCLUDE`, manifest 미등록 자료는 기본 상용 색인에서 제외한다.
 - `research` profile은 명시적으로 허용된 연구용 자료까지 포함할 수 있으나 상용 vector store와 분리한다.
 
-상세 기준: `docs/BLOTORI_RAG_KNOWLEDGE_BASE_STANDARD.md`
+### Canonical local layout
+
+- `rehabilitation`: guidelines / anatomy-kinesiology / cervical-neck / thoracic / shoulder / lumbar / hip-pelvis / knee / ankle-foot / posture / exercise
+- `patient-education`: general / behavior-change / health-literacy
+- `pain-science`: chronic-pain / central-sensitization / multimodal
+- `seo`: naver / tistory / wordpress / writing-psychology
+- `_research-only`: 상용 색인 제외 연구자료
+- `_incoming/unclassified`: 자동 분류 불확실 자료
+- `_meta/source-links`: 원문 출처 링크
+
+정리 명령: `npm run knowledge:organize:plan` → `npm run knowledge:organize`
+
+상세 기준: `docs/BLOTORI_RAG_KNOWLEDGE_BASE_STANDARD.md`, `knowledge-base/README.md`
 
 ## Common TORI dependency
 
