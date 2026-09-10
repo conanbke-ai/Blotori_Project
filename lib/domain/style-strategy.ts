@@ -1,8 +1,9 @@
-import type { StyleId } from "./types";
+import type { StyleId, StyleIntensity } from "./types";
 
 export interface StyleStrategy {
   id: Exclude<StyleId, "auto" | "custom">;
   fingerprint: string;
+  intensityAxis: string;
   titleRule: string;
   introRule: string;
   headingRule: string;
@@ -13,10 +14,19 @@ export interface StyleStrategy {
   avoidRule: string;
 }
 
+const intensityLabels: Record<StyleIntensity, string> = {
+  1: "절제됨",
+  2: "부드러움",
+  3: "자연스러움",
+  4: "적극적",
+  5: "개성 강함",
+};
+
 const strategies: StyleStrategy[] = [
   {
     id: "easy-expert",
     fingerprint: "전문 내용은 정확하게 유지하되, 비전문가가 읽다가 멈추지 않도록 어려운 말을 바로 풀어주는 쉬운 전문 설명형.",
+    intensityAxis: "강도가 높을수록 쉬운 재설명, 생활 예시, 정확한 비유와 독자 친화적인 해설을 더 자주 사용한다. 전문성 자체를 낮추지는 않는다.",
     titleRule: "핵심 정보가 무엇인지 바로 보이게 쓰되 논문·교재 제목처럼 딱딱하게 만들지 않는다. 전문용어가 꼭 필요하면 쉬운 표현과 함께 배치한다.",
     introRule: "독자가 왜 이 내용을 알아야 하는지 생활 속 상황이나 흔한 궁금증으로 2~4문장 안에 연결한다. 정의부터 시작하는 백과사전식 도입은 피한다.",
     headingRule: "소제목은 개념명만 던지지 말고 '왜 이런 차이가 생길까요?', '먼저 이 부분부터 보면 쉬워요'처럼 독자가 다음 내용을 예상할 수 있게 쓴다.",
@@ -29,6 +39,7 @@ const strategies: StyleStrategy[] = [
   {
     id: "patient-guide",
     fingerprint: "불안감을 낮추면서 무엇을 어떻게 확인하면 되는지 순서대로 알려주는 차분한 안내·교육형.",
+    intensityAxis: "강도가 높을수록 단계 안내, 확인 포인트, 행동 기준과 주의 조건을 더 명료하게 구조화한다. 공포감이나 명령조를 강화하지 않는다.",
     titleRule: "겁을 주거나 결과를 단정하지 않는다. 독자가 무엇을 확인하고 이해하게 될지 제목에서 차분하게 드러낸다.",
     introRule: "'이런 상황이면 당황할 수 있어요'처럼 독자의 상황을 짚은 뒤, 이번 글에서 확인할 내용을 부드럽게 안내한다. 공포를 키우는 증상 나열로 시작하지 않는다.",
     headingRule: "'먼저 확인할 점', '이럴 때는 어떻게 할까요?', '집에서 기억해둘 부분'처럼 행동 순서가 보이는 안내형 소제목을 쓴다.",
@@ -41,6 +52,7 @@ const strategies: StyleStrategy[] = [
   {
     id: "professional-column",
     fingerprint: "논점과 근거의 흐름이 분명하고, 감탄보다 해석과 맥락을 앞세우는 밀도 있는 전문가 칼럼형.",
+    intensityAxis: "강도가 높을수록 논점, 근거, 반론, 조건 구분과 해석의 밀도를 높인다. 유머, 이모지, 과장된 친근체는 강도와 무관하게 늘리지 않는다.",
     titleRule: "핵심 논점이나 관점을 압축해 드러낸다. 가벼운 말장난, 질문 남발, 클릭베이트는 사용하지 않는다.",
     introRule: "현상·문제·오해 중 하나를 짚고 왜 이 문제를 다시 봐야 하는지 제시한다. 개인적인 잡담으로 길게 시작하지 않는다.",
     headingRule: "소제목은 논리 단계가 드러나도록 쓴다. '원인', '해결법' 같은 한 단어보다 '문제는 강도가 아니라 적용 조건에 있습니다'처럼 주장형도 허용한다.",
@@ -53,6 +65,7 @@ const strategies: StyleStrategy[] = [
   {
     id: "honest-review",
     fingerprint: "직접 써본 사람이 장점과 아쉬움을 숨기지 않고 구체적인 경험으로 말하는 솔직한 후기형.",
+    intensityAxis: "강도가 높을수록 경험 장면, 관찰, 개인 반응, 장단점과 조건의 구체성을 높인다. 체험하지 않은 사실을 만들어내지는 않는다.",
     titleRule: "사용 기간·상황·핵심 평가가 자연스럽게 보이도록 한다. '인생템', '무조건 추천'처럼 광고성 과장은 피한다.",
     introRule: "왜 사용하거나 방문하게 됐는지 짧은 계기와 첫인상으로 시작한다. 제품 설명서나 업체 소개부터 길게 쓰지 않는다.",
     headingRule: "'써보니 제일 먼저 느낀 점', '좋았지만 여기선 아쉬웠어요', '이런 분께는 잘 맞을 듯해요'처럼 실제 경험 흐름이 드러나게 쓴다.",
@@ -65,6 +78,7 @@ const strategies: StyleStrategy[] = [
   {
     id: "casual-daily",
     fingerprint: "친구에게 오늘 있었던 일을 들려주듯 편하고 생활감 있게 이어지는 자연스러운 일상형.",
+    intensityAxis: "강도가 높을수록 생활감, 구어적 연결, 사소한 관찰과 짧은 개인 반응을 더 자주 살린다. 의미 없는 감탄사만 늘리지는 않는다.",
     titleRule: "거창한 정보 키워드보다 그날의 장면·행동·작은 사건이 느껴지는 자연스러운 제목을 쓴다.",
     introRule: "시간, 장소, 계기, 작은 사건 중 하나로 바로 시작한다. '오늘은 ~에 대해 소개해드리겠습니다' 같은 콘텐츠 선언문은 금지한다.",
     headingRule: "소제목이 필요하다면 '점심 먹고 슬쩍 들러봤어요', '여기서 생각보다 오래 머문 이유'처럼 이야기 흐름을 끊지 않게 쓴다. 짧은 글이면 소제목 수를 줄여도 된다.",
@@ -77,6 +91,7 @@ const strategies: StyleStrategy[] = [
   {
     id: "emotional-essay",
     fingerprint: "정보보다 장면과 감정의 여운을 앞세우고, 부드러운 호흡으로 읽히는 감성 에세이형.",
+    intensityAxis: "강도가 높을수록 장면 묘사, 감각, 감정의 결, 문장 호흡과 여운을 선명하게 한다. 과장된 시적 표현으로 치환하지 않는다.",
     titleRule: "핵심 키워드를 억지로 다 넣기보다 장면·감정·여운이 남는 짧은 문장을 우선한다.",
     introRule: "구체적인 장면, 감각, 기억, 순간의 감정으로 시작한다. 정의나 목차 예고로 시작하지 않는다.",
     headingRule: "소제목은 많지 않게 사용하고, 사용한다면 장면 전환이나 감정의 변화처럼 읽히게 쓴다.",
@@ -89,6 +104,7 @@ const strategies: StyleStrategy[] = [
   {
     id: "concise-record",
     fingerprint: "군더더기 없이 핵심 사실과 경험만 빠르게 읽히는 짧고 담백한 기록형.",
+    intensityAxis: "강도가 높을수록 문장을 더 압축하고 직접적으로 만들며 중복과 수식어를 더 강하게 제거한다. 정보 자체를 생략해 불완전하게 만들지는 않는다.",
     titleRule: "짧고 직접적으로 쓴다. 불필요한 수식어와 질문형 낚시 제목은 피한다.",
     introRule: "배경 설명을 길게 하지 않고 주제·상황·핵심 결론 중 하나로 바로 들어간다.",
     headingRule: "짧은 명사형 또는 한 줄 결론형 소제목을 사용한다. 소제목 자체가 길어지지 않게 한다.",
@@ -101,6 +117,7 @@ const strategies: StyleStrategy[] = [
   {
     id: "friendly-info",
     fingerprint: "정보는 또렷하지만 옆에서 알려주듯 편안해서 안내문이나 교과서처럼 느껴지지 않는 친근한 정보형.",
+    intensityAxis: "강도가 높을수록 독자 말걸기, 질문형 소제목, 쉬운 풀이와 예시를 더 적극적으로 사용한다. 유머 자체를 주목적으로 만들지는 않는다.",
     titleRule: "정보 이득이 보이면서도 말투는 부드럽게 한다. '총정리', '완벽 가이드' 같은 상투어는 꼭 필요한 경우가 아니면 피한다.",
     introRule: "독자가 겪을 법한 상황이나 질문을 먼저 꺼내고 '그래서 오늘은 이 부분을 쉽게 정리해볼게요' 정도의 자연스러운 연결을 허용한다.",
     headingRule: "'여기서 많이 헷갈려요', '먼저 이것부터 볼까요?', '생각보다 중요한 건 이 부분이에요'처럼 자연스러운 문장형 소제목을 적극 허용한다.",
@@ -113,28 +130,58 @@ const strategies: StyleStrategy[] = [
   {
     id: "playful",
     fingerprint: "정보는 제대로 주되 읽는 동안 말맛·리액션·생활 비유가 계속 살아 있어 '재밌게 읽히는 블로그'라는 인상이 분명한 가볍고 유쾌한 문체.",
+    intensityAxis: "강도가 높을수록 문장 리듬, 자연스러운 위트, 생활형 비유, 짧은 반응과 독자 말걸기를 더 선명하게 한다. 억지 밈이나 이모지 남발로 대신하지 않는다.",
     titleRule: "제목부터 말맛이 느껴져야 한다. 자연스러운 질문, 반전, 짧은 리액션을 허용한다. 단 '충격', '무조건', '큰일' 같은 낚시성 과장은 금지한다.",
     introRule: "첫 2~3문장 안에 생활 장면 + 짧은 리액션 또는 공감 한마디를 넣는다. '오늘은 ~에 대해 알아보겠습니다', '~을 소개합니다'로 시작하면 안 된다. 독자에게 바로 말을 거는 느낌을 만든다.",
-    headingRule: "명사형 교과서 소제목을 피하고 말맛 있는 문장형을 기본으로 한다. 예: '목이 뻣뻣하다고 바로 쭉쭉? 잠깐만요', '여기서 욕심내면 목이 먼저 삐끗합니다', '그럼 아예 안 움직여야 하냐고요? 그건 또 아니죠'. 같은 패턴을 그대로 복사하지 말고 맥락에 맞게 새로 만든다.",
+    headingRule: "명사형 교과서 소제목을 피하고 말맛 있는 문장형을 기본으로 한다. 같은 패턴을 반복 복사하지 말고 주제와 문맥에 맞게 새로 만든다.",
     sentenceRule: "블로그 구어체 존댓말을 중심으로 '-해요', '-거든요', '-인 셈이죠', '-가 포인트예요', '-라고 생각하기 쉽죠', '-해도 괜찮아요' 등을 다양하게 섞는다. '-합니다/-됩니다/-해야 합니다'가 2문장 이상 연속되지 않게 한다. 안전상 꼭 필요한 문장만 단정한 어조를 허용한다. 짧은 문장을 자주 섞어 속도감을 만든다.",
     paragraphRule: "각 섹션의 첫 문장 또는 마지막 문장에는 공감·리액션·재치 있는 연결 중 하나가 들어가야 한다. 정보 설명 2~3문장이 이어졌다면 다음 문장에서는 독자에게 다시 말을 걸어 리듬을 환기한다. 2~4문장 문단을 기본으로 하되 짧은 한 줄 문단도 가끔 허용한다.",
-    deviceRule: "가벼운 비유, 괄호 속 한마디, 예상 질문에 바로 답하기, 작은 반전, '앗', '은근', '생각보다', '괜히 ~한 게 아니죠', '이건 좀 억울하죠(?)' 같은 생활형 말맛을 허용한다. 문맥이 자연스러우면 'ㅋㅋ'는 글 전체 0~2회까지 가능하지만 의료·안전의 핵심 경고 문장에는 사용하지 않는다. 이모지는 플랫폼과 목적에 맞을 때만 0~3개 정도 허용한다.",
-    closingRule: "'결론적으로 ~해야 합니다' 같은 보고서식 마무리보다 핵심을 한 번 가볍게 정리하고 기억하기 쉬운 한마디로 끝낸다. 의료·안전 주제라면 필요한 주의 기준은 정확히 남기되 마지막 문장 전체를 경고문으로 끝내지 않는다.",
-    avoidRule: "병원 안내문체, 공공기관 안내문체, '권장됩니다/필요합니다/우선해야 합니다' 연속 사용, 모든 소제목을 설명서처럼 쓰기, 한두 군데만 농담을 넣고 나머지를 딱딱하게 쓰는 가짜 유쾌함, 억지 밈·유행어·과도한 이모지·증상이나 사람을 웃음거리로 만드는 표현을 금지한다.",
+    deviceRule: "가벼운 비유, 괄호 속 한마디, 예상 질문에 바로 답하기, 작은 반전, 생활형 말맛을 허용한다. 문맥이 자연스러우면 'ㅋㅋ'는 글 전체 0~2회까지 가능하지만 의료·안전의 핵심 경고 문장에는 사용하지 않는다. 이모지는 플랫폼과 목적에 맞을 때만 소량 허용한다.",
+    closingRule: "'결론적으로 ~해야 합니다' 같은 보고서식 마무리보다 핵심을 한 번 가볍게 정리하고 기억하기 쉬운 한마디로 끝낸다. 의료·안전 주제라면 필요한 주의 기준은 정확히 남긴다.",
+    avoidRule: "병원 안내문체, 공공기관 안내문체, '권장됩니다/필요합니다/우선해야 합니다' 연속 사용, 한두 군데만 농담을 넣고 나머지를 딱딱하게 쓰는 가짜 유쾌함, 억지 밈·유행어·과도한 이모지·증상이나 사람을 웃음거리로 만드는 표현을 금지한다.",
+  },
+  {
+    id: "shareable-info",
+    fingerprint: "스크롤하면서 핵심이 바로 잡히고, 읽은 뒤 저장하거나 공유하고 싶게 만드는 콘텐츠형 정보 블로그 문체.",
+    intensityAxis: "강도가 높을수록 훅, 짧은 문단, 질문형 도입, 체크 포인트, 번호 정리, 핵심 강조, 요약과 가벼운 CTA를 적극적으로 사용한다. 정확성을 희생하는 클릭베이트는 늘리지 않는다.",
+    titleRule: "독자가 얻을 정보와 관심 포인트를 한눈에 알 수 있게 쓴다. 필요하면 숫자, 괄호 속 보충, '총정리', '실천법' 같은 콘텐츠형 장치를 사용할 수 있지만 과장된 낚시는 금지한다.",
+    introRule: "첫 화면에서 독자의 문제나 공감 상황을 짧게 제시하고, 이 글을 읽으면 무엇을 얻는지 바로 예고한다. 긴 배경 설명으로 시작하지 않는다.",
+    headingRule: "소제목은 '도대체 뭔데?', '왜 이게 중요할까?', '바로 써먹는 방법'처럼 질문형·행동형·핵심형을 적극 활용한다. 스크롤 중에도 섹션의 역할이 즉시 보여야 한다.",
+    sentenceRule: "짧고 선명한 문장을 중심으로 존댓말 블로그체를 사용한다. 중요한 문장은 한 줄로 따로 떼어도 좋다. 설명은 쉽게 하되 근거 없는 단정이나 자극적인 표현으로 압축하지 않는다.",
+    paragraphRule: "1~3문장 중심의 짧은 문단을 기본으로 하고, 복잡한 내용은 번호·체크 포인트·단계형 흐름으로 나눈다. 정의 → 이유 → 예시 → 실천 순으로 스캔 가능한 구조를 만든다.",
+    deviceRule: "✅, 📌, ⭐, 1️⃣ 같은 기호·이모지는 플랫폼과 강도에 맞춰 제한적으로 사용할 수 있다. 핵심 정의, 체크리스트, 3줄 요약, '저장해둘 포인트' 같은 시각적 정보 장치를 적극 활용한다.",
+    closingRule: "핵심을 3줄 요약이나 한눈에 보기로 다시 정리하고, 필요할 때만 '오늘부터 하나 적용해보세요', '저장해두고 필요할 때 보세요' 정도의 가벼운 CTA로 마무리한다.",
+    avoidRule: "근거 없는 '무조건', '성적을 좌우한다', '완벽 정복' 같은 단정, 과도한 클릭베이트, 이모지 도배, 의미 없는 저장·공유 유도, 같은 정보를 여러 번 재포장하는 구성을 피한다.",
   },
 ];
+
+function intensityInstruction(strategy: StyleStrategy, intensity: StyleIntensity) {
+  const label = intensityLabels[intensity];
+  const common = intensity === 1
+    ? "문체 특징을 눈에 띄게 과장하지 말고 필요한 곳에만 절제해서 적용한다."
+    : intensity === 2
+      ? "문체 특징을 자연스럽게 일부 드러내되 정보 흐름을 앞세운다."
+      : intensity === 3
+        ? "문체 특징이 글 전체에서 분명히 느껴지되 과하지 않은 기본 강도로 적용한다."
+        : intensity === 4
+          ? "문체 고유의 표현 장치와 리듬을 적극적으로 사용해 캐릭터가 확실히 느껴지게 한다."
+          : "문체 고유의 캐릭터를 가장 선명하게 적용한다. 단 정확성·안전·플랫폼 규칙을 깨거나 억지로 과장하지 않는다.";
+
+  return `문체 강도 ${intensity}/5 (${label}). ${common} 이 문체에서 강도는 다음 축을 의미한다: ${strategy.intensityAxis}`;
+}
 
 export function getStyleStrategy(styleId: StyleId): StyleStrategy | undefined {
   if (styleId === "auto" || styleId === "custom") return undefined;
   return strategies.find((item) => item.id === styleId);
 }
 
-export function buildStylePrompt(styleId: StyleId): string | undefined {
+export function buildStylePrompt(styleId: StyleId, intensity: StyleIntensity = 3): string | undefined {
   const strategy = getStyleStrategy(styleId);
   if (!strategy) return undefined;
 
   return [
     `문체 핵심 인상: ${strategy.fingerprint}`,
+    intensityInstruction(strategy, intensity),
     `제목 말투: ${strategy.titleRule}`,
     `도입 방식: ${strategy.introRule}`,
     `소제목 방식: ${strategy.headingRule}`,
@@ -147,8 +194,17 @@ export function buildStylePrompt(styleId: StyleId): string | undefined {
   ].join("\n");
 }
 
-export function buildAutoStyleCatalog(): string {
+export function buildAutoStyleCatalog(intensity: StyleIntensity = 3): string {
   return strategies
-    .map((strategy) => `- ${strategy.id}: ${strategy.fingerprint}`)
+    .map((strategy) => `- ${strategy.id}: ${strategy.fingerprint} / 강도 해석: ${strategy.intensityAxis} / 현재 강도 ${intensity}/5 (${intensityLabels[intensity]})`)
     .join("\n");
+}
+
+export function buildCustomStyleIntensityPrompt(intensity: StyleIntensity = 3): string {
+  const label = intensityLabels[intensity];
+  if (intensity === 1) return `문체 강도 ${intensity}/5 (${label}). 사용자가 지정한 문체 특징은 최소한으로, 정보 전달을 우선해 절제해서 적용한다.`;
+  if (intensity === 2) return `문체 강도 ${intensity}/5 (${label}). 사용자가 지정한 문체 특징을 자연스럽게 일부 적용한다.`;
+  if (intensity === 3) return `문체 강도 ${intensity}/5 (${label}). 사용자가 지정한 문체 특징이 글 전체에서 분명히 느껴지되 과하지 않게 적용한다.`;
+  if (intensity === 4) return `문체 강도 ${intensity}/5 (${label}). 사용자가 지정한 문체의 리듬과 표현 특징을 적극적으로 적용한다.`;
+  return `문체 강도 ${intensity}/5 (${label}). 사용자가 지정한 문체 캐릭터를 가장 선명하게 적용하되 사실성·안전·플랫폼 규칙은 유지한다.`;
 }
