@@ -62,6 +62,57 @@
   line-height: 1.65;
 }
 
+.blotoriCharacterMotion {
+  width: 154px;
+  height: 170px;
+  margin: 0 auto 14px;
+  position: relative;
+  display: grid;
+  place-items: end center;
+}
+
+.routeLoadingMascot {
+  width: 126px;
+  height: 156px;
+}
+
+.motionSpark {
+  position: absolute;
+  color: #ff8b72;
+  font-weight: 900;
+  animation: blotoriSparkTwinkle 1.5s ease-in-out infinite;
+}
+
+.motionSpark.sparkOne { right: 13px; top: 25px; font-size: 20px; }
+.motionSpark.sparkTwo { left: 14px; top: 56px; font-size: 14px; animation-delay: .35s; }
+
+.motionNote {
+  position: absolute;
+  width: 24px;
+  height: 30px;
+  border: 1px solid #bfe2e7;
+  border-radius: 7px;
+  background:
+    linear-gradient(#69c7d5,#69c7d5) 6px 8px / 12px 2px no-repeat,
+    linear-gradient(#d5e9ec,#d5e9ec) 6px 14px / 10px 2px no-repeat,
+    #fffefb;
+  box-shadow: 0 6px 14px rgba(49,91,122,.08);
+  animation: blotoriNoteFloat 1.8s ease-in-out infinite;
+}
+
+.motionNote.noteOne { left: 6px; bottom: 27px; transform: rotate(-10deg); }
+.motionNote.noteTwo { right: 1px; bottom: 45px; transform: rotate(8deg); animation-delay: .45s; }
+
+@keyframes blotoriSparkTwinkle {
+  0%, 100% { opacity: .38; transform: scale(.82) rotate(0); }
+  50% { opacity: 1; transform: scale(1.12) rotate(10deg); }
+}
+
+@keyframes blotoriNoteFloat {
+  0%, 100% { translate: 0 3px; opacity: .62; }
+  50% { translate: 0 -6px; opacity: 1; }
+}
+
 .blotoriPawLoader {
   width: 88px;
   height: 88px;
@@ -262,9 +313,11 @@
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: linear-gradient(145deg, #eaf8fa, #fff1e9);
-  color: #2d8fa0;
-  font-size: 22px;
+  background:
+    url('/blotori-icon-transparent.webp') center / contain no-repeat,
+    linear-gradient(145deg, #eaf8fa, #fff1e9);
+  color: transparent;
+  font-size: 0;
 }
 
 .successToast strong {
@@ -316,13 +369,18 @@
   .blotoriStateCard { padding: 28px 20px 24px; border-radius: 23px; }
   .blotoriStateCard h1 { font-size: 22px; }
   .blotoriStageRow { font-size: 10px; }
+  .blotoriCharacterMotion { width: 132px; height: 150px; }
+  .routeLoadingMascot { width: 108px; height: 136px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .blotoriPawLoader.isLoading,
   .blotoriPawLoader.isLoading .pawPad,
   .blotoriProgressBar,
-  .successToast {
+  .successToast,
+  .motionSpark,
+  .motionNote,
+  .loadingMascot {
     animation: none !important;
   }
 }
