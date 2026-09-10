@@ -66,6 +66,14 @@ export interface BlogSection {
   presentation?: SectionPresentation;
 }
 
+export interface KnowledgeGrounding {
+  enabled: boolean;
+  used: boolean;
+  provider: "openai-file-search";
+  sourceNames: string[];
+  resultCount: number;
+}
+
 export interface BlogDraft {
   title: string;
   titleCandidates?: string[];
@@ -80,6 +88,7 @@ export interface BlogDraft {
   tags: string[];
   images: ImagePlan[];
   warnings: string[];
+  knowledgeGrounding?: KnowledgeGrounding;
 }
 
 export interface PlatformExport {
