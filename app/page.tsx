@@ -23,6 +23,14 @@ import {
 } from "../lib/domain/content-config";
 
 type ComposerForm = Omit<GenerateRequest, "platformId"> & { platformId: PlatformId | "" };
+type ApiHealth = {
+  ok: boolean;
+  keyDetected: boolean;
+  model: string;
+  verified: boolean;
+  message: string;
+  sample?: string;
+};
 
 const initialForm: ComposerForm = {
   platformId: "",
@@ -105,27 +113,13 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [guideOpen, setGuideOpen] = useState(true);
   const [editMode, setEditMode] = useState(false);
+  const [apiHealth, setApiHealth] = useState<ApiHealth | null>(null);
+  const [healthLoading, setHealthLoading] = useState(false);
   const previewScrollRef = useRef<HTMLDivElement>(null);
 
-  const category = useMemo(() => getCategory(form.categoryId), [form.categoryId]);
-  const preset = useMemo(() => getPreset(form.categoryId, form.presetId), [form.categoryId, form.presetId]);
-  const platformProfile = useMemo(
-    () => PLATFORM_PROFILES.find((platform) => platform.id === form.platformId),
-    [form.platformId],
-  );
-  const visibleFieldIds = useMemo(() => [...new Set(preset?.fieldIds ?? category?.defaultFieldIds ?? [])], [category, preset]);
-  const recommendedStyles = preset?.recommendedStyleIds ?? [];
-  const recommendedStructures = preset?.recommendedStructureIds ?? [];
-
-  const imageMap = useMemo(() => {
-    const map = new Map<string | null, ImagePlan[]>();
-    if (!draft) return map;
-    for (const image of draft.images) map.set(image.afterSectionId, [...(map.get(image.afterSectionId) ?? []), image]);
-    return map;
-  }, [draft]);
-
-  const hasTopic = Boolean(form.presetId || form.freeTopic?.trim());
-  const canGenerate = Boolean(form.platformId) && (form.platformId !== "other" || Boolean(form.otherPlatform?.trim())) && hasTopic;
+  useEffect(() => {
+    void loadApiHealth(false);
+  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -144,12 +138,58 @@ export default function Home() {
     return () => window.clearTimeout(timer);
   }, [successVisible]);
 
+  const category = useMemo(() => getCategory(form.categoryId), [form.categoryId]);
+  const preset = useMemo(() => getPreset(form.categoryId, form.presetId), [form.categoryId, form.presetId]);
+  const platformProfile = useMemo(
+    () => PLATFORM_PROFILES.find((platform) => platform.id === form.platformId),
+    [form.platformId],
+  );
+  const visibleFieldIds = useMemo(
+    () => [...new Set(preset?.fieldIds ?? category?.defaultFieldIds ?? [])],
+    [category, preset],
+  );
+  const recommendedStyles = preset?.recommendedStyleIds ?? [];
+  const recommendedStructures = preset?.recommendedStructureIds ?? [];
+
+  const imageMap = useMemo(() => {
+    const map = new Map<string | null, ImagePlan[]>();
+    if (!draft) return map;
+    for (const image of draft.images) {
+      map.set(image.afterSectionId, [...(map.get(image.afterSectionId) ?? []), image]);
+    }
+    return map;
+  }, [draft]);
+
+  const hasTopic = Boolean(form.presetId || form.freeTopic?.trim());
+  const canGenerate = Boolean(form.platformId)
+    && (form.platformId !== "other" || Boolean(form.otherPlatform?.trim()))
+    && hasTopic;
+
   function patch(next: Partial<ComposerForm>) {
     setForm((prev) => ({ ...prev, ...next }));
   }
 
   function setAttribute(id: string, value: string) {
     setForm((prev) => ({ ...prev, attributes: { ...prev.attributes, [id]: value } }));
+  }
+
+  async function loadApiHealth(verify: boolean) {
+    setHealthLoading(true);
+    try {
+      const res = await fetch(`/api/health${verify ? "?verify=1" : ""}`, { cache: "no-store" });
+      const data = await res.json() as ApiHealth;
+      setApiHealth(data);
+    } catch (e) {
+      setApiHealth({
+        ok: false,
+        keyDetected: false,
+        model: "-",
+        verified: verify,
+        message: e instanceof Error ? e.message : "API 진단 요청에 실패했습니다.",
+      });
+    } finally {
+      setHealthLoading(false);
+    }
   }
 
   async function generate() {
@@ -177,6 +217,7 @@ export default function Home() {
       requestAnimationFrame(() => previewScrollRef.current?.scrollTo({ top: 0 }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "오류가 발생했습니다.");
+      void loadApiHealth(false);
     } finally {
       setLoading(false);
     }
@@ -207,13 +248,24 @@ export default function Home() {
 
   return (
     <main className="shell appShell" aria-busy={loading}>
-      <header className="topbar">
-        <div>
-          <div className="eyebrow">BLOTORI · MULTI-PLATFORM BLOG COMPOSER</div>
-          <h1>플랫폼과 주제에 맞춰 블로그를 구성하세요.</h1>
-          <p>본문, 시각 강조, 이미지 프롬프트와 삽입 위치까지 한 번에 설계합니다.</p>
+      <header className="topbar blotoriTopbar">
+        <div className="brandIntro">
+          <img className="blotoriMascotTop" src="/blotori-canonical-mini.webp" alt="블로토리" />
+          <div>
+            <div className="eyebrow">MULTI-PLATFORM BLOG COMPOSER</div>
+            <h1>플랫폼과 주제에 맞춰 블로그를 구성하세요.</h1>
+            <p>본문, 시각 강조, 이미지 프롬프트와 삽입 위치까지 한 번에 설계합니다.</p>
+          </div>
         </div>
         <div className="topActions">
+          <div className={`apiStatus ${apiHealth?.ok ? "ok" : "bad"}`} title={apiHealth?.message ?? "API 상태 확인 중"}>
+            <span className="apiDot" />
+            <span>{apiHealth ? (apiHealth.keyDetected ? "API 키 감지" : "API 키 미감지") : "API 확인 중"}</span>
+            {apiHealth?.model && <small>{apiHealth.model}</small>}
+          </div>
+          <button className="ghost" onClick={() => void loadApiHealth(true)} disabled={healthLoading}>
+            {healthLoading ? "확인 중…" : "연결 테스트"}
+          </button>
           <button className="ghost" onClick={() => setSettingsOpen((v) => !v)}>{settingsOpen ? "설정 접기" : "설정 열기"}</button>
           <button className="ghost" onClick={() => setGuideOpen((v) => !v)}>{guideOpen ? "가이드 접기" : "가이드 열기"}</button>
           <div className="costBadge"><span>AI 기본 호출</span><strong>1회 / 글</strong></div>
@@ -256,8 +308,12 @@ export default function Home() {
             <Field label="문체"><select value={form.styleId} onChange={(e) => patch({ styleId: e.target.value as StyleId })}><option value="auto">자동 추천</option>{recommendedStyles.length > 0 && <optgroup label="이 주제 추천">{recommendedStyles.map((id) => { const item = STYLE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 문체">{STYLE_DEFINITIONS.filter((x) => !recommendedStyles.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>
             {form.styleId === "custom" && <Field label="직접 문체"><input value={form.customStyle ?? ""} onChange={(e) => patch({ customStyle: e.target.value })} /></Field>}
             <div className="splitRow"><Field label="글 길이"><select value={form.length} onChange={(e) => patch({ length: e.target.value as Length })}>{(Object.keys(lengthLabel) as Length[]).map((key) => <option key={key} value={key}>{lengthLabel[key]}</option>)}</select></Field><Field label="이미지 수"><select value={form.imageCount} onChange={(e) => patch({ imageCount: Number(e.target.value) })}>{[2,3,4,5].map((n) => <option key={n} value={n}>{n}장</option>)}</select></Field></div>
-            <button className="primary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "블로토리 작업 중…" : "✦ 블로그 콘텐츠 생성"}</button>
-            {error && <div className="errorBox" role="alert"><strong>생성하지 못했어요.</strong><br />{error}</div>}
+
+            <div className="controlsActionDock">
+              {error && <div className="errorBox stickyError">{error}</div>}
+              {!apiHealth?.keyDetected && apiHealth && <div className="apiWarning">{apiHealth.message}</div>}
+              <button className="primary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "구성 중…" : "✦ 블로그 콘텐츠 생성"}</button>
+            </div>
           </aside>
         )}
 
@@ -272,7 +328,14 @@ export default function Home() {
           </div>
 
           {!draft ? (
-            <div className="emptyState"><div className="emptyIcon">✦</div><h3>플랫폼과 주제를 선택해 주세요.</h3><p>생성 후에는 실제 컨셉에 맞는 정렬·강조·이미지 흐름까지 미리 볼 수 있습니다.</p></div>
+            <div className="emptyState blotoriEmptyState">
+              <img className="blotoriMascotEmpty" src="/blotori-canonical-mini.webp" alt="블로토리" />
+              <div>
+                <h3>플랫폼과 주제를 선택해 주세요.</h3>
+                <p>설정이 끝나면 왼쪽 아래의 생성 버튼으로 실제 원고를 만들 수 있어요.</p>
+                <p className="emptyApiHint">{apiHealth?.keyDetected ? `API 키 감지됨 · ${apiHealth.model}` : "API 연결 상태를 확인 중입니다."}</p>
+              </div>
+            </div>
           ) : (
             <div className={`previewLayout appPreviewLayout ${guideOpen ? "" : "guideClosed"}`}>
               <div className="blogScroller" ref={previewScrollRef}>
@@ -293,36 +356,37 @@ export default function Home() {
         </section>
       </div>
 
+      {loading && (
+        <div className="generationOverlay" role="status" aria-live="polite">
+          <div className="blotoriStateCard">
+            <img className="loadingMascot" src="/blotori-canonical-mini.webp" alt="블로토리" />
+            <div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div>
+            <h2>글과 이미지를 차근차근 엮고 있어요.</h2>
+            <p>{loadingStages[loadingStage]}</p>
+            <div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div>
+            <div className="blotoriStageList">
+              {loadingStages.map((stage, index) => (
+                <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}>
+                  <span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span>
+                </div>
+              ))}
+            </div>
+            <span className="generationMeta">AI 호출은 기존 1회 그대로예요.</span>
+          </div>
+        </div>
+      )}
+
+      {successVisible && draft && (
+        <div className="successToast" role="status" aria-live="polite">
+          <div className="successPaw">✦</div>
+          <div><strong>블로토리가 원고를 완성했어요.</strong><span>미리보기에서 내용과 이미지 위치를 확인해 주세요.</span></div>
+          <button onClick={() => setSuccessVisible(false)} aria-label="완료 알림 닫기">×</button>
+        </div>
+      )}
+
       {draft && <div className="scrollNav" aria-label="미리보기 빠른 이동"><button onClick={() => scrollPreview("top")} title="맨 위로">TOP</button><button onClick={() => scrollPreview("bottom")} title="맨 아래로">BOTTOM</button></div>}
-      {loading && <GenerationOverlay stage={loadingStage} platformLabel={platformProfile?.label} />}
-      {successVisible && <SuccessToast onClose={() => setSuccessVisible(false)} />}
     </main>
   );
-}
-
-function PawLoader({ loading = false }: { loading?: boolean }) {
-  return <div className={`blotoriPawLoader ${loading ? "isLoading" : ""}`} aria-hidden="true"><span className="pawToe toe1" /><span className="pawToe toe2" /><span className="pawToe toe3" /><span className="pawToe toe4" /><span className="pawPad" /><span className="pawSpark">✦</span></div>;
-}
-
-function GenerationOverlay({ stage, platformLabel }: { stage: number; platformLabel?: string }) {
-  return <div className="generationOverlay" role="status" aria-live="polite" aria-label="블로그 콘텐츠 생성 중">
-    <section className="blotoriStateCard">
-      <div className="blotoriStateEyebrow">BLOTORI · COMPOSING</div>
-      <PawLoader loading />
-      <h2>블로토리가 원고를 정리하고 있어요.</h2>
-      <p>{loadingStages[stage]}</p>
-      <span className="generationMeta">{platformLabel ?? "선택 플랫폼"} · AI 호출 1회</span>
-      <div className="blotoriProgressTrack" aria-hidden="true"><div className="blotoriProgressBar" /></div>
-      <div className="blotoriStageList">
-        {loadingStages.map((label, index) => <div key={label} className={`blotoriStageRow ${index < stage ? "done" : index === stage ? "active" : ""}`}><span className="stageDot">{index < stage ? "✓" : index + 1}</span><span>{label}</span></div>)}
-      </div>
-      <p>표시되는 단계는 기다리는 동안의 작업 안내이며 API를 추가 호출하지 않습니다.</p>
-    </section>
-  </div>;
-}
-
-function SuccessToast({ onClose }: { onClose: () => void }) {
-  return <div className="successToast" role="status"><div className="successPaw">♡</div><div><strong>원고 구성이 끝났어요.</strong><span>미리보기와 이미지 제작 가이드를 확인해 주세요.</span></div><button onClick={onClose} aria-label="완료 알림 닫기">×</button></div>;
 }
 
 function SectionPreview({ section, editMode, updateParagraph, children }: { section: BlogSection; editMode: boolean; updateParagraph: (sectionId: string, index: number, value: string) => void; children: ReactNode }) {
