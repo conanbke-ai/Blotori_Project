@@ -1,0 +1,38 @@
+.composerWorkflowEnhancer { width: 100%; flex-basis: 100%; margin-top: 8px; }
+.workflowToggle { width: 100%; min-height: 44px; display:flex; align-items:center; justify-content:space-between; padding: 9px 13px; border:1px solid #cfe7eb; border-radius:14px; background:#f2fbfc; color:#315b7a; cursor:pointer; }
+.workflowToggle span { font-weight:800; }
+.workflowToggle strong { color:#2d8fa0; font-size:12px; }
+.workflowPanel { margin-top:8px; padding:14px; border:1px solid #d8eaed; border-radius:16px; background:#fffefd; box-shadow:0 10px 28px rgba(49,91,122,.08); }
+.workflowHeading { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:12px; }
+.workflowHeading > div { display:grid; gap:2px; }
+.workflowHeading span { color:#2d8fa0; font-size:9px; font-weight:900; letter-spacing:.14em; }
+.workflowHeading strong { color:#315b7a; font-size:14px; }
+.workflowHeading small { max-width:360px; color:#78909c; line-height:1.45; text-align:right; }
+.workflowSteps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+.workflowSteps button,.workflowStatic { min-height:64px; display:flex; align-items:center; gap:9px; padding:9px; border:1px solid #dcecef; border-radius:13px; background:#fbfefe; color:#315b7a; text-align:left; }
+.workflowSteps button { cursor:pointer; }
+.workflowSteps button:hover { border-color:#69c7d5; background:#effafb; }
+.workflowSteps b { width:25px; height:25px; flex:0 0 25px; display:grid; place-items:center; border-radius:50%; background:#e8f7f9; color:#2d8fa0; font-size:11px; }
+.workflowSteps span { display:grid; gap:2px; min-width:0; }
+.workflowSteps strong { font-size:12px; }
+.workflowSteps small { color:#849aa3; font-size:10px; line-height:1.35; }
+.formatGuide { margin-top:11px; border-top:1px solid #e6eff1; padding-top:10px; }
+.formatGuide summary { cursor:pointer; color:#315b7a; font-size:12px; font-weight:800; }
+.formatGuide summary span { margin-left:5px; padding:2px 6px; border-radius:999px; background:#eaf8fa; color:#2d8fa0; font-size:10px; }
+.formatGuideList { display:grid; gap:5px; margin-top:8px; }
+.formatGuideList p { margin:0; display:flex; gap:7px; color:#627c88; font-size:11px; line-height:1.45; }
+.formatGuideList p b { color:#ff8b72; }
+.runtimeDiagnostics { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; padding-top:10px; border-top:1px solid #e6eff1; }
+.diagnosticChip { display:flex; gap:6px; align-items:center; padding:5px 8px; border-radius:999px; border:1px solid #dce8ea; background:#f8fbfc; font-size:10px; }
+.diagnosticChip span { color:#81969f; }
+.diagnosticChip strong { color:#526f7d; }
+.diagnosticChip.ok { border-color:#bde4da; background:#effaf6; }
+.diagnosticChip.ok strong { color:#27846d; }
+.diagnosticChip.warn { border-color:#f1d6c7; background:#fff7f2; }
+.diagnosticChip.warn strong { color:#b56d4d; }
+.groundingSources { margin-top:8px; padding:8px 10px; border-radius:11px; background:#f5f9fa; color:#6d858f; font-size:10px; }
+.groundingSources strong { color:#315b7a; }
+.groundingSources p { margin:4px 0 0; line-height:1.45; }
+#blotori-draft-snapshot { display:none !important; }
+@media (max-width: 1050px) { .workflowSteps { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width: 680px) { .workflowHeading { display:grid; } .workflowHeading small { text-align:left; } .workflowSteps { grid-template-columns:1fr; } }
