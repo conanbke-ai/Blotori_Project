@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import StylePreviewPortal from "./StylePreviewPortal";
 import ToriPawCursor from "./ToriPawCursor";
 import "./globals.css";
 import "./blotori-theme.css";
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html lang="ko">
       <body>
         {children}
+        <StylePreviewPortal />
         <ToriPawCursor />
       </body>
     </html>
