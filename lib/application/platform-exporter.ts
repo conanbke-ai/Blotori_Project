@@ -1,4 +1,4 @@
-import type { BlogDraft, ImagePlan, PlatformExport, PlatformId, TextEmphasis } from "../domain/types";
+import type { BlogDraft, ImagePlan, PlatformExport, PlatformId, TextAlign, TextEmphasis } from "../domain/types";
 import { getPlatformStrategy } from "../domain/platform-strategy";
 
 function imageMarker(image: ImagePlan) {
@@ -14,7 +14,11 @@ function escapeHtml(value: string) {
     .replaceAll("'", "&#039;");
 }
 
-function applyHtmlEmphasis(text: string, emphasis: TextEmphasis[] = []) {
+function alignStyle(align?: TextAlign) {
+  return align === "center" ? "text-align:center;" : "text-align:left;";
+}
+
+function applyHtmlEmphasis(text: string, emphasis: TextEmphasis[] = [], platformId: PlatformId) {
   let html = escapeHtml(text);
   const valid = emphasis
     .filter((item) => item.phrase && text.includes(item.phrase))
@@ -22,11 +26,17 @@ function applyHtmlEmphasis(text: string, emphasis: TextEmphasis[] = []) {
 
   for (const item of valid) {
     const phrase = escapeHtml(item.phrase);
-    const replacement = item.kind === "bold"
-      ? `<strong>${phrase}</strong>`
-      : item.kind === "accent"
-        ? `<strong class="blotori-accent">${phrase}</strong>`
-        : `<mark>${phrase}</mark>`;
+    let replacement: string;
+
+    if (item.kind === "bold") {
+      replacement = `<strong style="font-weight:700;">${phrase}</strong>`;
+    } else if (item.kind === "accent") {
+      const accent = platformId === "naver" ? "#2D8FA0" : "#2D8FA0";
+      replacement = `<strong style="font-weight:700;color:${accent};">${phrase}</strong>`;
+    } else {
+      replacement = `<span style="background-color:#FFF0A8;font-weight:600;">${phrase}</span>`;
+    }
+
     html = html.replace(phrase, replacement);
   }
   return html;
@@ -60,29 +70,79 @@ function buildPlainBody(draft: BlogDraft, platformId: PlatformId) {
   return parts.filter(Boolean).join("\n\n");
 }
 
+function buildNaverRichHtml(draft: BlogDraft) {
+  const imageMap = buildImageMap(draft.images);
+  const body: string[] = [];
+  const titleAlign = alignStyle(draft.presentation?.titleAlign);
+  const introAlign = alignStyle(draft.presentation?.introAlign);
+
+  body.push(
+    `<div style="${titleAlign}font-size:28px;line-height:1.45;font-weight:700;margin:0 0 28px;">${escapeHtml(draft.title)}</div>`,
+  );
+
+  for (const image of imageMap.get(null) ?? []) {
+    body.push(`<div style="text-align:center;margin:26px 0;color:#6B7C86;"><strong>${escapeHtml(imageMarker(image))}</strong></div>`);
+  }
+
+  for (const paragraph of draft.intro) {
+    body.push(`<div style="${introAlign}font-size:16px;line-height:1.9;margin:0 0 18px;">${escapeHtml(paragraph)}</div>`);
+  }
+
+  for (const section of draft.sections) {
+    const headingAlign = alignStyle(section.presentation?.headingAlign);
+    const bodyAlign = alignStyle(section.presentation?.bodyAlign);
+    const visualStyle = section.presentation?.visualStyle ?? "standard";
+    const headingDecoration = visualStyle === "key-point"
+      ? "background-color:#EEF9FA;padding:10px 12px;border-radius:8px;"
+      : visualStyle === "callout"
+        ? "background-color:#FFF6F1;padding:10px 12px;border-radius:8px;"
+        : visualStyle === "quote"
+          ? "font-style:italic;"
+          : "";
+
+    body.push(`<div style="${headingAlign}${headingDecoration}font-size:21px;line-height:1.55;font-weight:700;margin:34px 0 16px;">${escapeHtml(section.heading)}</div>`);
+
+    for (const paragraph of section.paragraphs) {
+      body.push(`<div style="${bodyAlign}font-size:16px;line-height:1.9;margin:0 0 18px;">${applyHtmlEmphasis(paragraph, section.presentation?.emphasis, "naver")}</div>`);
+    }
+
+    for (const image of imageMap.get(section.id) ?? []) {
+      body.push(`<div style="text-align:center;margin:28px 0;color:#6B7C86;"><strong>${escapeHtml(imageMarker(image))}</strong></div>`);
+    }
+  }
+
+  for (const paragraph of draft.closing) {
+    body.push(`<div style="font-size:16px;line-height:1.9;margin:0 0 18px;">${escapeHtml(paragraph)}</div>`);
+  }
+
+  return `<div style="font-family:Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#222;">${body.join("")}</div>`;
+}
+
 function sectionClass(style?: string) {
   if (!style || style === "standard") return "";
   return ` class="blotori-${style}"`;
 }
 
 function buildRichHtml(draft: BlogDraft, platformId: PlatformId) {
+  if (platformId === "naver") return buildNaverRichHtml(draft);
+
   const imageMap = buildImageMap(draft.images);
-  const titleTag = "h1";
-  const body: string[] = [`<${titleTag}>${escapeHtml(draft.title)}</${titleTag}>`];
+  const titleAlign = alignStyle(draft.presentation?.titleAlign);
+  const body: string[] = [`<h1 style="${titleAlign}">${escapeHtml(draft.title)}</h1>`];
 
   for (const image of imageMap.get(null) ?? []) {
-    body.push(`<p data-img-slot="${escapeHtml(image.id)}"><strong>${escapeHtml(imageMarker(image))}</strong></p>`);
+    body.push(`<p data-img-slot="${escapeHtml(image.id)}" style="text-align:center;"><strong>${escapeHtml(imageMarker(image))}</strong></p>`);
   }
 
-  for (const paragraph of draft.intro) body.push(`<p>${escapeHtml(paragraph)}</p>`);
+  for (const paragraph of draft.intro) body.push(`<p style="${alignStyle(draft.presentation?.introAlign)}">${escapeHtml(paragraph)}</p>`);
 
   for (const section of draft.sections) {
-    body.push(`<section${sectionClass(section.presentation?.visualStyle)}>`, `<h2>${escapeHtml(section.heading)}</h2>`);
+    body.push(`<section${sectionClass(section.presentation?.visualStyle)}>`, `<h2 style="${alignStyle(section.presentation?.headingAlign)}">${escapeHtml(section.heading)}</h2>`);
     for (const paragraph of section.paragraphs) {
-      body.push(`<p>${applyHtmlEmphasis(paragraph, section.presentation?.emphasis)}</p>`);
+      body.push(`<p style="${alignStyle(section.presentation?.bodyAlign)}">${applyHtmlEmphasis(paragraph, section.presentation?.emphasis, platformId)}</p>`);
     }
     for (const image of imageMap.get(section.id) ?? []) {
-      body.push(`<p data-img-slot="${escapeHtml(image.id)}"><strong>${escapeHtml(imageMarker(image))}</strong></p>`);
+      body.push(`<p data-img-slot="${escapeHtml(image.id)}" style="text-align:center;"><strong>${escapeHtml(imageMarker(image))}</strong></p>`);
     }
     body.push("</section>");
   }
@@ -99,7 +159,7 @@ function buildRichHtml(draft: BlogDraft, platformId: PlatformId) {
 export function buildPlatformExport(draft: BlogDraft, platformId: PlatformId): PlatformExport {
   const strategy = getPlatformStrategy(platformId);
   const labels: Record<PlatformId, string> = {
-    naver: "네이버용 본문",
+    naver: "네이버 서식 본문",
     tistory: "티스토리용 본문",
     blogger: "Blogger용 본문",
     wordpress: "WordPress용 본문",
