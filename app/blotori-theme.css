@@ -1,0 +1,345 @@
+/* Blotori TORI Family visual layer
+ * Overrides generic MVP dashboard styling without changing application contracts.
+ */
+
+:root {
+  --bg: #f7fbfc;
+  --panel: #fffdf9;
+  --ink: #27445b;
+  --muted: #78909c;
+  --line: #cfe7eb;
+  --accent: #45aebe;
+  --accent-dark: #2d8fa0;
+  --accent-soft: #eaf8fa;
+  --warm: #fff1e9;
+  --warning: #fff5dc;
+  --highlight: #ffe6a8;
+  --blotori-sky: #69c7d5;
+  --blotori-teal: #2d8fa0;
+  --blotori-navy: #315b7a;
+  --blotori-coral: #ff8b72;
+  --blotori-cream: #fff9f2;
+  --blotori-paper: #fffdf9;
+  --shadow: 0 16px 42px rgba(49, 91, 122, .09);
+}
+
+html,
+body {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(105, 199, 213, .13), transparent 23%),
+    radial-gradient(circle at 91% 5%, rgba(255, 139, 114, .10), transparent 19%),
+    linear-gradient(180deg, #fbfeff 0%, #f6fbfc 52%, #fffaf5 100%);
+}
+
+body {
+  color: var(--blotori-navy);
+}
+
+.appShell {
+  max-width: 1740px;
+}
+
+.topbar {
+  position: relative;
+  overflow: hidden;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255, 253, 249, .94);
+  box-shadow: var(--shadow);
+}
+
+.topbar::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(69, 174, 190, .28);
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.topbar::after {
+  content: "TORI FAMILY  ·  SAME HEART, DIFFERENT CHARMS";
+  position: absolute;
+  right: 22px;
+  top: 8px;
+  color: rgba(49, 91, 122, .24);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  pointer-events: none;
+}
+
+.topbar > * {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  color: var(--blotori-teal);
+  letter-spacing: .18em;
+}
+
+.eyebrow::before {
+  content: "BLOTORI  ✦  ";
+  color: var(--blotori-coral);
+}
+
+.topbar h1 {
+  color: var(--blotori-navy);
+}
+
+.topbar h1::after {
+  content: "글과 이미지를 엮어, 이야기를 완성해요.";
+  display: block;
+  margin-top: 7px;
+  color: var(--blotori-teal);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.costBadge {
+  background: linear-gradient(145deg, var(--blotori-navy), #24495f);
+  border: 1px solid rgba(255, 255, 255, .20);
+  box-shadow: 0 9px 24px rgba(49, 91, 122, .17);
+}
+
+.panel {
+  border-color: var(--line);
+  border-radius: 22px;
+  background: rgba(255, 253, 249, .97);
+  box-shadow: var(--shadow);
+}
+
+.controls {
+  background:
+    linear-gradient(180deg, rgba(234, 248, 250, .55), rgba(255,255,255,0) 150px),
+    var(--blotori-paper);
+}
+
+.panelHeader h2,
+.field > span,
+.previewTitle,
+.articleSection h3,
+.guideTitle strong {
+  color: var(--blotori-navy);
+}
+
+.step {
+  border: 1px solid #c7e8ec;
+  background: #eaf8fa;
+  color: var(--blotori-teal);
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,.55);
+}
+
+.field input:not([type=range]),
+.field select,
+.field textarea {
+  border-color: #d7e9ec;
+  background: #fffefb;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--blotori-sky);
+  box-shadow: 0 0 0 4px rgba(105, 199, 213, .15);
+}
+
+.primary {
+  background: linear-gradient(135deg, var(--blotori-teal), var(--blotori-sky));
+  box-shadow: 0 9px 24px rgba(45, 143, 160, .20);
+}
+
+.primary:hover {
+  background: linear-gradient(135deg, #257f90, #55b8c6);
+}
+
+.ghost {
+  border-color: #d5e8eb;
+  color: var(--blotori-navy);
+  background: rgba(255,255,255,.9);
+}
+
+.ghost:hover,
+.ghost.active {
+  border-color: var(--blotori-sky);
+  color: var(--blotori-teal);
+  background: #eef9fa;
+}
+
+.platformHint {
+  border: 1px solid #dcecef;
+  background: #f5fbfc;
+  color: #66848f;
+}
+
+.previewHeader {
+  background: linear-gradient(90deg, rgba(234,248,250,.82), rgba(255,249,242,.68));
+}
+
+.previewLayout,
+.appPreviewLayout {
+  background:
+    linear-gradient(90deg, rgba(105,199,213,.035) 1px, transparent 1px),
+    linear-gradient(rgba(105,199,213,.035) 1px, transparent 1px),
+    #f7fbfc;
+  background-size: 28px 28px;
+}
+
+.blogPaper {
+  position: relative;
+  border: 1px solid #e1ecee;
+  background: #fffefd;
+  box-shadow: 0 12px 38px rgba(49, 91, 122, .08);
+}
+
+.blogPaper::before {
+  content: "BLOTORI EDITOR PREVIEW";
+  display: block;
+  margin-bottom: 22px;
+  color: #a4bcc3;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+.visual-standard h3 {
+  border-left-color: var(--blotori-sky);
+}
+
+.visual-key-point {
+  border-color: #cfe8ec;
+  background: linear-gradient(135deg, #f0fafb, #fffdf9);
+}
+
+.visual-key-point h3,
+.textEmphasis.accent {
+  color: var(--blotori-teal);
+}
+
+.visual-callout {
+  border-color: #f1d9d2;
+  background: linear-gradient(135deg, #fff7f3, #fffdf9);
+  box-shadow: inset 4px 0 0 var(--blotori-coral);
+}
+
+.visual-quote {
+  border-color: #d8e9ec;
+  color: #526f7d;
+}
+
+.textEmphasis.bold {
+  color: var(--blotori-navy);
+}
+
+.textEmphasis.highlight {
+  background: linear-gradient(transparent 56%, rgba(255, 230, 168, .92) 56%);
+}
+
+.imageSlot {
+  border-color: #cfe7eb;
+  background: linear-gradient(145deg, #f2fbfc, #fff9f4);
+}
+
+.slotBadge {
+  background: var(--blotori-navy);
+}
+
+.slotArt {
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,.95) 0 6px, transparent 7px),
+    repeating-linear-gradient(135deg, #edf9fa, #edf9fa 12px, #e5f4f6 12px, #e5f4f6 24px);
+  color: var(--blotori-teal);
+}
+
+.slotInfo button,
+.promptTop strong,
+.copyButton {
+  color: var(--blotori-teal);
+}
+
+.tags span {
+  border: 1px solid #d9ecee;
+  background: #eff9fa;
+  color: #4d7d86;
+}
+
+.guideRail {
+  border-left-color: var(--line);
+  background: #fbfdfd;
+}
+
+.guideTitle {
+  background: #fbfdfd;
+}
+
+.promptCard {
+  border-color: #dcebee;
+  background: #fffefd;
+}
+
+.promptTop span {
+  background: #edf8fa;
+  color: var(--blotori-teal);
+}
+
+.scrollNav button {
+  border-color: #cfe3e7;
+  color: var(--blotori-navy);
+  background: rgba(255,253,249,.96);
+}
+
+.scrollNav button:hover {
+  color: var(--blotori-teal);
+  border-color: var(--blotori-sky);
+}
+
+/* Platform personality remains visible inside the shared Blotori shell. */
+.platform-naver {
+  border-top: 4px solid #03c75a;
+}
+
+.platform-tistory {
+  border-top: 4px solid #ff5a4e;
+}
+
+.platform-blogger {
+  border-top: 4px solid #f39c12;
+}
+
+.platform-wordpress {
+  border-top: 4px solid #21759b;
+}
+
+.platform-brunch {
+  border-top: 4px solid #222;
+}
+
+/* TORI accessibility: custom effects never block reduced motion users. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .topbar {
+    border-radius: 20px;
+    padding: 17px 16px;
+  }
+  .topbar::after {
+    display: none;
+  }
+  .topbar h1::after {
+    font-size: 11px;
+  }
+  .blogPaper::before {
+    margin-bottom: 15px;
+  }
+}
