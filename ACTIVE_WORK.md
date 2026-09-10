@@ -18,6 +18,8 @@
 - [x] 플랫폼 선택 + 자유 주제/카테고리 기반 입력
 - [x] 주제별 동적 추가 조건
 - [x] 문체 / 글 구성 추천 및 직접 설정
+- [x] 문체별 강도 1~5 Strategy (기본값 3)
+- [x] 저장·공유형 정보 콘텐츠 문체
 - [x] AI 텍스트 생성 1회 구조
 - [x] 이미지 역할/프롬프트/삽입 위치 동시 생성
 - [x] 이미지 series / independent 연속성 메타데이터
@@ -47,6 +49,17 @@
 - [ ] rich clipboard 플랫폼 실제 붙여넣기 검증
 - [ ] 사용자 생성 이미지 슬롯 업로드/미리보기
 - [ ] desktop / tablet / mobile visual acceptance
+
+## Writing style intensity
+
+- `styleId`와 `styleIntensity(1~5)`를 독립적으로 사용한다.
+- 기본 강도는 `3 · 자연스러움`이다.
+- 강도는 단순히 유머·이모지를 늘리는 값이 아니다. 각 Style Strategy의 고유 특성을 강화하거나 절제한다.
+- `shareable-info`는 훅, 짧은 문단, 체크 포인트, 핵심 강조, 요약, 가벼운 CTA를 중심으로 하는 저장·공유형 정보 콘텐츠 전략이다.
+- 자동 추천/직접 설정 문체에도 동일한 강도 개념을 적용한다.
+- 문체 강도는 기존 단일 생성 프롬프트에 포함하며 추가 AI 재호출을 만들지 않는다.
+
+상세 기준: `docs/WRITING_STYLE_INTENSITY_STANDARD.md`
 
 ## Common TORI dependency
 
