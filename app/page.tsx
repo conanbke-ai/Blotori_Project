@@ -11,6 +11,7 @@ import type {
   PlatformId,
   StructureId,
   StyleId,
+  StyleIntensity,
   TextEmphasis,
 } from "../lib/domain/types";
 import {
@@ -42,6 +43,7 @@ const initialForm: ComposerForm = {
   attributes: {},
   extraConditions: "",
   styleId: "auto",
+  styleIntensity: 3,
   customStyle: "",
   structureId: "auto",
   customStructure: "",
@@ -50,6 +52,13 @@ const initialForm: ComposerForm = {
 };
 
 const lengthLabel: Record<Length, string> = { short: "짧게", medium: "보통", long: "길게" };
+const styleIntensityLabel: Record<StyleIntensity, string> = {
+  1: "절제됨",
+  2: "부드러움",
+  3: "자연스러움",
+  4: "적극적",
+  5: "개성 강함",
+};
 const loadingStages = [
   "주제와 플랫폼 조건을 정리하고 있어요.",
   "제목·본문 구성과 문체를 맞추고 있어요.",
@@ -237,6 +246,7 @@ export default function Home() {
           {form.structureId === "custom" && <Field label="직접 구성"><input value={form.customStructure ?? ""} onChange={(e) => patch({ customStructure: e.target.value })} /></Field>}
           <Field label="문체"><select value={form.styleId} onChange={(e) => patch({ styleId: e.target.value as StyleId })}><option value="auto">자동 추천</option>{recommendedStyles.length > 0 && <optgroup label="이 주제 추천">{recommendedStyles.map((id) => { const item = STYLE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 문체">{STYLE_DEFINITIONS.filter((x) => !recommendedStyles.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>
           {form.styleId === "custom" && <Field label="직접 문체"><input value={form.customStyle ?? ""} onChange={(e) => patch({ customStyle: e.target.value })} /></Field>}
+          <Field label="문체 강도"><select value={form.styleIntensity ?? 3} onChange={(e) => patch({ styleIntensity: Number(e.target.value) as StyleIntensity })}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {styleIntensityLabel[level]}</option>)}</select><small className="hint">선택한 문체의 특징을 얼마나 선명하게 드러낼지 조절합니다. 기본값은 3이에요.</small></Field>
           <div className="splitRow"><Field label="글 길이"><select value={form.length} onChange={(e) => patch({ length: e.target.value as Length })}>{(Object.keys(lengthLabel) as Length[]).map((key) => <option key={key} value={key}>{lengthLabel[key]}</option>)}</select></Field><Field label="이미지 수"><select value={form.imageCount} onChange={(e) => patch({ imageCount: Number(e.target.value) })}>{[2,3,4,5].map((n) => <option key={n} value={n}>{n}장</option>)}</select></Field></div>
           <div className="controlsActionDock">{error && <div className="errorBox stickyError">{error}</div>}{!apiHealth?.keyDetected && apiHealth && <div className="apiWarning">{apiHealth.message}</div>}<button className="primary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "구성 중…" : "✦ 블로그 콘텐츠 생성"}</button></div>
         </aside>}
