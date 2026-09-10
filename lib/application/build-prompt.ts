@@ -1,6 +1,6 @@
 import { FIELD_DEFINITIONS, getCategory, getPlatform, getPreset, getStructure, getStyle } from "../domain/content-config";
 import { getPlatformStrategy } from "../domain/platform-strategy";
-import { getStyleStrategy } from "../domain/style-strategy";
+import { buildAutoStyleCatalog, buildStylePrompt } from "../domain/style-strategy";
 import { buildTitleInstruction } from "../domain/title-strategy";
 import type { GenerateRequest } from "../domain/types";
 
@@ -20,7 +20,6 @@ export function buildPrompt(input: GenerateRequest) {
   const category = getCategory(input.categoryId);
   const preset = getPreset(input.categoryId, input.presetId);
   const style = getStyle(input.styleId);
-  const styleStrategy = getStyleStrategy(input.styleId);
   const structure = getStructure(input.structureId);
 
   const attributes = Object.entries(input.attributes ?? {})
@@ -35,11 +34,12 @@ export function buildPrompt(input: GenerateRequest) {
     category ? `- 상위 카테고리: ${category.label}` : null,
   ].filter(Boolean).join("\n");
 
+  const selectedStylePrompt = buildStylePrompt(input.styleId);
   const styleInstruction = input.styleId === "auto"
-    ? "주제·플랫폼·독자·글 목적에 가장 적절한 문체를 1개 선택하고 실제 문장 리듬과 어휘까지 그 문체로 작성한다. styleUsed에 한국어 이름을 기록한다."
+    ? `주제·플랫폼·독자·글 목적에 가장 적절한 문체를 아래 후보 중 1개 선택한다. 선택한 뒤에는 이름만 styleUsed에 기록하지 말고 그 문체의 제목·도입·소제목·문장 어미·문단 리듬까지 실제 글 전체에 일관되게 적용한다.\n\n[자동 문체 후보]\n${buildAutoStyleCatalog()}`
     : input.styleId === "custom"
-      ? `사용자 지정 문체: ${clean(input.customStyle) || "자연스럽고 읽기 쉬운 블로그 문체"}`
-      : `선택 문체: ${style?.label ?? input.styleId} — ${style?.description ?? ""}\n구체적 문체 규칙: ${styleStrategy?.instruction ?? "선택한 문체를 실제 문장에 분명히 반영한다."}`;
+      ? `사용자 지정 문체: ${clean(input.customStyle) || "자연스럽고 읽기 쉬운 블로그 문체"}\n사용자가 적은 문체 요청을 단순 키워드가 아니라 제목·도입·소제목·문장 어미·문단 리듬·마무리 방식까지 구체적으로 해석해 반영한다.`
+      : `선택 문체: ${style?.label ?? input.styleId} — ${style?.description ?? ""}\n\n[선택 문체 상세 작성 규칙]\n${selectedStylePrompt ?? "선택한 문체를 실제 문장에 분명히 반영한다."}`;
 
   const structureInstruction = input.structureId === "auto"
     ? "주제·목적·플랫폼에 가장 적절한 글 구성을 1개 선택해 structureUsed에 한국어 이름으로 기록하고 실제 섹션 구조에 반영한다."
@@ -75,8 +75,12 @@ ${clean(input.extraConditions) ? `- 기타 조건: ${clean(input.extraConditions
 - 글 길이: ${input.length}
 - 분량 기준: ${lengthGuide(input.length)}
 - 이미지 제작 가이드 수: ${input.imageCount}
-- 문체: ${styleInstruction}
 - 글 구성: ${structureInstruction}
+
+[문체 — 가장 높은 우선순위의 표현 규칙]
+${styleInstruction}
+
+문체 규칙은 콘텐츠의 사실성·안전 규칙을 깨지 않는 범위에서 플랫폼 기본 말투보다 우선한다. 특히 사용자가 특정 문체를 직접 골랐다면, 안전 정보라는 이유만으로 모든 문장을 획일적인 '-합니다/-됩니다' 안내문체로 되돌리지 않는다. 필요한 경고·주의 문장만 정확하고 단정하게 쓰고, 나머지 제목·도입·소제목·설명·전환·마무리는 선택 문체를 유지한다.
 
 [제목 전략]
 ${titleInstruction}
@@ -102,18 +106,19 @@ ${titleInstruction}
 반드시 아래 원칙을 지켜라.
 1. 작성 대상은 사용자가 지정한 '주제 그 자체'다. Blotori, 블로그 생성기, API, 프롬프트, 입력 폼, 설정값, 생성 과정, 샘플 모드 같은 도구 사용법을 본문 내용으로 설명하지 않는다. 사용자가 명시적으로 그것을 주제로 지정한 경우만 예외다.
 2. 카테고리와 주제는 의료에 한정되지 않는다. 음식, 일상, 여행, 리뷰, 교육, 취미 등 입력된 주제에 맞춰 실제 콘텐츠를 작성한다.
-3. 선택한 글 구성을 이름만 표시하지 말고 실제 본문 구조에 반영한다. 정보 정리형이면 정의·배경·핵심 정보·적용/활용·주의/팁 등 정보 밀도가 있는 섹션을 구성하고, 안내·교육형 문체라면 독자가 이해하고 따라가기 쉽게 용어를 풀어 설명한다.
-4. '핵심 내용 정리', '필요한 정보를 넣습니다', '실제 API에서는 생성됩니다'처럼 내용이 비어 있는 메타 문장이나 자리표시자 문장을 절대 쓰지 않는다. 모든 섹션은 그 주제에 대한 실제 내용으로 채운다.
-5. long/medium/short 분량 기준을 실제 본문에 반영한다. 특히 long은 짧은 요약본으로 끝내지 말고 충분한 정보량과 문단 수를 확보한다.
-6. 비어 있는 선택 조건은 추측해서 핵심 사실로 만들지 않는다. 특히 연령대, 가격, 장소, 치료방법, 사용기간 같은 구체값을 임의 생성하지 않는다.
-7. 건강·의료 주제일 때만 의료광고성 과장 표현과 단정적 진단·치료 보장을 피한다. 다른 카테고리에는 불필요한 의료 경고를 넣지 않는다.
-8. 플랫폼 특성에 맞게 문단 길이, 소제목 호흡, 이미지 간격을 조정한다.
-9. 이미지 자체는 생성하지 않는다. 외부 이미지 생성기에 그대로 복사할 수 있는 상세 한국어 프롬프트를 만든다.
-10. 이미지에는 한글 문구 생성을 요구하지 않는다. 정보 카드가 필요하면 텍스트 없는 그래픽 구성으로 요청한다.
-11. 첫 이미지는 HERO이며 afterSectionId=null이다. 나머지는 CONTEXT, EXPLAINER, PROCESS, TIP, CAUTION 중 내용에 맞는 역할을 고른다.
-12. 이미지는 연속 배치하지 않고 관련 섹션 뒤에 둔다. placement는 사람이 복붙 후 바로 찾을 수 있게 구체적으로 쓴다.
-13. 동일한 내용을 반복하지 않고, 선택한 분량과 글 구성에 맞게 충분한 섹션과 문단을 작성한다.
-14. styleUsed와 structureUsed를 반드시 반환한다.
+3. 선택한 글 구성을 이름만 표시하지 말고 실제 본문 구조에 반영한다. 정보 정리형이면 정의·배경·핵심 정보·적용/활용·주의/팁 등 정보 밀도가 있는 섹션을 구성한다.
+4. 선택한 문체를 styleUsed에 이름만 기록하고 본문은 평범한 설명체로 쓰는 것을 금지한다. title, intro, section heading, paragraphs, closing 전체에서 선택 문체의 차이가 느껴져야 한다.
+5. '핵심 내용 정리', '필요한 정보를 넣습니다', '실제 API에서는 생성됩니다'처럼 내용이 비어 있는 메타 문장이나 자리표시자 문장을 절대 쓰지 않는다. 모든 섹션은 그 주제에 대한 실제 내용으로 채운다.
+6. long/medium/short 분량 기준을 실제 본문에 반영한다. 특히 long은 짧은 요약본으로 끝내지 말고 충분한 정보량과 문단 수를 확보한다.
+7. 비어 있는 선택 조건은 추측해서 핵심 사실로 만들지 않는다. 특히 연령대, 가격, 장소, 치료방법, 사용기간 같은 구체값을 임의 생성하지 않는다.
+8. 건강·의료 주제일 때만 의료광고성 과장 표현과 단정적 진단·치료 보장을 피한다. 다른 카테고리에는 불필요한 의료 경고를 넣지 않는다.
+9. 플랫폼 특성에 맞게 문단 길이, 소제목 호흡, 이미지 간격을 조정하되 선택 문체의 개성은 유지한다.
+10. 이미지 자체는 생성하지 않는다. 외부 이미지 생성기에 그대로 복사할 수 있는 상세 한국어 프롬프트를 만든다.
+11. 이미지에는 한글 문구 생성을 요구하지 않는다. 정보 카드가 필요하면 텍스트 없는 그래픽 구성으로 요청한다.
+12. 첫 이미지는 HERO이며 afterSectionId=null이다. 나머지는 CONTEXT, EXPLAINER, PROCESS, TIP, CAUTION 중 내용에 맞는 역할을 고른다.
+13. 이미지는 연속 배치하지 않고 관련 섹션 뒤에 둔다. placement는 사람이 복붙 후 바로 찾을 수 있게 구체적으로 쓴다.
+14. 동일한 내용을 반복하지 않고, 선택한 분량과 글 구성에 맞게 충분한 섹션과 문단을 작성한다.
+15. styleUsed와 structureUsed를 반드시 반환한다.
 
 JSON 외의 문장을 출력하지 마라.
 {
