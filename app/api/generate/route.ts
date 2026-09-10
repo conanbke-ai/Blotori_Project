@@ -6,10 +6,17 @@ export const runtime = "nodejs";
 
 function isValidInput(input: Partial<GenerateRequest>): input is GenerateRequest {
   const hasTopic = Boolean(input.presetId || input.freeTopic?.trim());
+  const intensityValid = input.styleIntensity == null || (
+    Number.isInteger(input.styleIntensity) &&
+    Number(input.styleIntensity) >= 1 &&
+    Number(input.styleIntensity) <= 5
+  );
+
   return Boolean(
     input.platformId &&
       hasTopic &&
       input.styleId &&
+      intensityValid &&
       input.structureId &&
       input.length &&
       Number.isInteger(input.imageCount) &&
@@ -25,7 +32,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "플랫폼, 주제, 출력 설정을 확인해 주세요." }, { status: 400 });
     }
 
-    const result = await generateBlogDraft({ ...input, attributes: input.attributes ?? {} });
+    const result = await generateBlogDraft({ ...input, styleIntensity: input.styleIntensity ?? 3, attributes: input.attributes ?? {} });
     return NextResponse.json(result);
   } catch (error) {
     console.error(error);
