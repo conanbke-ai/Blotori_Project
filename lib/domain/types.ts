@@ -6,6 +6,7 @@ export type ImageRole = "HERO" | "CONTEXT" | "EXPLAINER" | "PROCESS" | "TIP" | "
 export type TextAlign = "left" | "center";
 export type EmphasisKind = "bold" | "accent" | "highlight";
 export type SectionVisualStyle = "standard" | "key-point" | "callout" | "quote";
+export type ImageContinuityMode = "independent" | "series";
 
 export interface GenerateRequest {
   platformId: PlatformId;
@@ -50,6 +51,10 @@ export interface ImagePlan {
   ratio: "16:9" | "4:3" | "1:1" | "4:5" | "3:2";
   size: string;
   prompt: string;
+  continuityMode?: ImageContinuityMode;
+  continuityGroup?: string | null;
+  subjectProfile?: string;
+  referenceImageId?: string | null;
 }
 
 export interface BlogSection {
