@@ -10,15 +10,15 @@
 }
 
 .blotoriMascotTop {
-  width: 64px;
-  height: 64px;
-  padding: 5px;
+  width: 70px;
+  height: 70px;
+  padding: 0;
   border-radius: 20px;
-  object-fit: cover;
-  object-position: center 34%;
-  background: linear-gradient(145deg, #eefafa, #fff4ee);
-  border: 1px solid #d4e9ec;
-  box-shadow: 0 8px 22px rgba(49, 91, 122, .12);
+  object-fit: contain;
+  object-position: center bottom;
+  background: transparent;
+  border: 0;
+  filter: drop-shadow(0 8px 16px rgba(49, 91, 122, .14));
 }
 
 .brandIntro::after {
@@ -72,13 +72,43 @@
 .blotoriEmptyState::before { left: calc(50% - 230px); top: calc(50% - 126px); transform: rotate(-8deg); background: linear-gradient(#69c7d5,#69c7d5) 24px 26px / 43px 7px no-repeat, linear-gradient(#d9ecef,#d9ecef) 24px 43px / 67px 5px no-repeat, linear-gradient(#d9ecef,#d9ecef) 24px 56px / 54px 5px no-repeat, rgba(255,255,255,.9); }
 .blotoriEmptyState::after { right: calc(50% - 234px); bottom: calc(50% - 138px); transform: rotate(7deg); background: linear-gradient(145deg, #effafa, #fff6f1); }
 
-.blotoriMascotEmpty { width: 138px; height: 138px; padding: 8px; border-radius: 32px; object-fit: cover; object-position: center 33%; background: linear-gradient(145deg, #eaf8fa, #fff1e9); border: 1px solid #d5e9ec; box-shadow: 0 18px 34px rgba(49,91,122,.11); z-index: 2; }
+.blotoriMascotEmpty {
+  width: 148px;
+  height: 176px;
+  padding: 0;
+  border-radius: 0;
+  object-fit: contain;
+  object-position: center bottom;
+  background: transparent;
+  border: 0;
+  filter: drop-shadow(0 14px 22px rgba(49,91,122,.13));
+  z-index: 2;
+}
 .blotoriEmptyState > div { position: relative; z-index: 2; }
 .blotoriEmptyState > div::before { content: "Aa"; display: inline-grid; place-items: center; width: 36px; height: 36px; margin-bottom: 10px; border-radius: 12px; background: #eef9fa; color: var(--blotori-teal); font-size: 13px; font-weight: 900; border: 1px solid #d6e9ec; }
 
 .imageSlot .slotArt::before { content: ""; width: 32px; height: 32px; margin-right: 8px; background: var(--blotori-teal); -webkit-mask: var(--icon-image) center / contain no-repeat; mask: var(--icon-image) center / contain no-repeat; opacity: .72; }
 .slotArt { grid-template-columns: auto auto; align-content: center; justify-content: center; }
-.loadingMascot { width: 98px; height: 98px; padding: 6px; border-radius: 26px; object-fit: cover; object-position: center 33%; background: linear-gradient(145deg, #eefafa, #fff4ee); border: 1px solid #d6eaed; }
+.loadingMascot {
+  width: 116px;
+  height: 144px;
+  padding: 0;
+  border-radius: 0;
+  object-fit: contain;
+  object-position: center bottom;
+  background: transparent;
+  border: 0;
+  filter: drop-shadow(0 13px 22px rgba(49,91,122,.14));
+  animation: blotoriCharacterCompose 1.55s ease-in-out infinite;
+  transform-origin: 50% 92%;
+}
+
+@keyframes blotoriCharacterCompose {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  35% { transform: translateY(-7px) rotate(1deg); }
+  55% { transform: translateY(-4px) rotate(-1deg) scale(1.015); }
+  75% { transform: translateY(-7px) rotate(1.5deg); }
+}
 
 .titleCandidatePanel {
   margin: 18px 0 24px;
@@ -165,12 +195,13 @@
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .loadingMascot { animation: none !important; }
 }
 
 @media (max-width: 860px) {
   .brandIntro::after { display: none; }
-  .blotoriMascotTop { width: 52px; height: 52px; border-radius: 16px; }
+  .blotoriMascotTop { width: 58px; height: 58px; }
   .blotoriEmptyState::before, .blotoriEmptyState::after { opacity: .55; transform: scale(.82); }
-  .blotoriMascotEmpty { width: 108px; height: 108px; }
+  .blotoriMascotEmpty { width: 116px; height: 144px; }
   .titleCandidatePanel > div:first-child { align-items: flex-start; flex-direction: column; }
 }
