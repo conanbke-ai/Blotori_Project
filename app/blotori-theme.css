@@ -76,6 +76,22 @@ body {
   z-index: 1;
 }
 
+.brandIntro {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.blotoriMascotTop {
+  width: 92px;
+  height: 112px;
+  object-fit: contain;
+  object-position: center bottom;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 9px 16px rgba(49,91,122,.14));
+}
+
 .eyebrow {
   color: var(--blotori-teal);
   letter-spacing: .18em;
@@ -106,6 +122,39 @@ body {
   box-shadow: 0 9px 24px rgba(49, 91, 122, .17);
 }
 
+.apiStatus {
+  min-height: 44px;
+  display: inline-grid;
+  grid-template-columns: 8px auto;
+  align-content: center;
+  column-gap: 7px;
+  padding: 7px 11px;
+  border-radius: 13px;
+  border: 1px solid #dcecef;
+  background: rgba(255,255,255,.92);
+  color: #5d7581;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.apiStatus small {
+  grid-column: 2;
+  color: #91a2aa;
+  font-size: 8.5px;
+  font-weight: 700;
+}
+
+.apiDot {
+  width: 8px;
+  height: 8px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: #c9d3d8;
+}
+
+.apiStatus.ok .apiDot { background: #39b97b; box-shadow: 0 0 0 4px rgba(57,185,123,.10); }
+.apiStatus.bad .apiDot { background: #e17968; box-shadow: 0 0 0 4px rgba(225,121,104,.10); }
+
 .panel {
   border-color: var(--line);
   border-radius: 22px;
@@ -117,7 +166,33 @@ body {
   background:
     linear-gradient(180deg, rgba(234, 248, 250, .55), rgba(255,255,255,0) 150px),
     var(--blotori-paper);
+  padding-bottom: 0;
 }
+
+.controlsActionDock {
+  position: sticky;
+  bottom: 0;
+  z-index: 7;
+  margin: 18px -18px 0;
+  padding: 12px 18px 18px;
+  border-top: 1px solid #dcecef;
+  background: linear-gradient(180deg, rgba(255,253,249,.82), rgba(255,253,249,.99) 25%);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -10px 24px rgba(49,91,122,.06);
+}
+
+.apiWarning {
+  margin-bottom: 8px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: #fff0ec;
+  border: 1px solid #f2d6ce;
+  color: #9c5c4c;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.stickyError { margin: 0 0 8px; }
 
 .panelHeader h2,
 .field > span,
@@ -187,6 +262,37 @@ body {
     linear-gradient(rgba(105,199,213,.035) 1px, transparent 1px),
     #f7fbfc;
   background-size: 28px 28px;
+}
+
+.blotoriEmptyState {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 430px);
+  gap: 24px;
+  align-content: center;
+  justify-content: center;
+  text-align: left;
+}
+
+.blotoriMascotEmpty {
+  width: 170px;
+  height: 240px;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 14px 22px rgba(49,91,122,.14));
+}
+
+.emptyApiHint {
+  display: inline-flex;
+  margin-top: 12px !important;
+  min-height: 30px;
+  align-items: center;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid #dcecef;
+  background: #fff;
+  color: var(--blotori-teal) !important;
+  font-size: 10px !important;
+  font-weight: 800;
 }
 
 .blogPaper {
@@ -297,28 +403,22 @@ body {
   border-color: var(--blotori-sky);
 }
 
+.loadingMascot {
+  width: 118px;
+  height: 165px;
+  object-fit: contain;
+  object-position: center bottom;
+  margin: -5px auto 4px;
+  filter: drop-shadow(0 10px 18px rgba(49,91,122,.14));
+}
+
 /* Platform personality remains visible inside the shared Blotori shell. */
-.platform-naver {
-  border-top: 4px solid #03c75a;
-}
+.platform-naver { border-top: 4px solid #03c75a; }
+.platform-tistory { border-top: 4px solid #ff5a4e; }
+.platform-blogger { border-top: 4px solid #f39c12; }
+.platform-wordpress { border-top: 4px solid #21759b; }
+.platform-brunch { border-top: 4px solid #222; }
 
-.platform-tistory {
-  border-top: 4px solid #ff5a4e;
-}
-
-.platform-blogger {
-  border-top: 4px solid #f39c12;
-}
-
-.platform-wordpress {
-  border-top: 4px solid #21759b;
-}
-
-.platform-brunch {
-  border-top: 4px solid #222;
-}
-
-/* TORI accessibility: custom effects never block reduced motion users. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;
@@ -328,18 +428,24 @@ body {
   }
 }
 
+@media (max-width: 1040px) {
+  .brandIntro { align-items: flex-start; }
+  .blotoriMascotTop { width: 72px; height: 92px; }
+  .apiStatus { order: 5; }
+}
+
 @media (max-width: 860px) {
   .topbar {
     border-radius: 20px;
     padding: 17px 16px;
   }
-  .topbar::after {
-    display: none;
+  .topbar::after { display: none; }
+  .topbar h1::after { font-size: 11px; }
+  .blogPaper::before { margin-bottom: 15px; }
+  .blotoriEmptyState {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
   }
-  .topbar h1::after {
-    font-size: 11px;
-  }
-  .blogPaper::before {
-    margin-bottom: 15px;
-  }
+  .blotoriMascotEmpty { width: 120px; height: 165px; }
 }
