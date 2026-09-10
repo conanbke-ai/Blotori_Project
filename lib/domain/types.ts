@@ -94,8 +94,10 @@ export interface BlogDraft {
 export interface PlatformExport {
   platformId: PlatformId;
   label: string;
+  titleText: string;
   plainText: string;
   html?: string;
   tagsText: string;
+  formattingGuide?: string;
   clipboardMode: "plain" | "rich";
 }
