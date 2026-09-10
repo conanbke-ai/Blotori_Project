@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import ImageSlotUploadEnhancer from "./ImageSlotUploadEnhancer";
 import StylePreviewPortal from "./StylePreviewPortal";
+import TitleCopyEnhancer from "./TitleCopyEnhancer";
 import ToriPawCursor from "./ToriPawCursor";
 import "./globals.css";
 import "./blotori-theme.css";
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         {children}
         <ImageSlotUploadEnhancer />
         <StylePreviewPortal />
+        <TitleCopyEnhancer />
         <ToriPawCursor />
       </body>
     </html>
