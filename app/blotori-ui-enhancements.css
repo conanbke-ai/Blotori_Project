@@ -124,6 +124,49 @@
 .slotInfo input:focus,
 .tagsEditing input:focus { border-color: var(--blotori-sky); box-shadow: 0 0 0 3px rgba(105,199,213,.12); }
 
+/* TORI common paw derivative: shape follows the canonical common paw, colors follow Blotori. */
+@media (pointer: fine) {
+  body,
+  .appShell,
+  .panel,
+  .blogPaper,
+  .imageSlot {
+    cursor: url('/blotori-paw-default.png') 28 24, auto;
+  }
+
+  button,
+  a,
+  [role='button'],
+  select,
+  input[type='checkbox'],
+  input[type='radio'],
+  input[type='range'] {
+    cursor: url('/blotori-paw-default.png') 28 24, pointer;
+  }
+
+  button:active,
+  a:active,
+  [role='button']:active {
+    cursor: url('/blotori-paw-pressed.png') 28 24, pointer;
+  }
+
+  input[type='text'],
+  input:not([type]),
+  textarea,
+  .titleEdit,
+  .summaryEdit,
+  .sectionHeadingEdit,
+  .promptEdit,
+  .promptTextarea,
+  .tagsEditing input {
+    cursor: text;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 @media (max-width: 860px) {
   .brandIntro::after { display: none; }
   .blotoriMascotTop { width: 52px; height: 52px; border-radius: 16px; }
