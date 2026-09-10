@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
+    "knowledge:organize:plan": "node scripts/organize-knowledge-base.mjs",
+    "knowledge:organize": "node scripts/organize-knowledge-base.mjs --apply",
     "knowledge:plan": "node scripts/sync-knowledge-base.mjs --dry-run",
     "knowledge:plan:research": "node scripts/sync-knowledge-base.mjs --dry-run --profile=research",
     "knowledge:sync": "node scripts/sync-knowledge-base.mjs --profile=commercial",
