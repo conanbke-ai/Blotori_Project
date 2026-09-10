@@ -1,13 +1,33 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
 export const runtime = "nodejs";
+
+function diagnostics() {
+  const cwd = process.cwd();
+  const envFiles = [".env.local", ".env", ".env.development.local", ".env.development", ".env.local.txt", ".env.txt"];
+  const envFileStatus = Object.fromEntries(
+    envFiles.map((name) => [name, existsSync(join(cwd, name))]),
+  );
+  const openAiVariableNames = Object.keys(process.env)
+    .filter((name) => /OPENAI|GPT/i.test(name))
+    .sort();
+
+  return {
+    cwd,
+    envFileStatus,
+    openAiVariableNames,
+  };
+}
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const verify = url.searchParams.get("verify") === "1";
   const apiKey = process.env.OPENAI_API_KEY;
   const model = process.env.OPENAI_MODEL || "gpt-5.6-luna";
+  const diag = diagnostics();
 
   if (!apiKey) {
     return NextResponse.json({
@@ -16,6 +36,7 @@ export async function GET(request: Request) {
       model,
       verified: false,
       message: "OPENAI_API_KEY가 Next.js 서버에서 감지되지 않았습니다.",
+      diagnostics: diag,
     });
   }
 
@@ -26,6 +47,7 @@ export async function GET(request: Request) {
       model,
       verified: false,
       message: "API 키가 서버 환경변수에서 감지되었습니다. 실제 호출 검증은 verify=1에서 수행합니다.",
+      diagnostics: diag,
     });
   }
 
@@ -44,6 +66,7 @@ export async function GET(request: Request) {
       verified: true,
       message: "OpenAI API 실제 호출까지 확인되었습니다.",
       sample: response.output_text.trim().slice(0, 32),
+      diagnostics: diag,
     });
   } catch (error) {
     return NextResponse.json(
@@ -53,6 +76,7 @@ export async function GET(request: Request) {
         model,
         verified: true,
         message: error instanceof Error ? error.message : "OpenAI API 연결 확인 중 오류가 발생했습니다.",
+        diagnostics: diag,
       },
       { status: 502 },
     );
