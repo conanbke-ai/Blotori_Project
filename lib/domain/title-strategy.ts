@@ -1,4 +1,4 @@
-import type { GenerateRequest, PlatformId, StyleId } from "./types";
+import type { GenerateRequest, PlatformId } from "./types";
 import { getStyleStrategy } from "./style-strategy";
 
 const platformTitleRules: Record<PlatformId, string> = {
@@ -10,25 +10,17 @@ const platformTitleRules: Record<PlatformId, string> = {
   other: "플랫폼 정보가 없으면 주제와 독자 목적이 명확한 범용 블로그 제목을 만든다.",
 };
 
-const styleTitleRules: Partial<Record<StyleId, string>> = {
-  "easy-expert": "전문성을 잃지 않되 일반 독자가 바로 이해할 수 있는 쉬운 제목을 쓴다.",
-  "patient-guide": "불안을 자극하지 않고 무엇을 알게 되는지 차분히 안내하는 제목을 쓴다.",
-  "professional-column": "가볍거나 낚시성 표현 없이 논점과 맥락이 드러나는 칼럼형 제목을 쓴다.",
-  "honest-review": "직접 경험한 느낌과 판단 기준이 드러나는 후기형 제목을 쓴다.",
-  "casual-daily": "친구에게 이야기를 꺼내듯 자연스럽고 생활감 있는 제목을 쓴다.",
-  "emotional-essay": "장면이나 감정, 여운을 살리는 제목을 쓴다. 정보 키워드 나열을 피한다.",
-  "concise-record": "군더더기 없이 짧고 명확한 제목을 쓴다.",
-  "friendly-info": "정보성이 분명하면서도 딱딱하지 않은 제목을 쓴다.",
-  playful: "가벼운 말맛과 호기심을 살리되 과장·낚시성 표현은 피한다.",
-};
-
 function clean(value?: string) {
   return value?.trim() || "";
 }
 
 export function buildTitleInstruction(input: GenerateRequest): string {
   const explicitGoal = clean(input.attributes?.goal);
-  const styleRule = styleTitleRules[input.styleId] ?? getStyleStrategy(input.styleId)?.instruction ?? "선택한 문체와 제목의 말투가 일치해야 한다.";
+  const styleRule = input.styleId === "custom"
+    ? `사용자 지정 문체 “${clean(input.customStyle)}”의 말맛과 강도를 제목에도 반영한다.`
+    : input.styleId === "auto"
+      ? "본문에서 선택할 문체와 제목의 말투가 반드시 일치해야 한다."
+      : getStyleStrategy(input.styleId)?.titleRule ?? "선택한 문체와 제목의 말투가 일치해야 한다.";
   const purposeRule = explicitGoal
     ? `사용자가 지정한 글의 목적은 “${explicitGoal}”이다. 제목부터 이 목적이 자연스럽게 드러나야 한다.`
     : "별도 목적이 없으면 주제 프리셋·글 구성·독자를 바탕으로 가장 자연스러운 목적을 추론한다. 정보 정리형이면 정보 이득, 가이드형이면 해결/행동, 후기형이면 경험/평가, 스토리형이면 호기심과 장면을 우선한다.";
