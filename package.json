@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "qa:platform": "node scripts/validate-platform-export.mjs",
+    "qa:rag": "node scripts/validate-rag-response.mjs",
+    "qa:rag:strict": "node scripts/validate-rag-response.mjs --require-rag --strict",
     "knowledge:organize:plan": "node scripts/organize-knowledge-base.mjs",
     "knowledge:organize": "node scripts/organize-knowledge-base.mjs --apply",
     "knowledge:audit": "node scripts/audit-knowledge-base.mjs",
