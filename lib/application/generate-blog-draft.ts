@@ -1,4 +1,5 @@
 import { ensureWarnings, normalizeImagePlans } from "../domain/rules";
+import { normalizeGlossaryFootnotes } from "../domain/glossary";
 import type { BlogDraft, GenerateRequest } from "../domain/types";
 import { makeMockDraft } from "../infrastructure/mock-content-adapter";
 import { generateWithOpenAI } from "../infrastructure/openai-content-adapter";
@@ -11,11 +12,13 @@ export interface GenerateBlogDraftResult {
 }
 
 function normalizeDraft(draft: BlogDraft, imageCount: number): BlogDraft {
-  return ensureWarnings({
+  const normalized = normalizeGlossaryFootnotes({
     ...draft,
     images: normalizeImagePlans(draft.images ?? [], imageCount),
     warnings: draft.warnings ?? [],
   });
+
+  return ensureWarnings(normalized);
 }
 
 export async function generateBlogDraft(input: GenerateRequest): Promise<GenerateBlogDraftResult> {

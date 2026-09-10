@@ -13,6 +13,7 @@
 - `main` 기준 V1 runtime QA / 플랫폼 붙여넣기 검증 / visual acceptance
 - TORI 표준 기반 Blotori Composer UI / 플랫폼별 생성·복사 품질 / 제목·문체 전략
 - Blotori canonical character/icon asset 적용 + hydration 안정화 + loading motion QA
+- 일반 독자용 전문용어 footnote / glossary 생성·정규화·플랫폼 export QA
 
 ## V1 scope
 
@@ -35,6 +36,9 @@
 - [x] 이미지 프롬프트 개별 복사
 - [x] 플랫폼용 본문 복사 + 태그 별도 복사
 - [x] 의료 표현 Rule Engine 1차
+- [x] 일반 독자용 전문용어 최대 5개 제한 + 최초 1회 `*` 표시
+- [x] `용어해설` 자동 정규화 + 본문 미사용 용어 제거 + 작은 글씨 렌더링
+- [x] 플랫폼 export에서 closing 뒤 하단 용어해설 배치
 - [x] Blotori character canonical lock
 - [x] Blotori TORI Family 디자인 토큰/테마
 - [x] TORI common paw canonical 공통 저장소 등록
@@ -52,6 +56,7 @@
 - [ ] 실제 OpenAI API 응답 통합 QA
 - [ ] 실제 네이버 스마트에디터 복붙 보존 테스트
 - [ ] rich clipboard 플랫폼 실제 붙여넣기 검증
+- [ ] glossary가 포함된 실제 API 응답 / 네이버 붙여넣기 QA
 - [ ] 사용자 생성 이미지 슬롯 업로드/미리보기
 - [ ] desktop / tablet / mobile visual acceptance
 
@@ -65,6 +70,16 @@
 - 문체 강도는 기존 단일 생성 프롬프트에 포함하며 추가 AI 재호출을 만들지 않는다.
 
 상세 기준: `docs/WRITING_STYLE_INTENSITY_STANDARD.md`
+
+## Glossary footnote
+
+- 기본 독자는 일반 블로그 이용자다.
+- 쉬운 표현만으로 정확하게 설명할 수 있으면 전문용어를 억지로 넣지 않는다.
+- 전문용어는 글 1건당 최대 5개를 기본 상한으로 한다.
+- 본문 최초 등장 1회에만 `*`를 붙이고, 하단 `용어해설`에서 짧고 쉬운 1문장으로 설명한다.
+- glossary 정규화와 export 변환은 코드 기반으로 수행하며 AI 재호출을 추가하지 않는다.
+
+상세 기준: `docs/BLOTORI_GLOSSARY_FOOTNOTE_STANDARD.md`
 
 ## Common TORI dependency
 

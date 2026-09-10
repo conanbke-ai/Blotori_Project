@@ -7,6 +7,7 @@ import "./blotori-theme.css";
 import "./blotori-states.css";
 import "./blotori-ui-enhancements.css";
 import "./style-preview.css";
+import "./glossary.css";
 import "./tori-paw-cursor.css";
 
 export const metadata: Metadata = {

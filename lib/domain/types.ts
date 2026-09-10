@@ -6,7 +6,7 @@ export type Length = "short" | "medium" | "long";
 export type ImageRole = "HERO" | "CONTEXT" | "EXPLAINER" | "PROCESS" | "TIP" | "CAUTION";
 export type TextAlign = "left" | "center";
 export type EmphasisKind = "bold" | "accent" | "highlight";
-export type SectionVisualStyle = "standard" | "key-point" | "callout" | "quote";
+export type SectionVisualStyle = "standard" | "key-point" | "callout" | "quote" | "glossary";
 export type ImageContinuityMode = "independent" | "series";
 
 export interface GenerateRequest {
