@@ -3,6 +3,9 @@ export type StyleId = "auto" | "custom" | "easy-expert" | "patient-guide" | "pro
 export type StructureId = "auto" | "custom" | "information" | "guide" | "review" | "story" | "faq" | "checklist" | "comparison";
 export type Length = "short" | "medium" | "long";
 export type ImageRole = "HERO" | "CONTEXT" | "EXPLAINER" | "PROCESS" | "TIP" | "CAUTION";
+export type TextAlign = "left" | "center";
+export type EmphasisKind = "bold" | "accent" | "highlight";
+export type SectionVisualStyle = "standard" | "key-point" | "callout" | "quote";
 
 export interface GenerateRequest {
   platformId: PlatformId;
@@ -20,6 +23,24 @@ export interface GenerateRequest {
   imageCount: number;
 }
 
+export interface TextEmphasis {
+  phrase: string;
+  kind: EmphasisKind;
+}
+
+export interface SectionPresentation {
+  headingAlign?: TextAlign;
+  bodyAlign?: TextAlign;
+  visualStyle?: SectionVisualStyle;
+  emphasis?: TextEmphasis[];
+}
+
+export interface DraftPresentation {
+  titleAlign?: TextAlign;
+  introAlign?: TextAlign;
+  density?: "airy" | "balanced" | "dense";
+}
+
 export interface ImagePlan {
   id: string;
   role: ImageRole;
@@ -35,6 +56,7 @@ export interface BlogSection {
   id: string;
   heading: string;
   paragraphs: string[];
+  presentation?: SectionPresentation;
 }
 
 export interface BlogDraft {
@@ -42,6 +64,7 @@ export interface BlogDraft {
   summary: string;
   styleUsed?: string;
   structureUsed?: string;
+  presentation?: DraftPresentation;
   intro: string[];
   sections: BlogSection[];
   closing: string[];
