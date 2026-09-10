@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
+    "qa:platform": "node scripts/validate-platform-export.mjs",
     "knowledge:organize:plan": "node scripts/organize-knowledge-base.mjs",
     "knowledge:organize": "node scripts/organize-knowledge-base.mjs --apply",
     "knowledge:plan": "node scripts/sync-knowledge-base.mjs --dry-run",
