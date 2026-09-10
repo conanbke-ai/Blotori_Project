@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import "./blotori-theme.css";
 import "./blotori-states.css";
+import "./blotori-ui-enhancements.css";
 
 export const metadata: Metadata = {
   title: "Blotori",
