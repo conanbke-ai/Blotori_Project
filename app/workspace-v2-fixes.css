@@ -1,7 +1,51 @@
+.workspaceV2 .eyebrow::before,
+.workspaceV2 .topbar h1::after {
+  content: none;
+  display: none;
+}
+
+.workspaceV2 .apiWarning {
+  display: none;
+}
+
+/* The full-body WebP has intermittent decode failures in Chromium at larger
+ * viewports. Keep the canonical-derived face asset as the stable product-UI
+ * presentation until the full-body source is re-encoded. */
+.workspaceV2 .blotoriMascotTop,
+.workspaceV2 .blotoriMascotEmpty {
+  display: none;
+}
+
+.workspaceV2 .compactBrand::before,
+.workspaceV2 .workspaceEmpty::before {
+  content: "";
+  flex: 0 0 auto;
+  display: block;
+  background: url('/blotori-face-ui.webp') center / contain no-repeat;
+  filter: drop-shadow(0 9px 16px rgba(49, 91, 122, .14));
+}
+
+.workspaceV2 .compactBrand::before {
+  width: 72px;
+  height: 72px;
+}
+
+.workspaceV2 .workspaceEmpty::before {
+  width: 148px;
+  height: 148px;
+  align-self: center;
+  justify-self: center;
+}
+
 @media (min-width: 761px) and (max-width: 1180px) {
   .workspaceGridV2.settingsClosed,
   .workspaceGridV2.settingsClosed.guideClosed {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspaceV2 .compactBrand::before {
+    width: 60px;
+    height: 60px;
   }
 }
 
@@ -13,5 +57,20 @@
 
   .workspaceV2.mobile-preview .previewStage {
     overflow: hidden;
+  }
+
+  .workspaceV2 .compactBrand::before {
+    width: 54px;
+    height: 54px;
+  }
+
+  .workspaceV2 .workspaceEmpty::before {
+    width: 112px;
+    height: 112px;
+  }
+
+  .workspaceV2 .successToast {
+    top: auto;
+    bottom: max(82px, calc(env(safe-area-inset-bottom) + 82px));
   }
 }
