@@ -8,9 +8,26 @@
   display: none;
 }
 
-/* The full-body WebP has intermittent decode failures in Chromium at larger
- * viewports. Keep the canonical-derived face asset as the stable product-UI
- * presentation until the full-body source is re-encoded. */
+.workspaceV2 .settingsRail {
+  counter-reset: visible-setting-step;
+}
+
+.workspaceV2 .settingGroup {
+  counter-increment: visible-setting-step;
+}
+
+.workspaceV2 .settingGroupHeader > span {
+  font-size: 0;
+}
+
+.workspaceV2 .settingGroupHeader > span::after {
+  content: counter(visible-setting-step);
+  font-size: 13px;
+}
+
+/* Full-body WebP decoding is intermittent in Chromium. Product UI therefore
+ * uses the approved Blotori-derived common paw asset as the stable decorative
+ * brand marker; no alternate rabbit anatomy is introduced. */
 .workspaceV2 .blotoriMascotTop,
 .workspaceV2 .blotoriMascotEmpty {
   display: none;
@@ -21,20 +38,26 @@
   content: "";
   flex: 0 0 auto;
   display: block;
-  background: url('/blotori-face-ui.webp') center / contain no-repeat;
-  filter: drop-shadow(0 9px 16px rgba(49, 91, 122, .14));
+  background: url('/blotori-paw-default.png') center / contain no-repeat;
+  filter: drop-shadow(0 8px 14px rgba(49, 91, 122, .12));
 }
 
 .workspaceV2 .compactBrand::before {
-  width: 72px;
-  height: 72px;
+  width: 58px;
+  height: 58px;
 }
 
 .workspaceV2 .workspaceEmpty::before {
-  width: 148px;
-  height: 148px;
+  width: 118px;
+  height: 118px;
   align-self: center;
   justify-self: center;
+}
+
+.workspaceV2 .successPaw {
+  background:
+    url('/blotori-paw-default.png') center / 38px 38px no-repeat,
+    linear-gradient(145deg, #eaf8fa, #fff1e9);
 }
 
 @media (min-width: 761px) and (max-width: 1180px) {
@@ -44,8 +67,8 @@
   }
 
   .workspaceV2 .compactBrand::before {
-    width: 60px;
-    height: 60px;
+    width: 52px;
+    height: 52px;
   }
 }
 
@@ -60,13 +83,13 @@
   }
 
   .workspaceV2 .compactBrand::before {
-    width: 54px;
-    height: 54px;
+    width: 46px;
+    height: 46px;
   }
 
   .workspaceV2 .workspaceEmpty::before {
-    width: 112px;
-    height: 112px;
+    width: 92px;
+    height: 92px;
   }
 
   .workspaceV2 .successToast {
