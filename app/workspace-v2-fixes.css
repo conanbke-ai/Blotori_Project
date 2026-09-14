@@ -25,8 +25,9 @@
   font-size: 13px;
 }
 
-/* Brand hierarchy: face icon in the app chrome, full Blotori character in
- * empty/loading states. Paw assets remain cursor/success feedback only. */
+/* Brand hierarchy: one canonical Blotori source, cropped to the face in app
+ * chrome and shown in full in empty/loading states. Paw assets remain cursor
+ * and success feedback only. */
 .workspaceV2 .blotoriMascotTop {
   display: none;
 }
@@ -38,7 +39,11 @@
   width: 58px;
   height: 58px;
   border-radius: 20px;
-  background: #fff url('/blotori-face-ui.webp') center / 88% 88% no-repeat;
+  background-color: #fff;
+  background-image: url('/blotori-canonical-mini.webp');
+  background-repeat: no-repeat;
+  background-size: 106px auto;
+  background-position: center -22px;
   border: 1px solid rgba(105, 199, 213, .34);
   box-shadow: 0 9px 22px rgba(49, 91, 122, .10);
 }
@@ -105,6 +110,8 @@
   .workspaceV2 .compactBrand::before {
     width: 52px;
     height: 52px;
+    background-size: 96px auto;
+    background-position: center -20px;
   }
 }
 
@@ -122,6 +129,8 @@
     width: 46px;
     height: 46px;
     border-radius: 16px;
+    background-size: 85px auto;
+    background-position: center -18px;
   }
 
   .workspaceV2 .blotoriMascotEmpty {
