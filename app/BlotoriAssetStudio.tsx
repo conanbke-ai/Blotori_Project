@@ -157,7 +157,7 @@ export default function BlotoriAssetStudio() {
         const profile = styles.find((item) => item.id === selectedStyleId);
         if (profile) {
           payload.styleId = "custom";
-          payload.customStyle = `${profile.signature}\n\n이 문체 프로필의 이름은 '${profile.name}'이다. 문장 자체를 복제하지 말고 분석된 특성만 적용한다.`;
+          payload.customStyle = `${profile.signature}\n\n원문 문장을 복제하지 말고 분석된 문체 특성만 적용한다.`;
           payload.styleIntensity = profile.defaultIntensity;
           payload.styleProfileName = profile.name;
         }

@@ -273,7 +273,7 @@ export default function Home() {
             })}
           </SettingGroup>}
 
-          <SettingGroup index="4" title="문체와 구성" description="자동 추천을 기본으로 두고 필요할 때만 조정해요.">
+          <SettingGroup index="4" title="기본 문체 · 글 구성" description="저장한 내 문체를 쓰지 않을 때 적용할 기본값과 글 구조를 정해요.">
             <Field label="글 구성"><select value={form.structureId} onChange={(e) => patch({ structureId: e.target.value as StructureId })}><option value="auto">자동 추천</option>{recommendedStructures.length > 0 && <optgroup label="이 주제 추천">{recommendedStructures.map((id) => { const item = STRUCTURE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 구성">{STRUCTURE_DEFINITIONS.filter((x) => !recommendedStructures.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>
             {form.structureId === "custom" && <Field label="직접 구성"><input value={form.customStructure ?? ""} onChange={(e) => patch({ customStructure: e.target.value })} /></Field>}
             <Field label="문체"><select value={form.styleId} onChange={(e) => patch({ styleId: e.target.value as StyleId })}><option value="auto">자동 추천</option>{recommendedStyles.length > 0 && <optgroup label="이 주제 추천">{recommendedStyles.map((id) => { const item = STYLE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 문체">{STYLE_DEFINITIONS.filter((x) => !recommendedStyles.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>
@@ -341,9 +341,9 @@ function QualityInspector({ draft }: { draft: BlogDraft }) {
   return <div className="qualityInspector">
     <div className={`qaSummary ${draft.warnings.length ? "warn" : "ok"}`}><span>{draft.warnings.length ? "확인 필요" : "검수 양호"}</span><strong>{draft.warnings.length ? `${draft.warnings.length}개 표현을 확인해 주세요.` : "현재 감지된 주의 표현이 없어요."}</strong></div>
     <div className="qaChecklist">
-      <QaRow status={grounding?.used ? "ok" : "neutral"} title="전문자료 참고" description={grounding?.used ? `${grounding.sourceNames.length}개 자료에서 근거를 참고했어요.` : "이번 글은 Knowledge Base 근거를 사용하지 않았어요."} />
+      <QaRow status={grounding?.used ? "ok" : "neutral"} title="전문자료 참고" description={grounding?.used ? `${grounding.sourceNames.length}개 자료에서 근거를 참고했어요.` : "이번 글은 등록된 전문자료를 참고하지 않았어요."} />
       <QaRow status={glossaryCount > 0 ? "ok" : "neutral"} title="전문용어 해설" description={glossaryCount > 0 ? `${glossaryCount}개 용어 해설이 포함되어 있어요.` : "추가된 용어해설이 없어요."} />
-      <QaRow status={draft.warnings.length ? "warn" : "ok"} title="표현 안전성" description={draft.warnings.length ? "아래 주의 표현을 게시 전에 확인해 주세요." : "현재 Rule Engine에서 감지된 주의 표현이 없어요."} />
+      <QaRow status={draft.warnings.length ? "warn" : "ok"} title="표현 안전성" description={draft.warnings.length ? "아래 주의 표현을 게시 전에 확인해 주세요." : "현재 감지된 주의 표현이 없어요."} />
     </div>
     {draft.warnings.length > 0 && <div className="warningList"><strong>주의 표현</strong>{draft.warnings.map((warning, index) => <div key={`${warning}-${index}`}><span>!</span><p>{warning}</p></div>)}</div>}
     {grounding?.used && grounding.sourceNames.length > 0 && <details className="sourceDetails"><summary>참고 자료 보기</summary><ul>{grounding.sourceNames.map((source) => <li key={source}>{source}</li>)}</ul></details>}

@@ -124,7 +124,7 @@ async function prepareDraft(page, name) {
   }, undefined, { timeout: 10000 });
 
   await generate.click();
-  const loading = page.locator(".loadingOverlay");
+  const loading = page.locator(".generationOverlay");
   if (await loading.count()) {
     await loading.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
     if (name === "desktop") await page.screenshot({ path: `${outputDir}/${name}-loading.png`, fullPage: true });
