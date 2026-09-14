@@ -1,0 +1,17 @@
+@media (min-width: 761px) and (max-width: 1180px) {
+  .workspaceGridV2.settingsClosed,
+  .workspaceGridV2.settingsClosed.guideClosed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .workspaceV2.mobile-settings .settingsRail,
+  .workspaceV2.mobile-review .inspectorRail {
+    overflow: auto;
+  }
+
+  .workspaceV2.mobile-preview .previewStage {
+    overflow: hidden;
+  }
+}
