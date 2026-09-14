@@ -19,16 +19,16 @@ function attachDiagnostics(page, name) {
 }
 
 async function logAssetStatus(page, name) {
-  const mascot = page.locator("img.blotoriMascotTop").first();
-  if (await mascot.count()) {
-    console.log(`[${name}] mascot`, await mascot.evaluate((img) => ({
+  const emptyMascot = page.locator("img.blotoriMascotEmpty").first();
+  if (await emptyMascot.count()) {
+    console.log(`[${name}] empty-mascot`, await emptyMascot.evaluate((img) => ({
       src: img.currentSrc,
       complete: img.complete,
       naturalWidth: img.naturalWidth,
       naturalHeight: img.naturalHeight,
     })));
   }
-  console.log(`[${name}] mascot-fetch`, await page.evaluate(async () => {
+  console.log(`[${name}] canonical-fetch`, await page.evaluate(async () => {
     const response = await fetch("/blotori-canonical-mini.webp", { cache: "no-store" });
     const body = await response.arrayBuffer();
     return {
@@ -40,8 +40,52 @@ async function logAssetStatus(page, name) {
   }));
 }
 
+async function seedSavedStyle(page) {
+  await page.evaluate(() => {
+    const now = new Date().toISOString();
+    localStorage.setItem("blotori.style-profiles.v1", JSON.stringify([{
+      id: "qa-style",
+      name: "QA 친근한 정보체",
+      sourceType: "manual",
+      signature: "부드러운 해요체. 문단은 2~3문장. 공감 질문으로 시작하고 정보 뒤에 짧은 생활 팁을 붙인다.",
+      defaultIntensity: 3,
+      createdAt: now,
+      updatedAt: now,
+    }]));
+    localStorage.setItem("blotori.selected-style.v1", "qa-style");
+  });
+}
+
+async function captureAssetStudio(page, name) {
+  const referenceGroup = page.locator(".referenceMaterialGroup");
+  await referenceGroup.waitFor({ state: "visible", timeout: 10000 });
+  const referenceInput = referenceGroup.locator('input[type="file"]');
+  await referenceInput.setInputFiles({
+    name: "qa-reference.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from("QA reference material for Blotori browser acceptance."),
+  });
+  await page.waitForTimeout(250);
+  const row = page.getByText("qa-reference.txt", { exact: true });
+  if (!(await row.count())) throw new Error("reference material row did not render");
+
+  const rail = page.locator(".settingsRail");
+  const styleGroup = page.locator(".styleProfileGroup");
+  await styleGroup.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(180);
+  await styleGroup.locator(".styleBuilder").evaluate((node) => { node.open = true; });
+  await page.waitForTimeout(120);
+  const selected = styleGroup.locator("select").first();
+  if ((await selected.inputValue()) !== "qa-style") throw new Error("saved style did not restore from localStorage");
+
+  await page.screenshot({ path: `${outputDir}/${name}-asset-studio.png`, fullPage: true });
+  await rail.evaluate((node) => { node.scrollTop = 0; });
+}
+
 async function prepareDraft(page, name) {
   await page.goto(baseURL, { waitUntil: "networkidle" });
+  await seedSavedStyle(page);
+  await page.reload({ waitUntil: "networkidle" });
   await page.locator(".workspaceV2").waitFor({ state: "visible" });
   await page.waitForTimeout(600);
   await logAssetStatus(page, name);
@@ -56,6 +100,8 @@ async function prepareDraft(page, name) {
       await page.waitForTimeout(150);
     }
   }
+
+  if (name === "desktop") await captureAssetStudio(page, name);
 
   const platform = page.locator('label.field:has-text("게시 플랫폼") select').first();
   const topic = page.locator('label.field:has-text("자유 주제") textarea').first();
@@ -78,6 +124,11 @@ async function prepareDraft(page, name) {
   }, undefined, { timeout: 10000 });
 
   await generate.click();
+  const loading = page.locator(".loadingOverlay");
+  if (await loading.count()) {
+    await loading.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
+    if (name === "desktop") await page.screenshot({ path: `${outputDir}/${name}-loading.png`, fullPage: true });
+  }
   await page.locator(".blogPaper").waitFor({ state: "visible", timeout: 30000 });
   await page.waitForTimeout(700);
 }
