@@ -35,9 +35,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html lang="ko">
       <body>
         {children}
+        <GenerationPacingEnhancer />
         <BlotoriAssetStudio />
         <ComposerWorkflowEnhancer />
-        <GenerationPacingEnhancer />
         <ImageSlotUploadEnhancer />
         <StylePreviewPortal />
         <TitleCopyEnhancer />
