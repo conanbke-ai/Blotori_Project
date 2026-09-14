@@ -9,11 +9,33 @@ const browser = await chromium.launch({ headless: true });
 
 async function prepareDraft(page) {
   await page.goto(baseURL, { waitUntil: "networkidle" });
-  await page.locator('label.field:has-text("게시 플랫폼") select').selectOption("naver");
-  await page.locator('label.field:has-text("자유 주제") textarea').fill("50대 목 스트레칭과 스마트폰 자세 관리 팁");
-  await page.getByRole("button", { name: /블로그 글 생성하기/ }).click();
+  await page.locator(".workspaceV2").waitFor({ state: "visible" });
+  await page.waitForTimeout(800);
+
+  const platform = page.locator('label.field:has-text("게시 플랫폼") select');
+  const topic = page.locator('label.field:has-text("자유 주제") textarea');
+  const generate = page.getByRole("button", { name: /블로그 글 생성하기/ });
+
+  await platform.selectOption("naver");
+  await page.waitForTimeout(150);
+  await topic.fill("50대 목 스트레칭과 스마트폰 자세 관리 팁");
+  await topic.press("Tab");
+  await page.waitForTimeout(250);
+
+  console.log("qa-input", {
+    platform: await platform.inputValue(),
+    topic: await topic.inputValue(),
+    disabled: await generate.isDisabled(),
+  });
+
+  await page.waitForFunction(() => {
+    const button = document.querySelector(".generatePrimary");
+    return button instanceof HTMLButtonElement && !button.disabled;
+  }, { timeout: 10000 });
+
+  await generate.click();
   await page.locator(".blogPaper").waitFor({ state: "visible", timeout: 30000 });
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(700);
 }
 
 const cases = [
@@ -27,6 +49,7 @@ for (const testCase of cases) {
   const page = await context.newPage();
 
   await page.goto(baseURL, { waitUntil: "networkidle" });
+  await page.locator(".workspaceV2").waitFor({ state: "visible" });
   await page.screenshot({ path: `${outputDir}/${testCase.name}-empty.png`, fullPage: true });
 
   await prepareDraft(page);
@@ -35,17 +58,18 @@ for (const testCase of cases) {
   const upload = page.locator(".slotUploadInput").first();
   if (await upload.count()) {
     await upload.setInputFiles("public/blotori-icon-transparent.webp");
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(350);
     await page.screenshot({ path: `${outputDir}/${testCase.name}-image-slot.png`, fullPage: true });
   }
 
   if (testCase.name === "mobile") {
     await page.getByRole("button", { name: "이미지·검수" }).click();
+    await page.waitForTimeout(200);
   }
   const qaTab = page.getByRole("tab", { name: "검수" });
   if (await qaTab.count()) {
     await qaTab.click();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
     await page.screenshot({ path: `${outputDir}/${testCase.name}-qa.png`, fullPage: true });
   }
 
