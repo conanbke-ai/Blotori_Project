@@ -25,39 +25,75 @@
   font-size: 13px;
 }
 
-/* Full-body WebP decoding is intermittent in Chromium. Product UI therefore
- * uses the approved Blotori-derived common paw asset as the stable decorative
- * brand marker; no alternate rabbit anatomy is introduced. */
-.workspaceV2 .blotoriMascotTop,
-.workspaceV2 .blotoriMascotEmpty {
+/* Brand hierarchy: face icon in the app chrome, full Blotori character in
+ * empty/loading states. Paw assets remain cursor/success feedback only. */
+.workspaceV2 .blotoriMascotTop {
   display: none;
 }
 
-.workspaceV2 .compactBrand::before,
-.workspaceV2 .workspaceEmpty::before {
+.workspaceV2 .compactBrand::before {
   content: "";
   flex: 0 0 auto;
   display: block;
-  background: url('/blotori-paw-default.png') center / contain no-repeat;
-  filter: drop-shadow(0 8px 14px rgba(49, 91, 122, .12));
-}
-
-.workspaceV2 .compactBrand::before {
   width: 58px;
   height: 58px;
+  border-radius: 20px;
+  background: #fff url('/blotori-face-ui.webp') center / 88% 88% no-repeat;
+  border: 1px solid rgba(105, 199, 213, .34);
+  box-shadow: 0 9px 22px rgba(49, 91, 122, .10);
+}
+
+.workspaceV2 .blotoriMascotEmpty,
+.workspaceV2 .loadingMascot {
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 22px rgba(49, 91, 122, .12));
+}
+
+.workspaceV2 .blotoriMascotEmpty {
+  width: min(230px, 42vw);
+  max-height: 245px;
+  margin-inline: auto;
+}
+
+.workspaceV2 .loadingMascot {
+  width: 154px;
+  max-height: 180px;
+  margin: 0 auto 4px;
 }
 
 .workspaceV2 .workspaceEmpty::before {
-  width: 118px;
-  height: 118px;
-  align-self: center;
-  justify-self: center;
+  content: none;
+  display: none;
 }
 
 .workspaceV2 .successPaw {
   background:
     url('/blotori-paw-default.png') center / 38px 38px no-repeat,
     linear-gradient(145deg, #eaf8fa, #fff1e9);
+}
+
+/* Keep the top chrome calm. Panel navigation belongs to each workspace area,
+ * not beside the brand title. */
+.workspaceV2 .workspaceTopActions > .iconGhost {
+  display: none;
+}
+
+.workspaceV2 .workspaceTopActions {
+  gap: 8px;
+}
+
+.workspaceV2 .devStatusMenu > summary {
+  font-size: 12px;
+  opacity: .74;
+}
+
+.workspaceV2 .settingGroup {
+  box-shadow: none;
+}
+
+.workspaceV2 .settingGroup + .settingGroup {
+  margin-top: 2px;
 }
 
 @media (min-width: 761px) and (max-width: 1180px) {
@@ -85,11 +121,16 @@
   .workspaceV2 .compactBrand::before {
     width: 46px;
     height: 46px;
+    border-radius: 16px;
   }
 
-  .workspaceV2 .workspaceEmpty::before {
-    width: 92px;
-    height: 92px;
+  .workspaceV2 .blotoriMascotEmpty {
+    width: min(190px, 58vw);
+    max-height: 210px;
+  }
+
+  .workspaceV2 .loadingMascot {
+    width: 132px;
   }
 
   .workspaceV2 .successToast {
