@@ -116,24 +116,35 @@ export default function BlotoriAssetStudio() {
     setStyles(loadStyles());
     setSelectedStyleId(localStorage.getItem(SELECTED_STYLE_KEY) || "");
     void listMaterials().then(setMaterials);
+    let currentHost: HTMLElement | null = null;
+    let scheduled = false;
     const attach = () => {
+      scheduled = false;
       const rail = document.querySelector<HTMLElement>(".settingsRail");
-      if (!rail) return false;
+      if (!rail) return;
       let host = rail.querySelector<HTMLElement>("[data-blotori-asset-studio]");
       if (!host) {
-        host = document.createElement("div"); host.dataset.blotoriAssetStudio = "true";
+        host = document.createElement("div");
+        host.dataset.blotoriAssetStudio = "true";
         const groups = [...rail.querySelectorAll<HTMLElement>(".settingGroup")];
         const topic = groups.find((group) => group.querySelector("h3")?.textContent?.trim() === "주제");
-        topic?.insertAdjacentElement("afterend", host);
-        if (!topic) rail.querySelector(".stickyGenerateDock")?.insertAdjacentElement("beforebegin", host);
+        if (topic) topic.insertAdjacentElement("afterend", host);
+        else rail.querySelector(".stickyGenerateDock")?.insertAdjacentElement("beforebegin", host);
       }
-      setMount(host); return true;
+      if (host && host !== currentHost) {
+        currentHost = host;
+        setMount(host);
+      }
     };
-    if (!attach()) {
-      const observer = new MutationObserver(() => { if (attach()) observer.disconnect(); });
-      observer.observe(document.body, { childList: true, subtree: true });
-      return () => observer.disconnect();
-    }
+    const scheduleAttach = () => {
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(attach);
+    };
+    attach();
+    const observer = new MutationObserver(scheduleAttach);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -259,7 +270,7 @@ export default function BlotoriAssetStudio() {
 
     <section className="settingGroup assetStudioGroup packGroup">
       <div className="settingGroupHeader"><span>5</span><div><div className="settingGroupTitle"><h3>공유 팩</h3><em>선택</em></div><p>문체와 자료를 .blotori 파일로 내보내 다른 사용자에게 전달할 수 있어요.</p></div></div>
-      <div className="settingGroupBody packActions"><input ref={packInput} className="assetHiddenInput" type="file" accept=".blotori,application/json" onChange={importPack} /><button type="button" className="ghost" onClick={() => packInput.current?.click()}>팩 가져오기</button><button type="button" className="ghost" onClick={() => void exportPack()}>선택 자료·문체 내보내기</button></div>
+      <div className="settingGroupBody packActions"><input ref={packInput} className="assetHiddenInput" type="file" accept=".blotori,application/json" onChange={importPack} /><button type="button" className="ghost" onClick={() => packInput.current?.click()}>팩 가져오기</button><button type="button" className="ghost" onClick={() => void exportPack()}>자료·문체 내보내기</button></div>
     </section>
     {notice && <div className="assetNotice" role="status"><span>{notice}</span><button type="button" onClick={() => setNotice("")}>×</button></div>}
   </>, mount);
