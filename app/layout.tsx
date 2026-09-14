@@ -14,6 +14,7 @@ import "./glossary.css";
 import "./image-slot-upload.css";
 import "./composer-workflow.css";
 import "./workspace-v2.css";
+import "./workspace-v2-fixes.css";
 import "./tori-paw-cursor.css";
 
 export const metadata: Metadata = {
