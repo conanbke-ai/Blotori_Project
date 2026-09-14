@@ -28,19 +28,22 @@ jobs:
       - name: Install app dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Build production app
+        run: npm run build
+
       - name: Install Playwright
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Start app
+      - name: Start production app
         run: |
-          npm run dev > /tmp/blotori-dev.log 2>&1 &
+          npm run start -- -H 127.0.0.1 > /tmp/blotori-start.log 2>&1 &
           for i in {1..45}; do
             if curl -fsS http://127.0.0.1:3000 >/dev/null; then exit 0; fi
             sleep 1
           done
-          cat /tmp/blotori-dev.log
+          cat /tmp/blotori-start.log
           exit 1
 
       - name: Capture screenshots
