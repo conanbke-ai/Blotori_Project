@@ -123,12 +123,10 @@ async function prepareDraft(page, name) {
     return button instanceof HTMLButtonElement && !button.disabled;
   }, undefined, { timeout: 10000 });
 
-  await generate.click();
   const loading = page.locator(".generationOverlay");
-  if (await loading.count()) {
-    await loading.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
-    if (name === "desktop") await page.screenshot({ path: `${outputDir}/${name}-loading.png`, fullPage: true });
-  }
+  await generate.click();
+  await loading.waitFor({ state: "visible", timeout: 3000 });
+  if (name === "desktop") await page.screenshot({ path: `${outputDir}/${name}-loading.png`, fullPage: true });
   await page.locator(".blogPaper").waitFor({ state: "visible", timeout: 30000 });
   await page.waitForTimeout(700);
 }
