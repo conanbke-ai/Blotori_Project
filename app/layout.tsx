@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import BlotoriAssetStudio from "./BlotoriAssetStudio";
 import ComposerWorkflowEnhancer from "./ComposerWorkflowEnhancer";
+import GenerationPacingEnhancer from "./GenerationPacingEnhancer";
 import ImageSlotUploadEnhancer from "./ImageSlotUploadEnhancer";
 import StylePreviewPortal from "./StylePreviewPortal";
 import TitleCopyEnhancer from "./TitleCopyEnhancer";
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         {children}
         <BlotoriAssetStudio />
         <ComposerWorkflowEnhancer />
+        <GenerationPacingEnhancer />
         <ImageSlotUploadEnhancer />
         <StylePreviewPortal />
         <TitleCopyEnhancer />
