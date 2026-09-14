@@ -1,0 +1,51 @@
+name: Re-encode Blotori Assets Temp
+
+on:
+  push:
+    branches:
+      - feature/composer-workspace-v2
+    paths:
+      - .github/workflows/reencode-blotori-assets-temp.yml
+      - public/blotori-face-ui.webp
+      - public/blotori-canonical-mini.webp
+
+permissions:
+  contents: write
+
+jobs:
+  reencode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check pillow
+      - name: Re-encode approved assets without changing pixels
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          pairs = [
+              ('public/blotori-face-ui.webp', 'public/blotori-face-ui.png'),
+              ('public/blotori-canonical-mini.webp', 'public/blotori-canonical-mini.png'),
+          ]
+          for src, dst in pairs:
+              with Image.open(src) as image:
+                  image.convert('RGBA').save(dst, format='PNG', optimize=True)
+                  print(src, '->', dst, image.size)
+          PY
+      - name: Commit PNG fallbacks
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add public/blotori-face-ui.png public/blotori-canonical-mini.png
+          if git diff --cached --quiet; then
+            echo 'No asset changes.'
+            exit 0
+          fi
+          git commit -m 'fix: add stable PNG encodings for canonical Blotori assets'
+          git push origin HEAD:feature/composer-workspace-v2
