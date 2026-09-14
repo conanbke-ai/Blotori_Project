@@ -46,6 +46,9 @@ jobs:
           cat /tmp/blotori-start.log
           exit 1
 
+      - name: Probe canonical assets
+        run: node scripts/asset-probe-temp.mjs
+
       - name: Capture screenshots
         run: node scripts/visual-qa-temp.mjs
 
