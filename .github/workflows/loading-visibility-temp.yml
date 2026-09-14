@@ -1,0 +1,50 @@
+name: Blotori Loading Visibility Temp
+
+on:
+  push:
+    branches:
+      - feature/composer-workspace-v2
+    paths:
+      - .github/workflows/loading-visibility-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - name: Guarantee a readable generation loading state
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('app/page.tsx')
+          text = path.read_text()
+          old = '''    setLoading(true); setLoadingStage(0); setSuccessVisible(false); setError("");
+    try {
+      const payload: GenerateRequest = { ...form, platformId: form.platformId };
+      const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const data = await res.json();'''
+          new = '''    setLoading(true); setLoadingStage(0); setSuccessVisible(false); setError("");
+    const loadingStartedAt = performance.now();
+    try {
+      const payload: GenerateRequest = { ...form, platformId: form.platformId };
+      const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      const remainingLoadingMs = Math.max(0, 900 - (performance.now() - loadingStartedAt));
+      if (remainingLoadingMs > 0) await new Promise((resolve) => window.setTimeout(resolve, remainingLoadingMs));'''
+          if old not in text:
+              raise SystemExit('generate loading target not found; refusing broad rewrite')
+          path.write_text(text.replace(old, new, 1))
+          PY
+      - name: Commit scoped patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add app/page.tsx
+          git commit -m 'fix: keep generation loading state visible'
+          git push origin HEAD:feature/composer-workspace-v2
