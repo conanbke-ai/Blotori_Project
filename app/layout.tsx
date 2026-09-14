@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import BlotoriAssetStudio from "./BlotoriAssetStudio";
 import ComposerWorkflowEnhancer from "./ComposerWorkflowEnhancer";
 import ImageSlotUploadEnhancer from "./ImageSlotUploadEnhancer";
 import StylePreviewPortal from "./StylePreviewPortal";
@@ -15,6 +16,7 @@ import "./image-slot-upload.css";
 import "./composer-workflow.css";
 import "./workspace-v2.css";
 import "./workspace-v2-fixes.css";
+import "./blotori-asset-studio.css";
 import "./tori-paw-cursor.css";
 
 export const metadata: Metadata = {
@@ -32,6 +34,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html lang="ko">
       <body>
         {children}
+        <BlotoriAssetStudio />
         <ComposerWorkflowEnhancer />
         <ImageSlotUploadEnhancer />
         <StylePreviewPortal />
