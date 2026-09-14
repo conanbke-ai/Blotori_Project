@@ -12,24 +12,48 @@ function attachDiagnostics(page, name) {
   page.on("console", (message) => {
     if (["error", "warning"].includes(message.type())) console.log(`[${name}] console:${message.type()}`, message.text());
   });
+  page.on("requestfailed", (request) => console.log(`[${name}] requestfailed`, request.url(), request.failure()?.errorText));
   page.on("response", (response) => {
     if (response.status() >= 400) console.log(`[${name}] http`, response.status(), response.url());
   });
 }
 
+async function logAssetStatus(page, name) {
+  const mascot = page.locator("img.blotoriMascotTop").first();
+  if (await mascot.count()) {
+    console.log(`[${name}] mascot`, await mascot.evaluate((img) => ({
+      src: img.currentSrc,
+      complete: img.complete,
+      naturalWidth: img.naturalWidth,
+      naturalHeight: img.naturalHeight,
+    })));
+  }
+  console.log(`[${name}] mascot-fetch`, await page.evaluate(async () => {
+    const response = await fetch("/blotori-canonical-mini.webp", { cache: "no-store" });
+    const body = await response.arrayBuffer();
+    return {
+      status: response.status,
+      ok: response.ok,
+      contentType: response.headers.get("content-type"),
+      bytes: body.byteLength,
+    };
+  }));
+}
+
 async function prepareDraft(page, name) {
   await page.goto(baseURL, { waitUntil: "networkidle" });
   await page.locator(".workspaceV2").waitFor({ state: "visible" });
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(600);
+  await logAssetStatus(page, name);
 
   if (name !== "mobile") {
-    const hideSettings = page.getByRole("button", { name: "설정 숨기기" });
+    const hideSettings = page.getByRole("button", { name: "작성 설정 열기 또는 접기" });
     if (await hideSettings.count()) {
       await hideSettings.click();
       await page.waitForTimeout(150);
       console.log(`[${name}] hydration-toggle`, { settingsVisibleAfterHide: await page.locator(".settingsRail").isVisible().catch(() => false) });
-      const showSettings = page.getByRole("button", { name: "설정 열기" });
-      if (await showSettings.count()) await showSettings.click();
+      await hideSettings.click();
+      await page.waitForTimeout(150);
     }
   }
 
@@ -38,16 +62,9 @@ async function prepareDraft(page, name) {
   const generate = page.getByRole("button", { name: /블로그 글 생성하기/ }).first();
 
   console.log(`[${name}] qa-counts`, { platform: await platform.count(), topic: await topic.count(), generate: await generate.count() });
-
-  await platform.focus();
-  await page.keyboard.press("ArrowDown");
-  await page.keyboard.press("Enter");
-  await page.waitForTimeout(200);
-
-  await topic.click();
-  await page.keyboard.type("50대 목 스트레칭과 스마트폰 자세 관리 팁", { delay: 8 });
-  await page.keyboard.press("Tab");
-  await page.waitForTimeout(350);
+  await platform.selectOption("naver");
+  await topic.fill("50대 목 스트레칭과 스마트폰 자세 관리 팁");
+  await page.waitForTimeout(250);
 
   console.log(`[${name}] qa-input`, {
     platform: await platform.inputValue(),
