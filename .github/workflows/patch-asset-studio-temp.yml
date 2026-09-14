@@ -1,0 +1,94 @@
+name: Patch Asset Studio Temp
+
+on:
+  push:
+    branches:
+      - feature/composer-workspace-v2
+    paths:
+      - .github/workflows/patch-asset-studio-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - name: Keep asset studio mounted across React updates
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('app/BlotoriAssetStudio.tsx')
+          text = path.read_text()
+          old = '''  useEffect(() => {
+    setStyles(loadStyles());
+    setSelectedStyleId(localStorage.getItem(SELECTED_STYLE_KEY) || "");
+    void listMaterials().then(setMaterials);
+    const attach = () => {
+      const rail = document.querySelector<HTMLElement>(".settingsRail");
+      if (!rail) return false;
+      let host = rail.querySelector<HTMLElement>("[data-blotori-asset-studio]");
+      if (!host) {
+        host = document.createElement("div"); host.dataset.blotoriAssetStudio = "true";
+        const groups = [...rail.querySelectorAll<HTMLElement>(".settingGroup")];
+        const topic = groups.find((group) => group.querySelector("h3")?.textContent?.trim() === "주제");
+        topic?.insertAdjacentElement("afterend", host);
+        if (!topic) rail.querySelector(".stickyGenerateDock")?.insertAdjacentElement("beforebegin", host);
+      }
+      setMount(host); return true;
+    };
+    if (!attach()) {
+      const observer = new MutationObserver(() => { if (attach()) observer.disconnect(); });
+      observer.observe(document.body, { childList: true, subtree: true });
+      return () => observer.disconnect();
+    }
+  }, []);'''
+          new = '''  useEffect(() => {
+    setStyles(loadStyles());
+    setSelectedStyleId(localStorage.getItem(SELECTED_STYLE_KEY) || "");
+    void listMaterials().then(setMaterials);
+    let currentHost: HTMLElement | null = null;
+    let scheduled = false;
+    const attach = () => {
+      scheduled = false;
+      const rail = document.querySelector<HTMLElement>(".settingsRail");
+      if (!rail) return;
+      let host = rail.querySelector<HTMLElement>("[data-blotori-asset-studio]");
+      if (!host) {
+        host = document.createElement("div");
+        host.dataset.blotoriAssetStudio = "true";
+        const groups = [...rail.querySelectorAll<HTMLElement>(".settingGroup")];
+        const topic = groups.find((group) => group.querySelector("h3")?.textContent?.trim() === "주제");
+        if (topic) topic.insertAdjacentElement("afterend", host);
+        else rail.querySelector(".stickyGenerateDock")?.insertAdjacentElement("beforebegin", host);
+      }
+      if (host && host !== currentHost) {
+        currentHost = host;
+        setMount(host);
+      }
+    };
+    const scheduleAttach = () => {
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(attach);
+    };
+    attach();
+    const observer = new MutationObserver(scheduleAttach);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);'''
+          if old not in text:
+              raise SystemExit('Target mount block not found; refusing broad rewrite')
+          path.write_text(text.replace(old, new))
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add app/BlotoriAssetStudio.tsx
+          git commit -m 'fix: keep asset studio mounted in composer rail'
+          git push origin HEAD:feature/composer-workspace-v2
