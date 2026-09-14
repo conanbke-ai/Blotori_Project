@@ -7,33 +7,49 @@ await fs.mkdir(outputDir, { recursive: true });
 
 const browser = await chromium.launch({ headless: true });
 
-async function setReactValue(locator, value) {
-  await locator.evaluate((element, nextValue) => {
-    const isSelect = element instanceof HTMLSelectElement;
-    const proto = isSelect ? HTMLSelectElement.prototype : element instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
-    const descriptor = Object.getOwnPropertyDescriptor(proto, "value");
-    descriptor?.set?.call(element, nextValue);
-    element.dispatchEvent(new Event("input", { bubbles: true }));
-    element.dispatchEvent(new Event("change", { bubbles: true }));
-  }, value);
+function attachDiagnostics(page, name) {
+  page.on("pageerror", (error) => console.error(`[${name}] pageerror`, error.message));
+  page.on("console", (message) => {
+    if (["error", "warning"].includes(message.type())) console.log(`[${name}] console:${message.type()}`, message.text());
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 400) console.log(`[${name}] http`, response.status(), response.url());
+  });
 }
 
-async function prepareDraft(page) {
+async function prepareDraft(page, name) {
   await page.goto(baseURL, { waitUntil: "networkidle" });
   await page.locator(".workspaceV2").waitFor({ state: "visible" });
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(1000);
+
+  if (name !== "mobile") {
+    const hideSettings = page.getByRole("button", { name: "설정 숨기기" });
+    if (await hideSettings.count()) {
+      await hideSettings.click();
+      await page.waitForTimeout(150);
+      console.log(`[${name}] hydration-toggle`, { settingsVisibleAfterHide: await page.locator(".settingsRail").isVisible().catch(() => false) });
+      const showSettings = page.getByRole("button", { name: "설정 열기" });
+      if (await showSettings.count()) await showSettings.click();
+    }
+  }
 
   const platform = page.locator('label.field:has-text("게시 플랫폼") select').first();
   const topic = page.locator('label.field:has-text("자유 주제") textarea').first();
   const generate = page.getByRole("button", { name: /블로그 글 생성하기/ }).first();
 
-  console.log("qa-counts", { platform: await platform.count(), topic: await topic.count(), generate: await generate.count() });
-  await setReactValue(platform, "naver");
+  console.log(`[${name}] qa-counts`, { platform: await platform.count(), topic: await topic.count(), generate: await generate.count() });
+
+  await platform.focus();
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
   await page.waitForTimeout(200);
-  await setReactValue(topic, "50대 목 스트레칭과 스마트폰 자세 관리 팁");
+
+  await topic.click();
+  await page.keyboard.type("50대 목 스트레칭과 스마트폰 자세 관리 팁", { delay: 8 });
+  await page.keyboard.press("Tab");
   await page.waitForTimeout(350);
 
-  console.log("qa-input", {
+  console.log(`[${name}] qa-input`, {
     platform: await platform.inputValue(),
     topic: await topic.inputValue(),
     disabled: await generate.isDisabled(),
@@ -59,12 +75,13 @@ let failed = false;
 for (const testCase of cases) {
   const context = await browser.newContext({ viewport: testCase.viewport, deviceScaleFactor: 1 });
   const page = await context.newPage();
+  attachDiagnostics(page, testCase.name);
   try {
     await page.goto(baseURL, { waitUntil: "networkidle" });
     await page.locator(".workspaceV2").waitFor({ state: "visible" });
     await page.screenshot({ path: `${outputDir}/${testCase.name}-empty.png`, fullPage: true });
 
-    await prepareDraft(page);
+    await prepareDraft(page, testCase.name);
     await page.screenshot({ path: `${outputDir}/${testCase.name}-preview.png`, fullPage: true });
 
     const upload = page.locator(".slotUploadInput").first();
