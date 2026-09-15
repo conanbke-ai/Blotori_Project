@@ -384,3 +384,13 @@
     animation: none !important;
   }
 }
+
+
+/* Generation state follows the same character-first visual hierarchy as the empty workspace. */
+.generationOverlay { background:rgba(247,251,252,.82); }
+.generationOverlay .blotoriStateCard { width:min(540px,100%); padding:34px 34px 30px; background:radial-gradient(circle at 50% 14%,rgba(105,199,213,.14),transparent 27%),rgba(255,253,249,.98); }
+.generationOverlay .loadingMascot { width:205px; max-height:270px; margin-bottom:8px; filter:drop-shadow(0 20px 24px rgba(49,91,122,.14)); }
+@media (max-width:600px) {
+  .generationOverlay .blotoriStateCard { padding:28px 20px 24px; }
+  .generationOverlay .loadingMascot { width:170px; max-height:225px; }
+}

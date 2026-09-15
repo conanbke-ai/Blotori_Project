@@ -207,6 +207,14 @@ export default function Home() {
     el.scrollTo({ top: where === "top" ? 0 : el.scrollHeight, behavior: "smooth" });
   }
 
+  function focusSettings(selector: string) {
+    setSettingsOpen(true);
+    setMobilePanel("settings");
+    window.setTimeout(() => {
+      document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+  }
+
   return (
     <main className={`shell appShell workspaceV2 mobile-${mobilePanel}`} aria-busy={loading}>
       <header className="topbar blotoriTopbar workspaceHeader">
@@ -297,7 +305,7 @@ export default function Home() {
             </div>
           </div>
 
-          {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><img className="blotoriMascotEmpty" src="/blotori-character-ui.png" alt="블로토리" /><div><span className="emptyEyebrow">READY TO COMPOSE</span><h3>왼쪽에서 플랫폼과 주제를 먼저 정해 주세요.</h3><p>글을 만들면 이곳이 실제 게시물 중심의 작업 공간으로 바뀌어요.</p></div></div> :
+          {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><div className="emptyMascotStage"><span className="emptyGlow" /><img className="blotoriMascotEmpty" src="/blotori-character-ui.png" alt="블로토리" /></div><div className="emptyCopy"><span className="emptyEyebrow">READY TO COMPOSE</span><h3>블로토리와 첫 원고를 준비해 볼까요?</h3><p>플랫폼과 주제를 정한 뒤 참고자료와 내 문체를 더하면, 실제 게시물 미리보기까지 한 흐름으로 이어져요.</p><div className="emptyQuickActions"><button type="button" className="secondaryAction" onClick={() => focusSettings('.referenceMaterialGroup')}>참고자료부터 등록</button><button type="button" className="ghost" onClick={() => focusSettings('.styleBuilder')}>내 문체 만들기</button></div><div className="emptyFeatureRow"><span>플랫폼 맞춤</span><span>참고자료 반영</span><span>이미지·검수</span></div></div></div> :
           <div className="previewLayout appPreviewLayout previewOnlyLayout">
             <div className="blogScroller" ref={previewScrollRef}>
               <article className={`blogPaper ${platformClass} density-${draft.presentation?.density ?? "balanced"}`}>
@@ -319,7 +327,7 @@ export default function Home() {
         {guideOpen && <aside className="panel inspectorRail scrollPanel" data-mobile-panel="review">
           <div className="railHeading inspectorHeading"><div><span className="step">03</span><div><h2>이미지 · 검수</h2><p>게시 전 마지막 완성도를 확인해요.</p></div></div></div>
           <div className="inspectorTabs" role="tablist"><button role="tab" aria-selected={inspectorTab === "images"} className={inspectorTab === "images" ? "active" : ""} onClick={() => setInspectorTab("images")}>이미지</button><button role="tab" aria-selected={inspectorTab === "qa"} className={inspectorTab === "qa" ? "active" : ""} onClick={() => setInspectorTab("qa")}>검수</button></div>
-          {!draft ? <div className="inspectorEmpty"><strong>글 생성 후 사용할 수 있어요.</strong><p>이미지 프롬프트, 배치 위치, 근거자료 및 표현 검수를 한곳에서 확인합니다.</p></div> : inspectorTab === "images" ? <div className="guideRailContent"><div className="guideTitle"><strong>이미지 제작 가이드</strong><span>{draft.images.length}개</span></div>{draft.images.map((image) => <PromptCard key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</div> : <QualityInspector draft={draft} />}
+          {!draft ? <div className="inspectorEmpty"><span className="inspectorEmptyIcon">✓</span><strong>게시 전 마지막 점검 공간이에요.</strong><p>글을 만들면 아래 항목이 자동으로 채워져요.</p><div className="inspectorEmptyGuide"><div><b>01</b><span><strong>이미지</strong><small>프롬프트와 삽입 위치</small></span></div><div><b>02</b><span><strong>근거자료</strong><small>참고한 자료와 용어</small></span></div><div><b>03</b><span><strong>표현 검수</strong><small>주의 표현과 게시 전 확인</small></span></div></div></div> : inspectorTab === "images" ? <div className="guideRailContent"><div className="guideTitle"><strong>이미지 제작 가이드</strong><span>{draft.images.length}개</span></div>{draft.images.map((image) => <PromptCard key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</div> : <QualityInspector draft={draft} />}
         </aside>}
       </div>
 

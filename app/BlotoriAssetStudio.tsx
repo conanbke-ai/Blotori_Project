@@ -368,6 +368,7 @@ export default function BlotoriAssetStudio({
     <section className="settingGroup assetStudioGroup unifiedWritingGroup">
       <div className="settingGroupHeader"><span>4</span><div><div className="settingGroupTitle"><h3>문체 · 글 구성</h3></div><p>기본 문체와 저장한 내 문체를 한곳에서 고르고, 글의 구조와 강도까지 함께 정해요.</p></div></div>
       <div className="settingGroupBody assetStudioBody">
+        <div className="writingSectionLabel"><span>현재 적용 문체</span><small>이번 글에서 사용할 말투를 고릅니다.</small></div>
         <label className="field"><span>문체 선택</span><select value={styleChoice} onChange={(event) => handleStyleChoice(event.target.value)}>
           <option value="builtin:auto">자동 추천</option>
           {styles.length > 0 && <optgroup label="내 문체">{styles.map((item) => <option key={item.id} value={`saved:${item.id}`}>{item.name}</option>)}</optgroup>}
@@ -382,6 +383,7 @@ export default function BlotoriAssetStudio({
 
         {!selectedStyle && styleId === "custom" && <label className="field"><span>직접 문체</span><input value={customStyle} onChange={(event) => onCustomStyleChange(event.target.value)} placeholder="예: 친절한 해요체, 짧은 문단, 소제목 자주 사용" /></label>}
 
+        <div className="writingSectionLabel writingSectionAdjust"><span>이번 글 세부조정</span><small>저장된 문체는 그대로 두고 현재 원고만 조정합니다.</small></div>
         <label className="field"><span>문체 강도</span><select value={styleIntensity} onChange={(event) => onStyleIntensityChange(Number(event.target.value) as StyleIntensity)}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {intensityLabel[level]}</option>)}</select><small className="hint">저장 문체를 선택해도 이번 글에서만 강도를 바꿀 수 있어요. 저장된 기본값은 바뀌지 않습니다.</small></label>
 
         <div className="writingDivider" />
@@ -394,6 +396,7 @@ export default function BlotoriAssetStudio({
         </select></label>
         {structureId === "custom" && <label className="field"><span>직접 구성</span><input value={customStructure} onChange={(event) => onCustomStructureChange(event.target.value)} placeholder="예: 문제 제기 → 원인 → 실천 팁 → 요약" /></label>}
 
+        <div className="writingSectionLabel writingSectionCreate"><span>새 문체 만들기</span><small>참고 글을 분석해 이름을 붙여 저장하고 반복 사용합니다.</small></div>
         <details className="styleBuilder"><summary>＋ 새 문체 만들기</summary><div className="styleBuilderBody">
           <p className="assetBuilderLead">참고 글을 분석해 말투·문장 길이·문단 리듬·도입·소제목·마무리 같은 특징만 저장합니다.</p>
           <div className="sourceTabs">{([['blog', '블로그 전체'], ['post', '포스팅 1개'], ['pasted_text', '글 붙여넣기'], ['manual', '직접 설정']] as const).map(([id, label]) => <button key={id} type="button" className={sourceType === id ? "active" : ""} onClick={() => { setSourceType(id); setSource(""); setSignature(""); }}>{label}</button>)}</div>

@@ -195,3 +195,44 @@
   .workspaceV2 .blotoriMascotEmpty { width: min(218px, 62vw); max-height: 300px; }
   .workspaceV2 .workspaceEmpty h3 { font-size: 21px; }
 }
+
+
+/* 2026-09-15 visual acceptance polish: calm chrome, branded hero, balanced empty inspector. */
+.workspaceV2 .blotoriMascotTop { width:44px; height:44px; border-radius:15px; box-shadow:0 6px 16px rgba(49,91,122,.08); }
+.workspaceV2 .compactBrand { gap:12px; }
+.workspaceV2 .compactBrand h1 { margin-top:1px; }
+.workspaceV2 .workspaceEmpty { grid-template-columns:minmax(280px,.9fr) minmax(340px,1fr); gap:clamp(30px,5vw,74px); padding:clamp(42px,7vw,92px); }
+.workspaceV2 .workspaceEmpty::after { content:none; display:none; }
+.workspaceV2 .emptyMascotStage { position:relative; min-height:390px; display:grid; place-items:center; isolation:isolate; }
+.workspaceV2 .emptyGlow { position:absolute; width:min(430px,36vw); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,rgba(105,199,213,.24) 0%,rgba(105,199,213,.09) 42%,transparent 70%); filter:blur(2px); z-index:-1; }
+.workspaceV2 .blotoriMascotEmpty { width:min(390px,36vw); max-height:520px; justify-self:center; transform:translateY(10px) scale(1.06); filter:drop-shadow(0 28px 30px rgba(49,91,122,.16)); }
+.workspaceV2 .emptyCopy { max-width:540px; }
+.workspaceV2 .workspaceEmpty h3 { font-size:clamp(25px,2.45vw,36px); max-width:520px; }
+.workspaceV2 .workspaceEmpty p { font-size:15px; max-width:500px; }
+.workspaceV2 .emptyQuickActions { display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }
+.workspaceV2 .emptyQuickActions button { min-height:43px; }
+.workspaceV2 .emptyFeatureRow { display:flex; flex-wrap:wrap; gap:7px; margin-top:16px; }
+.workspaceV2 .emptyFeatureRow span { padding:6px 9px; border-radius:999px; background:rgba(255,255,255,.72); border:1px solid rgba(105,199,213,.18); color:#62808b; font-size:11px; font-weight:750; }
+.workspaceV2 .inspectorEmpty { display:grid; gap:8px; align-content:start; text-align:left; padding:18px 4px 8px; }
+.workspaceV2 .inspectorEmptyIcon { width:38px; height:38px; display:grid; place-items:center; border-radius:13px; background:linear-gradient(145deg,rgba(105,199,213,.2),rgba(255,139,114,.09)); color:#2d8fa0; font-weight:900; margin-bottom:3px; }
+.workspaceV2 .inspectorEmpty > p { margin:0 0 5px; line-height:1.55; }
+.workspaceV2 .inspectorEmptyGuide { display:grid; gap:8px; margin-top:5px; }
+.workspaceV2 .inspectorEmptyGuide > div { display:grid; grid-template-columns:30px 1fr; gap:9px; align-items:center; padding:10px; border:1px solid rgba(49,91,122,.08); border-radius:13px; background:rgba(255,255,255,.76); }
+.workspaceV2 .inspectorEmptyGuide b { width:28px; height:28px; display:grid; place-items:center; border-radius:9px; background:rgba(105,199,213,.12); color:#2d8fa0; font-size:10px; }
+.workspaceV2 .inspectorEmptyGuide span { display:grid; gap:2px; }
+.workspaceV2 .inspectorEmptyGuide strong { font-size:12px; }
+.workspaceV2 .inspectorEmptyGuide small { color:#7a8b95; font-size:10.5px; }
+@media (max-width:900px) {
+  .workspaceV2 .workspaceEmpty { grid-template-columns:1fr; gap:8px; padding:30px 22px 44px; }
+  .workspaceV2 .emptyMascotStage { min-height:260px; }
+  .workspaceV2 .emptyGlow { width:min(330px,72vw); }
+  .workspaceV2 .blotoriMascotEmpty { width:min(290px,66vw); max-height:370px; }
+  .workspaceV2 .emptyCopy { margin:0 auto; text-align:center; }
+  .workspaceV2 .emptyQuickActions,.workspaceV2 .emptyFeatureRow { justify-content:center; }
+}
+@media (max-width:760px) {
+  .workspaceV2 .blotoriMascotTop { width:40px; height:40px; border-radius:14px; }
+  .workspaceV2 .emptyMascotStage { min-height:230px; }
+  .workspaceV2 .blotoriMascotEmpty { width:min(250px,70vw); }
+  .workspaceV2 .emptyQuickActions { display:grid; grid-template-columns:1fr; width:100%; }
+}
