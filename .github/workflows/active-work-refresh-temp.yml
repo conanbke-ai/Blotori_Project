@@ -20,7 +20,9 @@ jobs:
           fetch-depth: 0
       - name: Append current composer V2 status
         run: |
-          cat >> ACTIVE_WORK.md <<'EOF'
+          python - <<'PY'
+          from pathlib import Path
+          block = '''
 
 ## Composer Workspace V2 — 2026-09-15
 
@@ -52,11 +54,16 @@ jobs:
 - `public/blotori-paw-default.png`, `public/blotori-paw-pressed.png` — cursor / 완료 피드백 전용
 
 발바닥 자산을 브랜드 얼굴이나 전신 캐릭터 대체물로 사용하지 않는다.
-EOF
+'''
+          path = Path('ACTIVE_WORK.md')
+          text = path.read_text()
+          if '## Composer Workspace V2 — 2026-09-15' not in text:
+              path.write_text(text.rstrip() + block + '\n')
+          PY
       - name: Commit status update
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add ACTIVE_WORK.md
-          git commit -m 'docs: update Blotori composer V2 active work'
+          git diff --cached --quiet || git commit -m 'docs: update Blotori composer V2 active work'
           git push origin HEAD:feature/composer-workspace-v2
