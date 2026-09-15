@@ -1,0 +1,49 @@
+/* Final visual acceptance overrides for the Blotori workspace. */
+
+@media (min-width: 1181px) {
+  .workspaceV2 .workspaceEmpty {
+    grid-template-columns: minmax(210px, .62fr) minmax(0, 1.38fr);
+    gap: 20px;
+    padding: 34px 34px 42px;
+  }
+
+  .workspaceV2 .emptyMascotStage {
+    min-height: 360px;
+    overflow: visible;
+  }
+
+  .workspaceV2 .emptyGlow {
+    width: 350px;
+  }
+
+  .workspaceV2 .blotoriMascotEmpty {
+    width: 430px;
+    max-width: none;
+    max-height: 560px;
+    transform: translate(12px, 8px) scale(1.55);
+    transform-origin: center;
+  }
+
+  .workspaceV2 .emptyCopy {
+    max-width: 390px;
+    padding-left: 4px;
+  }
+
+  .workspaceV2 .workspaceEmpty h3 {
+    max-width: 390px;
+    font-size: clamp(27px, 2.15vw, 33px);
+  }
+
+  .workspaceV2 .workspaceEmpty p {
+    max-width: 380px;
+    font-size: 14px;
+  }
+
+  .generationOverlay .loadingMascot {
+    width: 250px;
+    max-height: 310px;
+    transform: scale(1.22);
+    transform-origin: center;
+    margin: 6px auto 14px;
+  }
+}
