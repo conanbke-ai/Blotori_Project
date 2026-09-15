@@ -1,0 +1,41 @@
+name: Blotori Hydration Debug Temp
+
+on:
+  push:
+    branches: [feature/composer-workspace-v2]
+    paths:
+      - scripts/hydration-debug-temp.mjs
+      - .github/workflows/hydration-debug-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      BLOTORI_MOCK_MODE: "true"
+      OPENAI_MODEL: gpt-5.6-luna
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund
+      - run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start dev app
+        run: |
+          npm run dev -- -H 127.0.0.1 > /tmp/blotori-dev.log 2>&1 &
+          for i in {1..45}; do
+            if curl -fsS http://127.0.0.1:3000 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/blotori-dev.log
+          exit 1
+      - name: Capture hydration diagnostics
+        run: node scripts/hydration-debug-temp.mjs
