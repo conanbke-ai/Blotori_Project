@@ -1,42 +1,67 @@
 /* Final visual acceptance overrides for the Blotori workspace. */
 
+/* The old empty-state decoration injected an `Aa` badge into every direct child.
+ * It is not part of the Blotori brand language and must never appear in the hero. */
+.workspaceV2 .blotoriEmptyState > div::before {
+  content: none !important;
+  display: none !important;
+}
+
 @media (min-width: 1181px) {
+  .workspaceV2 .workspaceGridV2 {
+    grid-template-columns: minmax(280px, 292px) minmax(0, 1fr) minmax(270px, 282px);
+    gap: 14px;
+  }
+
   .workspaceV2 .workspaceEmpty {
-    grid-template-columns: minmax(250px, .78fr) minmax(0, 1.22fr);
-    gap: 24px;
-    padding: 34px 30px 42px;
+    grid-template-columns: minmax(285px, .86fr) minmax(0, 1.14fr);
+    align-items: start;
+    align-content: start;
+    gap: 28px;
+    padding: 42px 34px 38px;
   }
 
   .workspaceV2 .emptyMascotStage {
-    min-height: 360px;
+    min-height: 315px;
     overflow: visible;
+    margin-top: 4px;
   }
 
   .workspaceV2 .emptyGlow {
-    width: 330px;
+    width: 270px;
+    opacity: .88;
   }
 
   .workspaceV2 .blotoriMascotEmpty {
-    width: 410px;
+    width: 430px;
     max-width: none;
-    max-height: 540px;
-    transform: translate(-8px, 14px) scale(1.30);
+    max-height: 560px;
+    transform: translate(-4px, -4px) scale(1.42);
     transform-origin: center;
   }
 
   .workspaceV2 .emptyCopy {
-    max-width: 365px;
-    padding-left: 0;
+    max-width: 380px;
+    padding: 42px 0 0 0;
   }
 
   .workspaceV2 .workspaceEmpty h3 {
-    max-width: 365px;
+    max-width: 380px;
     font-size: clamp(26px, 2vw, 32px);
+    margin-bottom: 9px;
   }
 
   .workspaceV2 .workspaceEmpty p {
-    max-width: 355px;
+    max-width: 370px;
     font-size: 14px;
+  }
+
+  .workspaceV2 .emptyQuickActions {
+    margin-top: 16px;
+  }
+
+  .workspaceV2 .emptyFeatureRow {
+    margin-top: 13px;
   }
 
   .generationOverlay .loadingMascot {
