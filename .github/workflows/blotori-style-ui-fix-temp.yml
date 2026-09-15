@@ -1,0 +1,64 @@
+name: Blotori Style UI Fix Temp
+
+on:
+  push:
+    branches: [feature/composer-workspace-v2]
+    paths:
+      - .github/workflows/blotori-style-ui-fix-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - name: Patch page and workspace visuals
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          page = Path('app/page.tsx')
+          text = page.read_text()
+
+          old = '''          <BlotoriAssetStudio />\n\n          {visibleFieldIds.length > 0 && <SettingGroup index="3" title="주제별 추가 조건" description="선택한 주제에 필요한 조건만 보여줘요." optional>\n            {visibleFieldIds.map((fieldId) => {\n              const field = FIELD_DEFINITIONS[fieldId]; if (!field) return null;\n              return <Field key={fieldId} label={field.label}>{field.type === "select" ? <select value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)}><option value="">지정 안 함</option>{field.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select> : <input value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)} placeholder={field.placeholder} />}</Field>;\n            })}\n          </SettingGroup>}\n\n          <SettingGroup index="4" title="기본 문체 · 글 구성" description="저장한 내 문체를 쓰지 않을 때 적용할 기본값과 글 구조를 정해요.">\n            <Field label="글 구성"><select value={form.structureId} onChange={(e) => patch({ structureId: e.target.value as StructureId })}><option value="auto">자동 추천</option>{recommendedStructures.length > 0 && <optgroup label="이 주제 추천">{recommendedStructures.map((id) => { const item = STRUCTURE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 구성">{STRUCTURE_DEFINITIONS.filter((x) => !recommendedStructures.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>\n            {form.structureId === "custom" && <Field label="직접 구성"><input value={form.customStructure ?? ""} onChange={(e) => patch({ customStructure: e.target.value })} /></Field>}\n            <Field label="문체"><select value={form.styleId} onChange={(e) => patch({ styleId: e.target.value as StyleId })}><option value="auto">자동 추천</option>{recommendedStyles.length > 0 && <optgroup label="이 주제 추천">{recommendedStyles.map((id) => { const item = STYLE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 문체">{STYLE_DEFINITIONS.filter((x) => !recommendedStyles.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>\n            {form.styleId === "custom" && <Field label="직접 문체"><input value={form.customStyle ?? ""} onChange={(e) => patch({ customStyle: e.target.value })} /></Field>}\n            <Field label="문체 강도"><select value={form.styleIntensity ?? 3} onChange={(e) => patch({ styleIntensity: Number(e.target.value) as StyleIntensity })}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {styleIntensityLabel[level]}</option>)}</select><small className="hint">문체의 특징을 얼마나 선명하게 드러낼지 조절합니다. 기본값은 3이에요.</small></Field>\n          </SettingGroup>\n'''
+
+          new = '''          <BlotoriAssetStudio\n            styleId={form.styleId}\n            styleIntensity={form.styleIntensity ?? 3}\n            customStyle={form.customStyle ?? ""}\n            structureId={form.structureId}\n            customStructure={form.customStructure ?? ""}\n            recommendedStyleIds={recommendedStyles}\n            recommendedStructureIds={recommendedStructures}\n            onStyleIdChange={(styleId) => patch({ styleId })}\n            onStyleIntensityChange={(styleIntensity) => patch({ styleIntensity })}\n            onCustomStyleChange={(customStyle) => patch({ customStyle })}\n            onStructureIdChange={(structureId) => patch({ structureId })}\n            onCustomStructureChange={(customStructure) => patch({ customStructure })}\n          />\n\n          {visibleFieldIds.length > 0 && <SettingGroup index="5" title="주제별 추가 조건" description="선택한 주제에 필요한 조건만 보여줘요." optional>\n            {visibleFieldIds.map((fieldId) => {\n              const field = FIELD_DEFINITIONS[fieldId]; if (!field) return null;\n              return <Field key={fieldId} label={field.label}>{field.type === "select" ? <select value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)}><option value="">지정 안 함</option>{field.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select> : <input value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)} placeholder={field.placeholder} />}</Field>;\n            })}\n          </SettingGroup>}\n'''
+          if old not in text:
+              raise SystemExit('target writing-style block not found')
+          text = text.replace(old, new, 1)
+          text = text.replace('<SettingGroup index="5" title="출력 설정"', '<SettingGroup index="6" title="출력 설정"', 1)
+          text = text.replace('          StructureId,\n', '')
+          text = text.replace('          StyleId,\n', '')
+          text = text.replace('  STRUCTURE_DEFINITIONS,\n', '')
+          text = text.replace('  STYLE_DEFINITIONS,\n', '')
+          text = re.sub(r'const styleIntensityLabel: Record<StyleIntensity, string> = \{.*?\};\n', '', text, flags=re.S)
+          page.write_text(text)
+
+          css = Path('app/blotori-asset-studio.css')
+          style = css.read_text()
+          style += '''\n/* Unified writing settings: one card for built-in styles, saved profiles and structure. */\n.unifiedWritingGroup { border-color: rgba(45,143,160,.28); background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(244,251,252,.72)); }\n.unifiedWritingGroup .settingGroupHeader { margin-bottom: 14px; }\n.writingDivider { height: 1px; background: linear-gradient(90deg, transparent, rgba(105,199,213,.38), transparent); margin: 2px 0; }\n.assetBuilderLead { margin: 0; font-size: 11px; line-height: 1.55; color: #70818b; }\n.assetUtilityGroup { margin: 4px 2px 14px; padding: 11px 12px; border-radius: 14px; border: 1px dashed rgba(49,91,122,.15); background: rgba(255,255,255,.48); display: grid; gap: 10px; }\n.assetUtilityCopy { display: grid; gap: 3px; }\n.assetUtilityCopy strong { font-size: 12px; color: #425f72; }\n.assetUtilityCopy span { font-size: 10.5px; line-height: 1.5; color: #7b8991; }\n.assetUtilityGroup .packActions button { min-height: 36px; font-size: 11px; }\n@media (max-width:760px) { .assetUtilityGroup { padding: 10px; } }\n'''
+          css.write_text(style)
+
+          fixes = Path('app/workspace-v2-fixes.css')
+          style = fixes.read_text()
+          style += '''\n/* Empty composer is a branded stage, not a mascot dropped on blank canvas. */\n.workspaceV2 .workspaceEmpty {\n  position: relative;\n  overflow: hidden;\n  display: grid;\n  grid-template-columns: minmax(230px, .72fr) minmax(300px, 1.05fr);\n  align-items: center;\n  justify-content: center;\n  gap: clamp(22px, 4vw, 56px);\n  padding: clamp(34px, 6vw, 82px);\n  background:\n    radial-gradient(circle at 24% 46%, rgba(105,199,213,.18), transparent 30%),\n    radial-gradient(circle at 78% 55%, rgba(255,139,114,.08), transparent 28%),\n    linear-gradient(145deg, rgba(255,253,249,.98), rgba(244,251,252,.82));\n}\n.workspaceV2 .workspaceEmpty::after {\n  content: "";\n  position: absolute;\n  width: 210px;\n  height: 210px;\n  right: 8%;\n  bottom: 8%;\n  border-radius: 44px;\n  border: 1px solid rgba(105,199,213,.16);\n  transform: rotate(8deg);\n  background: rgba(255,255,255,.25);\n  box-shadow: 0 24px 70px rgba(49,91,122,.06);\n  pointer-events: none;\n}\n.workspaceV2 .workspaceEmpty > div { position: relative; z-index: 1; max-width: 520px; }\n.workspaceV2 .workspaceEmpty h3 { font-size: clamp(21px, 2.2vw, 32px); line-height: 1.3; margin: 4px 0 10px; color: #315b7a; }\n.workspaceV2 .workspaceEmpty p { max-width: 440px; font-size: 14px; line-height: 1.7; color: #71818b; }\n.workspaceV2 .blotoriMascotEmpty {\n  position: relative;\n  z-index: 2;\n  width: min(310px, 31vw);\n  max-height: 430px;\n  justify-self: end;\n  margin: 0;\n  transform: translateY(8px);\n  filter: drop-shadow(0 24px 26px rgba(49,91,122,.15));\n}\n@media (max-width: 900px) {\n  .workspaceV2 .workspaceEmpty { grid-template-columns: 1fr; text-align: center; gap: 12px; padding: 28px 20px 42px; }\n  .workspaceV2 .blotoriMascotEmpty { justify-self: center; width: min(250px, 48vw); max-height: 340px; }\n  .workspaceV2 .workspaceEmpty > div { margin: 0 auto; }\n  .workspaceV2 .workspaceEmpty p { margin-inline: auto; }\n  .workspaceV2 .workspaceEmpty::after { right: 3%; bottom: 4%; width: 145px; height: 145px; }\n}\n@media (max-width: 760px) {\n  .workspaceV2 .workspaceEmpty { min-height: calc(100dvh - 190px); padding: 24px 16px 36px; }\n  .workspaceV2 .blotoriMascotEmpty { width: min(218px, 62vw); max-height: 300px; }\n  .workspaceV2 .workspaceEmpty h3 { font-size: 21px; }\n}\n'''
+          fixes.write_text(style)
+          PY
+      - name: Validate
+        run: |
+          npm install --no-audit --no-fund
+          npm run lint
+          npm run build
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add app/page.tsx app/blotori-asset-studio.css app/workspace-v2-fixes.css
+          git commit -m 'fix: unify writing controls and compose empty state'
+          git push origin HEAD:feature/composer-workspace-v2
