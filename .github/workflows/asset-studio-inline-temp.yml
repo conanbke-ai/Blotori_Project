@@ -1,0 +1,66 @@
+name: Blotori Asset Studio Inline Temp
+
+on:
+  push:
+    branches: [feature/composer-workspace-v2]
+    paths:
+      - .github/workflows/asset-studio-inline-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - name: Render asset studio inline
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          page = Path('app/page.tsx')
+          text = page.read_text()
+          anchor = 'import { buildPlatformExport } from "../lib/application/platform-exporter";'
+          if 'import BlotoriAssetStudio from "./BlotoriAssetStudio";' not in text:
+              text = text.replace(anchor, anchor + '\nimport BlotoriAssetStudio from "./BlotoriAssetStudio";', 1)
+          text = text.replace('<div className="assetStudioMount" data-blotori-asset-studio="true" />', '<BlotoriAssetStudio />', 1)
+          page.write_text(text)
+
+          layout = Path('app/layout.tsx')
+          text = layout.read_text()
+          text = text.replace('import BlotoriAssetStudio from "./BlotoriAssetStudio";\n', '', 1)
+          text = text.replace('        <BlotoriAssetStudio />\n', '', 1)
+          layout.write_text(text)
+
+          studio = Path('app/BlotoriAssetStudio.tsx')
+          text = studio.read_text()
+          text = text.replace('import { createPortal } from "react-dom";\n', '', 1)
+          text = text.replace('  const [mount, setMount] = useState<HTMLElement | null>(null);\n', '', 1)
+          start = text.find('  useEffect(() => {\n    setStyles(loadStyles());')
+          end_marker = '  }, []);\n\n  useEffect(() => {\n    const nativeFetch'
+          end = text.find(end_marker, start)
+          if start < 0 or end < 0:
+              raise SystemExit('asset studio initialization effect not found')
+          old_block = text[start:end + len('  }, []);')]
+          new_block = '''  useEffect(() => {\n    setStyles(loadStyles());\n    setSelectedStyleId(localStorage.getItem(SELECTED_STYLE_KEY) || "");\n    void listMaterials().then(setMaterials);\n  }, []);'''
+          text = text.replace(old_block, new_block, 1)
+          text = text.replace('  if (!mount) return null;\n  return createPortal(<>', '  return <>', 1)
+          text = text.replace('  </>, mount);\n}', '  </>;\n}', 1)
+          studio.write_text(text)
+          PY
+      - name: Validate
+        run: |
+          npm install --no-audit --no-fund
+          npm run lint
+          npm run build
+      - name: Commit inline render fix
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add app/page.tsx app/layout.tsx app/BlotoriAssetStudio.tsx
+          git commit -m 'fix: render Blotori asset studio inline'
+          git push origin HEAD:feature/composer-workspace-v2
