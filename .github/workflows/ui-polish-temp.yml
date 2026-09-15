@@ -1,0 +1,269 @@
+name: Blotori UI Polish Temp
+
+on:
+  push:
+    branches:
+      - feature/composer-workspace-v2
+    paths:
+      - .github/workflows/ui-polish-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - name: Apply scoped UI hierarchy polish
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          page = Path('app/page.tsx')
+          text = page.read_text()
+
+          old = '''  function scrollPreview(where: "top" | "bottom") {
+    const el = previewScrollRef.current; if (!el) return;
+    el.scrollTo({ top: where === "top" ? 0 : el.scrollHeight, behavior: "smooth" });
+  }
+'''
+          new = '''  function scrollPreview(where: "top" | "bottom") {
+    const el = previewScrollRef.current; if (!el) return;
+    el.scrollTo({ top: where === "top" ? 0 : el.scrollHeight, behavior: "smooth" });
+  }
+
+  function focusSettings(selector: string) {
+    setSettingsOpen(true);
+    setMobilePanel("settings");
+    window.setTimeout(() => {
+      document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+  }
+'''
+          if old not in text:
+            raise SystemExit('focusSettings anchor missing')
+          text = text.replace(old, new, 1)
+
+          old = '''          {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><img className="blotoriMascotEmpty" src="/blotori-character-ui.png" alt="블로토리" /><div><span className="emptyEyebrow">READY TO COMPOSE</span><h3>왼쪽에서 플랫폼과 주제를 먼저 정해 주세요.</h3><p>글을 만들면 이곳이 실제 게시물 중심의 작업 공간으로 바뀌어요.</p></div></div> :
+'''
+          new = '''          {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><div className="emptyMascotStage"><span className="emptyGlow" /><img className="blotoriMascotEmpty" src="/blotori-character-ui.png" alt="블로토리" /></div><div className="emptyCopy"><span className="emptyEyebrow">READY TO COMPOSE</span><h3>블로토리와 첫 원고를 준비해 볼까요?</h3><p>플랫폼과 주제를 정한 뒤 참고자료와 내 문체를 더하면, 실제 게시물 미리보기까지 한 흐름으로 이어져요.</p><div className="emptyQuickActions"><button type="button" className="secondaryAction" onClick={() => focusSettings('.referenceMaterialGroup')}>참고자료부터 등록</button><button type="button" className="ghost" onClick={() => focusSettings('.styleBuilder')}>내 문체 만들기</button></div><div className="emptyFeatureRow"><span>플랫폼 맞춤</span><span>참고자료 반영</span><span>이미지·검수</span></div></div></div> :
+'''
+          if old not in text:
+            raise SystemExit('empty hero anchor missing')
+          text = text.replace(old, new, 1)
+
+          old = '''          {!draft ? <div className="inspectorEmpty"><strong>글 생성 후 사용할 수 있어요.</strong><p>이미지 프롬프트, 배치 위치, 근거자료 및 표현 검수를 한곳에서 확인합니다.</p></div> : inspectorTab === "images" ?'''
+          new = '''          {!draft ? <div className="inspectorEmpty"><span className="inspectorEmptyIcon">✓</span><strong>게시 전 마지막 점검 공간이에요.</strong><p>글을 만들면 아래 항목이 자동으로 채워져요.</p><div className="inspectorEmptyGuide"><div><b>01</b><span><strong>이미지</strong><small>프롬프트와 삽입 위치</small></span></div><div><b>02</b><span><strong>근거자료</strong><small>참고한 자료와 용어</small></span></div><div><b>03</b><span><strong>표현 검수</strong><small>주의 표현과 게시 전 확인</small></span></div></div></div> : inspectorTab === "images" ?'''
+          if old not in text:
+            raise SystemExit('inspector empty anchor missing')
+          text = text.replace(old, new, 1)
+          page.write_text(text)
+
+          studio = Path('app/BlotoriAssetStudio.tsx')
+          text = studio.read_text()
+          old = '''      <div className="settingGroupBody assetStudioBody">
+        <label className="field"><span>문체 선택</span><select value={styleChoice} onChange={(event) => handleStyleChoice(event.target.value)}>'''
+          new = '''      <div className="settingGroupBody assetStudioBody">
+        <div className="writingSectionLabel"><span>현재 적용 문체</span><small>이번 글에서 사용할 말투를 고릅니다.</small></div>
+        <label className="field"><span>문체 선택</span><select value={styleChoice} onChange={(event) => handleStyleChoice(event.target.value)}>'''
+          if old not in text:
+            raise SystemExit('writing current anchor missing')
+          text = text.replace(old, new, 1)
+
+          old = '''        <label className="field"><span>문체 강도</span><select value={styleIntensity} onChange={(event) => onStyleIntensityChange(Number(event.target.value) as StyleIntensity)}>'''
+          new = '''        <div className="writingSectionLabel writingSectionAdjust"><span>이번 글 세부조정</span><small>저장된 문체는 그대로 두고 현재 원고만 조정합니다.</small></div>
+        <label className="field"><span>문체 강도</span><select value={styleIntensity} onChange={(event) => onStyleIntensityChange(Number(event.target.value) as StyleIntensity)}>'''
+          if old not in text:
+            raise SystemExit('writing adjust anchor missing')
+          text = text.replace(old, new, 1)
+
+          old = '''        <details className="styleBuilder"><summary>＋ 새 문체 만들기</summary><div className="styleBuilderBody">'''
+          new = '''        <div className="writingSectionLabel writingSectionCreate"><span>새 문체 만들기</span><small>참고 글을 분석해 이름을 붙여 저장하고 반복 사용합니다.</small></div>
+        <details className="styleBuilder"><summary>＋ 새 문체 만들기</summary><div className="styleBuilderBody">'''
+          if old not in text:
+            raise SystemExit('writing create anchor missing')
+          text = text.replace(old, new, 1)
+          studio.write_text(text)
+
+          fixes = Path('app/workspace-v2-fixes.css')
+          css = fixes.read_text()
+          css += r'''
+
+/* 2026-09-15 visual acceptance polish: calm chrome, branded hero, balanced empty inspector. */
+.workspaceV2 .blotoriMascotTop {
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  box-shadow: 0 6px 16px rgba(49,91,122,.08);
+}
+.workspaceV2 .compactBrand { gap: 12px; }
+.workspaceV2 .compactBrand h1 { margin-top: 1px; }
+.workspaceV2 .workspaceEmpty {
+  grid-template-columns: minmax(280px,.9fr) minmax(340px,1fr);
+  gap: clamp(30px,5vw,74px);
+  padding: clamp(42px,7vw,92px);
+}
+.workspaceV2 .workspaceEmpty::after { content: none; display: none; }
+.workspaceV2 .emptyMascotStage {
+  position: relative;
+  min-height: 390px;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+.workspaceV2 .emptyGlow {
+  position: absolute;
+  width: min(430px,36vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(105,199,213,.24) 0%, rgba(105,199,213,.09) 42%, transparent 70%);
+  filter: blur(2px);
+  z-index: -1;
+}
+.workspaceV2 .blotoriMascotEmpty {
+  width: min(390px,36vw);
+  max-height: 520px;
+  justify-self: center;
+  transform: translateY(10px) scale(1.06);
+  filter: drop-shadow(0 28px 30px rgba(49,91,122,.16));
+}
+.workspaceV2 .emptyCopy { max-width: 540px; }
+.workspaceV2 .workspaceEmpty h3 { font-size: clamp(25px,2.45vw,36px); max-width: 520px; }
+.workspaceV2 .workspaceEmpty p { font-size: 15px; max-width: 500px; }
+.workspaceV2 .emptyQuickActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 20px;
+}
+.workspaceV2 .emptyQuickActions button { min-height: 43px; }
+.workspaceV2 .emptyFeatureRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 16px;
+}
+.workspaceV2 .emptyFeatureRow span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(105,199,213,.18);
+  color: #62808b;
+  font-size: 11px;
+  font-weight: 750;
+}
+.workspaceV2 .inspectorEmpty {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  text-align: left;
+  padding: 18px 4px 8px;
+}
+.workspaceV2 .inspectorEmptyIcon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgba(105,199,213,.2), rgba(255,139,114,.09));
+  color: #2d8fa0;
+  font-weight: 900;
+  margin-bottom: 3px;
+}
+.workspaceV2 .inspectorEmpty > p { margin: 0 0 5px; line-height: 1.55; }
+.workspaceV2 .inspectorEmptyGuide { display: grid; gap: 8px; margin-top: 5px; }
+.workspaceV2 .inspectorEmptyGuide > div {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 9px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(49,91,122,.08);
+  border-radius: 13px;
+  background: rgba(255,255,255,.76);
+}
+.workspaceV2 .inspectorEmptyGuide b {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: rgba(105,199,213,.12);
+  color: #2d8fa0;
+  font-size: 10px;
+}
+.workspaceV2 .inspectorEmptyGuide span { display: grid; gap: 2px; }
+.workspaceV2 .inspectorEmptyGuide strong { font-size: 12px; }
+.workspaceV2 .inspectorEmptyGuide small { color: #7a8b95; font-size: 10.5px; }
+@media (max-width: 900px) {
+  .workspaceV2 .workspaceEmpty { grid-template-columns: 1fr; gap: 8px; padding: 30px 22px 44px; }
+  .workspaceV2 .emptyMascotStage { min-height: 260px; }
+  .workspaceV2 .emptyGlow { width: min(330px,72vw); }
+  .workspaceV2 .blotoriMascotEmpty { width: min(290px,66vw); max-height: 370px; }
+  .workspaceV2 .emptyCopy { margin: 0 auto; text-align: center; }
+  .workspaceV2 .emptyQuickActions, .workspaceV2 .emptyFeatureRow { justify-content: center; }
+}
+@media (max-width:760px) {
+  .workspaceV2 .blotoriMascotTop { width: 40px; height: 40px; border-radius: 14px; }
+  .workspaceV2 .emptyMascotStage { min-height: 230px; }
+  .workspaceV2 .blotoriMascotEmpty { width: min(250px,70vw); }
+  .workspaceV2 .emptyQuickActions { display: grid; grid-template-columns: 1fr; width: 100%; }
+}
+'''
+          fixes.write_text(css)
+
+          asset = Path('app/blotori-asset-studio.css')
+          css = asset.read_text()
+          css += r'''
+
+.writingSectionLabel {
+  display: grid;
+  gap: 2px;
+  padding: 2px 1px 7px;
+  border-bottom: 1px solid rgba(105,199,213,.18);
+}
+.writingSectionLabel span { color: #315b7a; font-size: 12px; font-weight: 850; }
+.writingSectionLabel small { color: #7b8a93; font-size: 10.5px; line-height: 1.45; }
+.writingSectionAdjust, .writingSectionCreate { margin-top: 5px; }
+.unifiedWritingGroup .selectedStyleCard { margin-top: -2px; }
+.unifiedWritingGroup .styleBuilder { margin-top: -2px; }
+'''
+          asset.write_text(css)
+
+          states = Path('app/blotori-states.css')
+          css = states.read_text()
+          css += r'''
+
+/* Generation state follows the same character-first visual hierarchy as the empty workspace. */
+.generationOverlay { background: rgba(247,251,252,.82); }
+.generationOverlay .blotoriStateCard {
+  width: min(540px,100%);
+  padding: 34px 34px 30px;
+  background:
+    radial-gradient(circle at 50% 14%, rgba(105,199,213,.14), transparent 27%),
+    rgba(255,253,249,.98);
+}
+.generationOverlay .loadingMascot {
+  width: 205px;
+  max-height: 270px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 20px 24px rgba(49,91,122,.14));
+}
+@media (max-width:600px) {
+  .generationOverlay .blotoriStateCard { padding: 28px 20px 24px; }
+  .generationOverlay .loadingMascot { width: 170px; max-height: 225px; }
+}
+'''
+          states.write_text(css)
+          PY
+      - name: Commit polish
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add app/page.tsx app/BlotoriAssetStudio.tsx app/workspace-v2-fixes.css app/blotori-asset-studio.css app/blotori-states.css
+          git commit -m 'fix: refine Blotori empty, writing and review hierarchy'
+          git push origin HEAD:feature/composer-workspace-v2
