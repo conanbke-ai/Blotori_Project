@@ -21,31 +21,49 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Decode existing transparent Blotori assets
+      - name: Inspect and normalize Blotori assets
         run: |
           mkdir -p recovered
-          base64 -d public/blotori-character-transparent.webp > recovered/blotori-character-transparent.webp
-          base64 -d public/blotori-face-ui.webp > recovered/blotori-face-ui.webp
           python -m pip install pillow
           python - <<'PY'
           from PIL import Image
           from pathlib import Path
+          import base64
 
-          for src_name, out_name in [
-              ('blotori-character-transparent.webp', 'blotori-character-canonical.png'),
-              ('blotori-face-ui.webp', 'blotori-face-canonical.png'),
-          ]:
-              src = Path('recovered') / src_name
-              im = Image.open(src).convert('RGBA')
-              print(src_name, 'size=', im.size, 'format=', Image.open(src).format, 'alpha=', im.getchannel('A').getextrema())
-              bbox = im.getchannel('A').getbbox()
-              if bbox:
-                  im = im.crop(bbox)
-              im.save(Path('recovered') / out_name, optimize=True)
-              print(out_name, 'cropped=', im.size)
+          assets = [
+              ('public/blotori-character-transparent.webp', 'recovered/blotori-character-canonical.png'),
+              ('public/blotori-face-ui.webp', 'recovered/blotori-face-canonical.png'),
+              ('public/blotori-canonical-mini.webp', 'recovered/blotori-mini-canonical.png'),
+              ('public/blotori-icon-transparent.webp', 'recovered/blotori-icon-canonical.png'),
+          ]
+
+          for src_name, out_name in assets:
+              src = Path(src_name)
+              raw = src.read_bytes()
+              print(src_name, 'bytes=', len(raw), 'prefix=', raw[:16])
+              candidate = raw
+              if not raw.startswith(b'RIFF'):
+                  try:
+                      candidate = base64.b64decode(raw, validate=False)
+                      print(' decoded prefix=', candidate[:16], 'decoded bytes=', len(candidate))
+                  except Exception as exc:
+                      print(' decode failed=', exc)
+              tmp = Path('recovered') / (src.stem + '.normalized.webp')
+              tmp.write_bytes(candidate)
+              try:
+                  with Image.open(tmp) as opened:
+                      print(' image=', opened.format, opened.size, opened.mode)
+                      im = opened.convert('RGBA')
+                  bbox = im.getchannel('A').getbbox()
+                  if bbox:
+                      im = im.crop(bbox)
+                  im.save(out_name, optimize=True)
+                  print(' saved=', out_name, im.size, 'alpha=', im.getchannel('A').getextrema())
+              except Exception as exc:
+                  print(' PIL FAIL=', type(exc).__name__, str(exc))
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: blotori-decoded-canonical
+          name: blotori-inspected-canonical
           path: recovered/
           if-no-files-found: error
