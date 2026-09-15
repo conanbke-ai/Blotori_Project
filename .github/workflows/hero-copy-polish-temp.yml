@@ -1,0 +1,63 @@
+name: Blotori Hero Copy Polish Temp
+
+on:
+  push:
+    branches:
+      - feature/composer-workspace-v2
+    paths:
+      - .github/workflows/hero-copy-polish-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - name: Apply scoped hero polish
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          page = Path('app/page.tsx')
+          text = page.read_text()
+          replacements = [
+            ('<h3>블로토리와 첫 원고를 준비해 볼까요?</h3>', '<h3>자료와 문체를 정하고, 초안을 바로 시작하세요</h3>'),
+            ('<p>플랫폼과 주제를 정한 뒤 참고자료와 내 문체를 더하면, 실제 게시물 미리보기까지 한 흐름으로 이어져요.</p>', '<p>주제와 참고자료를 고르면 블로토리가 플랫폼에 맞는 게시 초안을 구성해드려요.</p>'),
+            ('>참고자료부터 등록</button>', '>참고자료 등록</button>'),
+          ]
+          for old, new in replacements:
+            if old not in text:
+              raise SystemExit(f'Missing hero copy target: {old}')
+            text = text.replace(old, new, 1)
+          page.write_text(text)
+
+          css = Path('app/workspace-v2-final.css')
+          css_text = css.read_text()
+          marker = '/* Final canonical hero polish: keep the same approved Blotori asset and only tune presentation. */'
+          if marker not in css_text:
+            css_text += '''\n\n/* Final canonical hero polish: keep the same approved Blotori asset and only tune presentation. */\n@media (min-width: 1181px) {\n  .generationOverlay .loadingMascot {\n    width: 300px;\n    max-height: 365px;\n    margin: -4px auto 6px;\n  }\n}\n@media (max-width: 760px) {\n  .generationOverlay .loadingMascot {\n    width: 205px;\n    max-height: 285px;\n  }\n}\n'''
+          css.write_text(css_text)
+
+          active = Path('ACTIVE_WORK.md')
+          active_text = active.read_text()
+          note = '\n- 2026-09-15: 공통 TORI canonical 기반 Blotori 얼굴/전신 PNG 적용 상태를 visual QA로 재확인하고, 빈 화면 hero 카피를 짧게 정리했으며 생성 로딩 전신 크기를 조정했다. 캐릭터 자체는 재생성하지 않았다.\n'
+          if note.strip() not in active_text:
+            active.write_text(active_text.rstrip() + '\n' + note)
+          PY
+      - name: Ensure branch did not advance unexpectedly
+        run: |
+          git fetch origin feature/composer-workspace-v2
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/feature/composer-workspace-v2)" || { echo 'Branch advanced; aborting scoped patch.'; exit 1; }
+      - name: Commit and remove temporary workflow
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/hero-copy-polish-temp.yml
+          git add app/page.tsx app/workspace-v2-final.css ACTIVE_WORK.md
+          git commit -m 'fix: polish canonical Blotori hero copy and loading scale'
+          git push origin HEAD:feature/composer-workspace-v2
