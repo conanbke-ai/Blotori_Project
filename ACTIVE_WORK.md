@@ -191,3 +191,5 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - 캐릭터 cutout은 canonical sheet의 캐릭터 픽셀을 유지하고 배경/주변 sheet 요소만 제거한다.
 - 사용자 local preview 이미지는 브라우저 세션용이며 서버 업로드/영구 저장으로 간주하지 않는다.
 - 코드 구현 완료를 visual acceptance로 간주하지 않는다.
+
+- 2026-09-15: 공통 TORI canonical 기반 Blotori 얼굴/전신 PNG 적용 상태를 visual QA로 재확인하고, 빈 화면 hero 카피를 짧게 정리했으며 생성 로딩 전신 크기를 조정했다. 캐릭터 자체는 재생성하지 않았다.

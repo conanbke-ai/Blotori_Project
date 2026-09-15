@@ -72,3 +72,19 @@
     margin: 6px auto 14px;
   }
 }
+
+
+/* Final canonical hero polish: keep the same approved Blotori asset and only tune presentation. */
+@media (min-width: 1181px) {
+  .generationOverlay .loadingMascot {
+    width: 300px;
+    max-height: 365px;
+    margin: -4px auto 6px;
+  }
+}
+@media (max-width: 760px) {
+  .generationOverlay .loadingMascot {
+    width: 205px;
+    max-height: 285px;
+  }
+}
