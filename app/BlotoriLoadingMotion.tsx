@@ -7,7 +7,7 @@ export default function BlotoriLoadingMotion({ compact = false }: { compact?: bo
       <span className="motionNote noteTwo" />
       <img
         className="loadingMascot"
-        src="/blotori-character-transparent.webp"
+        src="/blotori-character-ui.png"
         alt=""
         draggable={false}
       />

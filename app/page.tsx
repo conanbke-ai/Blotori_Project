@@ -219,7 +219,7 @@ export default function Home() {
     <main className={`shell appShell workspaceV2 mobile-${mobilePanel}`} aria-busy={loading}>
       <header className="topbar blotoriTopbar workspaceHeader">
         <div className="brandIntro compactBrand">
-          <img className="blotoriMascotTop" src="/blotori-canonical-mini.webp" alt="블로토리" />
+          <img className="blotoriMascotTop" src="/blotori-face-ui.png" alt="블로토리" />
           <div>
             <div className="eyebrow">BLOTORI · BLOG WORKSPACE</div>
             <h1>글과 이미지를 엮어, 이야기를 완성해요.</h1>
@@ -298,7 +298,7 @@ export default function Home() {
             </div>
           </div>
 
-          {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><img className="blotoriMascotEmpty" src="/blotori-canonical-mini.webp" alt="블로토리" /><div><span className="emptyEyebrow">READY TO COMPOSE</span><h3>왼쪽에서 플랫폼과 주제를 먼저 정해 주세요.</h3><p>글을 만들면 이곳이 실제 게시물 중심의 작업 공간으로 바뀌어요.</p></div></div> :
+          {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><img className="blotoriMascotEmpty" src="/blotori-character-ui.png" alt="블로토리" /><div><span className="emptyEyebrow">READY TO COMPOSE</span><h3>왼쪽에서 플랫폼과 주제를 먼저 정해 주세요.</h3><p>글을 만들면 이곳이 실제 게시물 중심의 작업 공간으로 바뀌어요.</p></div></div> :
           <div className="previewLayout appPreviewLayout previewOnlyLayout">
             <div className="blogScroller" ref={previewScrollRef}>
               <article className={`blogPaper ${platformClass} density-${draft.presentation?.density ?? "balanced"}`}>
@@ -324,7 +324,7 @@ export default function Home() {
         </aside>}
       </div>
 
-      {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-canonical-mini.webp" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">AI 호출은 기존 1회 그대로예요.</span></div></div>}
+      {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-character-ui.png" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">AI 호출은 기존 1회 그대로예요.</span></div></div>}
       {successVisible && draft && <div className="successToast" role="status" aria-live="polite"><div className="successPaw">✦</div><div><strong>블로토리가 원고를 완성했어요.</strong><span>제목·이미지·검수 결과까지 확인해 주세요.</span></div><button onClick={() => setSuccessVisible(false)} aria-label="완료 알림 닫기">×</button></div>}
     </main>
   );
