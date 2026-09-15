@@ -19,8 +19,6 @@ import {
   CATEGORY_DEFINITIONS,
   FIELD_DEFINITIONS,
   PLATFORM_PROFILES,
-  STRUCTURE_DEFINITIONS,
-  STYLE_DEFINITIONS,
   getCategory,
   getPreset,
 } from "../lib/domain/content-config";
@@ -55,13 +53,6 @@ const initialForm: ComposerForm = {
 };
 
 const lengthLabel: Record<Length, string> = { short: "짧게", medium: "보통", long: "길게" };
-const styleIntensityLabel: Record<StyleIntensity, string> = {
-  1: "절제됨",
-  2: "부드러움",
-  3: "자연스러움",
-  4: "적극적",
-  5: "개성 강함",
-};
 const loadingStages = [
   "주제와 플랫폼 조건을 정리하고 있어요.",
   "제목·본문 구성과 문체를 맞추고 있어요.",
@@ -267,24 +258,29 @@ export default function Home() {
             <Field label="자유 주제·추가 설명"><textarea value={form.freeTopic ?? ""} onChange={(e) => patch({ freeTopic: e.target.value })} rows={3} placeholder="주제를 문장이나 단어로 자유롭게 입력" /></Field>
           </SettingGroup>
 
-          <BlotoriAssetStudio />
+          <BlotoriAssetStudio
+            styleId={form.styleId}
+            styleIntensity={form.styleIntensity ?? 3}
+            customStyle={form.customStyle ?? ""}
+            structureId={form.structureId}
+            customStructure={form.customStructure ?? ""}
+            recommendedStyleIds={recommendedStyles}
+            recommendedStructureIds={recommendedStructures}
+            onStyleIdChange={(styleId) => patch({ styleId })}
+            onStyleIntensityChange={(styleIntensity) => patch({ styleIntensity })}
+            onCustomStyleChange={(customStyle) => patch({ customStyle })}
+            onStructureIdChange={(structureId) => patch({ structureId })}
+            onCustomStructureChange={(customStructure) => patch({ customStructure })}
+          />
 
-          {visibleFieldIds.length > 0 && <SettingGroup index="3" title="주제별 추가 조건" description="선택한 주제에 필요한 조건만 보여줘요." optional>
+          {visibleFieldIds.length > 0 && <SettingGroup index="5" title="주제별 추가 조건" description="선택한 주제에 필요한 조건만 보여줘요." optional>
             {visibleFieldIds.map((fieldId) => {
               const field = FIELD_DEFINITIONS[fieldId]; if (!field) return null;
               return <Field key={fieldId} label={field.label}>{field.type === "select" ? <select value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)}><option value="">지정 안 함</option>{field.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select> : <input value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)} placeholder={field.placeholder} />}</Field>;
             })}
           </SettingGroup>}
 
-          <SettingGroup index="4" title="기본 문체 · 글 구성" description="저장한 내 문체를 쓰지 않을 때 적용할 기본값과 글 구조를 정해요.">
-            <Field label="글 구성"><select value={form.structureId} onChange={(e) => patch({ structureId: e.target.value as StructureId })}><option value="auto">자동 추천</option>{recommendedStructures.length > 0 && <optgroup label="이 주제 추천">{recommendedStructures.map((id) => { const item = STRUCTURE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 구성">{STRUCTURE_DEFINITIONS.filter((x) => !recommendedStructures.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>
-            {form.structureId === "custom" && <Field label="직접 구성"><input value={form.customStructure ?? ""} onChange={(e) => patch({ customStructure: e.target.value })} /></Field>}
-            <Field label="문체"><select value={form.styleId} onChange={(e) => patch({ styleId: e.target.value as StyleId })}><option value="auto">자동 추천</option>{recommendedStyles.length > 0 && <optgroup label="이 주제 추천">{recommendedStyles.map((id) => { const item = STYLE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 문체">{STYLE_DEFINITIONS.filter((x) => !recommendedStyles.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>
-            {form.styleId === "custom" && <Field label="직접 문체"><input value={form.customStyle ?? ""} onChange={(e) => patch({ customStyle: e.target.value })} /></Field>}
-            <Field label="문체 강도"><select value={form.styleIntensity ?? 3} onChange={(e) => patch({ styleIntensity: Number(e.target.value) as StyleIntensity })}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {styleIntensityLabel[level]}</option>)}</select><small className="hint">문체의 특징을 얼마나 선명하게 드러낼지 조절합니다. 기본값은 3이에요.</small></Field>
-          </SettingGroup>
-
-          <SettingGroup index="5" title="출력 설정" description="글 길이와 이미지 수, 기타 요청을 마지막으로 확인해요.">
+          <SettingGroup index="6" title="출력 설정" description="글 길이와 이미지 수, 기타 요청을 마지막으로 확인해요.">
             <div className="splitRow"><Field label="글 길이"><select value={form.length} onChange={(e) => patch({ length: e.target.value as Length })}>{(Object.keys(lengthLabel) as Length[]).map((key) => <option key={key} value={key}>{lengthLabel[key]}</option>)}</select></Field><Field label="이미지 수"><select value={form.imageCount} onChange={(e) => patch({ imageCount: Number(e.target.value) })}>{[2,3,4,5].map((n) => <option key={n} value={n}>{n}장</option>)}</select></Field></div>
             <Field label="기타 조건·요청"><textarea value={form.extraConditions ?? ""} onChange={(e) => patch({ extraConditions: e.target.value })} rows={3} placeholder="꼭 넣을 내용, 제외할 표현, 별도 요청" /></Field>
           </SettingGroup>

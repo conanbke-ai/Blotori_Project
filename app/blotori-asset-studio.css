@@ -36,3 +36,15 @@
 .packGroup .settingGroupBody { padding-top: 8px; }
 .sourceTabs button { min-height: 34px; }
 @media (min-width: 1181px) { .assetDropzone { padding-block: 16px; } }
+
+/* Unified writing settings: one card for built-in styles, saved profiles and structure. */
+.unifiedWritingGroup { border-color: rgba(45,143,160,.28); background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(244,251,252,.72)); }
+.unifiedWritingGroup .settingGroupHeader { margin-bottom: 14px; }
+.writingDivider { height: 1px; background: linear-gradient(90deg, transparent, rgba(105,199,213,.38), transparent); margin: 2px 0; }
+.assetBuilderLead { margin: 0; font-size: 11px; line-height: 1.55; color: #70818b; }
+.assetUtilityGroup { margin: 4px 2px 14px; padding: 11px 12px; border-radius: 14px; border: 1px dashed rgba(49,91,122,.15); background: rgba(255,255,255,.48); display: grid; gap: 10px; }
+.assetUtilityCopy { display: grid; gap: 3px; }
+.assetUtilityCopy strong { font-size: 12px; color: #425f72; }
+.assetUtilityCopy span { font-size: 10.5px; line-height: 1.5; color: #7b8991; }
+.assetUtilityGroup .packActions button { min-height: 36px; font-size: 11px; }
+@media (max-width:760px) { .assetUtilityGroup { padding: 10px; } }
