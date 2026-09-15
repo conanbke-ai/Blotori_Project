@@ -25,9 +25,9 @@
   font-size: 13px;
 }
 
-/* Brand hierarchy: one canonical Blotori source, cropped to the face in app
- * chrome and shown in full in empty/loading states. Paw assets remain cursor
- * and success feedback only. */
+/* Brand hierarchy: the approved Blotori canonical is cropped into a face icon
+ * for app chrome and shown as a full-body character in empty/loading states.
+ * Paw assets remain cursor and success feedback only. */
 .workspaceV2 .blotoriMascotTop {
   display: block;
   flex: 0 0 auto;
@@ -53,13 +53,13 @@
 
 .workspaceV2 .blotoriMascotEmpty {
   width: min(230px, 42vw);
-  max-height: 245px;
+  max-height: 330px;
   margin-inline: auto;
 }
 
 .workspaceV2 .loadingMascot {
   width: 154px;
-  max-height: 180px;
+  max-height: 220px;
   margin: 0 auto 4px;
 }
 
@@ -127,11 +127,12 @@
 
   .workspaceV2 .blotoriMascotEmpty {
     width: min(190px, 58vw);
-    max-height: 210px;
+    max-height: 265px;
   }
 
   .workspaceV2 .loadingMascot {
     width: 132px;
+    max-height: 205px;
   }
 
   .workspaceV2 .successToast {
