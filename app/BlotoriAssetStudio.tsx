@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import { createPortal } from "react-dom";
 
 type StyleSourceType = "preset" | "blog" | "post" | "pasted_text" | "manual";
 type StyleProfile = {
@@ -97,7 +96,6 @@ function formatBytes(size: number) {
 }
 
 export default function BlotoriAssetStudio() {
-  const [mount, setMount] = useState<HTMLElement | null>(null);
   const [styles, setStyles] = useState<StyleProfile[]>([]);
   const [materials, setMaterials] = useState<MaterialRecord[]>([]);
   const [selectedMaterialIds, setSelectedMaterialIds] = useState<string[]>([]);
@@ -116,17 +114,6 @@ export default function BlotoriAssetStudio() {
     setStyles(loadStyles());
     setSelectedStyleId(localStorage.getItem(SELECTED_STYLE_KEY) || "");
     void listMaterials().then(setMaterials);
-    let currentHost: HTMLElement | null = null;
-    const attach = () => {
-      const host = document.querySelector<HTMLElement>("[data-blotori-asset-studio]");
-      if (host === currentHost) return;
-      currentHost = host;
-      setMount(host);
-    };
-    attach();
-    const observer = new MutationObserver(() => window.requestAnimationFrame(attach));
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -223,8 +210,7 @@ export default function BlotoriAssetStudio() {
     finally { event.target.value = ""; }
   }
 
-  if (!mount) return null;
-  return createPortal(<>
+  return <>
     <section className="settingGroup assetStudioGroup referenceMaterialGroup">
       <div className="settingGroupHeader"><span>3</span><div><div className="settingGroupTitle"><h3>참고자료</h3><em>선택</em></div><p>이번 글의 내용·근거로 참고할 파일을 올리거나 자료함에서 골라요.</p></div></div>
       <div className="settingGroupBody assetStudioBody">
@@ -255,5 +241,5 @@ export default function BlotoriAssetStudio() {
       <div className="settingGroupBody packActions"><input ref={packInput} className="assetHiddenInput" type="file" accept=".blotori,application/json" onChange={importPack} /><button type="button" className="ghost" onClick={() => packInput.current?.click()}>팩 가져오기</button><button type="button" className="ghost" onClick={() => void exportPack()}>자료·문체 내보내기</button></div>
     </section>
     {notice && <div className="assetNotice" role="status"><span>{notice}</span><button type="button" onClick={() => setNotice("")}>×</button></div>}
-  </>, mount);
+  </>;
 }
