@@ -1,0 +1,64 @@
+name: Blotori Asset Studio Stabilize Temp
+
+on:
+  push:
+    branches: [feature/composer-workspace-v2]
+    paths:
+      - .github/workflows/asset-studio-stabilize-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - name: Stabilize asset studio mount and user-facing copy
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          page = Path('app/page.tsx')
+          text = page.read_text()
+          topic_end = '''          </SettingGroup>\n\n          {visibleFieldIds.length > 0 && <SettingGroup index="3" title="주제별 추가 조건"'''
+          replacement = '''          </SettingGroup>\n\n          <div className="assetStudioMount" data-blotori-asset-studio="true" />\n\n          {visibleFieldIds.length > 0 && <SettingGroup index="3" title="주제별 추가 조건"'''
+          if topic_end not in text:
+              raise SystemExit('page.tsx asset studio insertion point not found')
+          page.write_text(text.replace(topic_end, replacement, 1))
+
+          studio = Path('app/BlotoriAssetStudio.tsx')
+          text = studio.read_text()
+          old = '''    let currentHost: HTMLElement | null = null;\n    let scheduled = false;\n    const attach = () => {\n      scheduled = false;\n      const rail = document.querySelector<HTMLElement>(".settingsRail");\n      if (!rail) return;\n      let host = rail.querySelector<HTMLElement>("[data-blotori-asset-studio]");\n      if (!host) {\n        host = document.createElement("div");\n        host.dataset.blotoriAssetStudio = "true";\n        const groups = [...rail.querySelectorAll<HTMLElement>(".settingGroup")];\n        const topic = groups.find((group) => group.querySelector("h3")?.textContent?.trim() === "주제");\n        if (topic) topic.insertAdjacentElement("afterend", host);\n        else rail.querySelector(".stickyGenerateDock")?.insertAdjacentElement("beforebegin", host);\n      }\n      if (host && host !== currentHost) {\n        currentHost = host;\n        setMount(host);\n      }\n    };\n    const scheduleAttach = () => {\n      if (scheduled) return;\n      scheduled = true;\n      window.requestAnimationFrame(attach);\n    };\n    attach();\n    const observer = new MutationObserver(scheduleAttach);\n    observer.observe(document.body, { childList: true, subtree: true });\n    return () => observer.disconnect();'''
+          new = '''    let currentHost: HTMLElement | null = null;\n    const attach = () => {\n      const host = document.querySelector<HTMLElement>("[data-blotori-asset-studio]");\n      if (host === currentHost) return;\n      currentHost = host;\n      setMount(host);\n    };\n    attach();\n    const observer = new MutationObserver(() => window.requestAnimationFrame(attach));\n    observer.observe(document.body, { childList: true, subtree: true });\n    return () => observer.disconnect();'''
+          if old not in text:
+              raise SystemExit('BlotoriAssetStudio mount block not found')
+          studio.write_text(text.replace(old, new, 1))
+
+          workflow = Path('app/ComposerWorkflowEnhancer.tsx')
+          text = workflow.read_text()
+          text = text.replace('<span>Knowledge</span><strong>{health?.knowledge?.ready ? "준비됨" : "미사용"}</strong>', '<span>전문자료</span><strong>{health?.knowledge?.ready ? "준비됨" : "미사용"}</strong>')
+          text = text.replace('<span>연결 검증</span><strong>{health?.verified ? "완료" : "상단 연결 테스트 사용"}</strong>', '<span>연결 상태</span><strong>{health?.verified ? "확인됨" : "연결 상태 메뉴에서 확인"}</strong>')
+          workflow.write_text(text)
+
+          css = Path('app/blotori-asset-studio.css')
+          text = css.read_text()
+          if '.assetStudioMount' not in text:
+              text += '''\n.assetStudioMount { display: contents; }\n.assetStudioGroup .secondaryAction, .packActions .ghost { box-shadow: none; }\n.packGroup .settingGroupBody { padding-top: 8px; }\n.sourceTabs button { min-height: 34px; }\n@media (min-width: 1181px) { .assetDropzone { padding-block: 16px; } }\n'''
+          css.write_text(text)
+          PY
+      - name: Validate
+        run: |
+          npm install --no-audit --no-fund
+          npm run lint
+          npm run build
+      - name: Commit scoped stabilization
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add app/page.tsx app/BlotoriAssetStudio.tsx app/ComposerWorkflowEnhancer.tsx app/blotori-asset-studio.css
+          git commit -m 'fix: stabilize Blotori asset studio workspace'
+          git push origin HEAD:feature/composer-workspace-v2
