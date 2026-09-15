@@ -117,32 +117,14 @@ export default function BlotoriAssetStudio() {
     setSelectedStyleId(localStorage.getItem(SELECTED_STYLE_KEY) || "");
     void listMaterials().then(setMaterials);
     let currentHost: HTMLElement | null = null;
-    let scheduled = false;
     const attach = () => {
-      scheduled = false;
-      const rail = document.querySelector<HTMLElement>(".settingsRail");
-      if (!rail) return;
-      let host = rail.querySelector<HTMLElement>("[data-blotori-asset-studio]");
-      if (!host) {
-        host = document.createElement("div");
-        host.dataset.blotoriAssetStudio = "true";
-        const groups = [...rail.querySelectorAll<HTMLElement>(".settingGroup")];
-        const topic = groups.find((group) => group.querySelector("h3")?.textContent?.trim() === "주제");
-        if (topic) topic.insertAdjacentElement("afterend", host);
-        else rail.querySelector(".stickyGenerateDock")?.insertAdjacentElement("beforebegin", host);
-      }
-      if (host && host !== currentHost) {
-        currentHost = host;
-        setMount(host);
-      }
-    };
-    const scheduleAttach = () => {
-      if (scheduled) return;
-      scheduled = true;
-      window.requestAnimationFrame(attach);
+      const host = document.querySelector<HTMLElement>("[data-blotori-asset-studio]");
+      if (host === currentHost) return;
+      currentHost = host;
+      setMount(host);
     };
     attach();
-    const observer = new MutationObserver(scheduleAttach);
+    const observer = new MutationObserver(() => window.requestAnimationFrame(attach));
     observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);

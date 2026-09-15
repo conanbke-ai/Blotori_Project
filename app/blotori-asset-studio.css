@@ -30,3 +30,9 @@
 .assetNotice { position: fixed; z-index: 90; left: 50%; bottom: 28px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; max-width: min(560px, calc(100vw - 28px)); padding: 11px 14px; border-radius: 16px; background: rgba(49,91,122,.96); color: white; box-shadow: 0 14px 34px rgba(49,91,122,.2); font-size: 12px; }
 .assetNotice button { border: 0; background: transparent; color: white; font-size: 18px; cursor: pointer; }
 @media (max-width:760px) { .packActions { grid-template-columns: 1fr; } .assetNotice { bottom: 88px; } }
+
+.assetStudioMount { display: contents; }
+.assetStudioGroup .secondaryAction, .packActions .ghost { box-shadow: none; }
+.packGroup .settingGroupBody { padding-top: 8px; }
+.sourceTabs button { min-height: 34px; }
+@media (min-width: 1181px) { .assetDropzone { padding-block: 16px; } }

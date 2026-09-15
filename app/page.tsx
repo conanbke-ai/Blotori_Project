@@ -266,6 +266,8 @@ export default function Home() {
             <Field label="자유 주제·추가 설명"><textarea value={form.freeTopic ?? ""} onChange={(e) => patch({ freeTopic: e.target.value })} rows={3} placeholder="주제를 문장이나 단어로 자유롭게 입력" /></Field>
           </SettingGroup>
 
+          <div className="assetStudioMount" data-blotori-asset-studio="true" />
+
           {visibleFieldIds.length > 0 && <SettingGroup index="3" title="주제별 추가 조건" description="선택한 주제에 필요한 조건만 보여줘요." optional>
             {visibleFieldIds.map((fieldId) => {
               const field = FIELD_DEFINITIONS[fieldId]; if (!field) return null;
