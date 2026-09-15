@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-// Re-run after the server-rendered asset-studio mount stabilization.
+// Final rerun after rendering BlotoriAssetStudio inline with Home.
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
 const messages = [];
