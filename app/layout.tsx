@@ -17,6 +17,7 @@ import "./composer-workflow.css";
 import "./workspace-v2.css";
 import "./workspace-v2-fixes.css";
 import "./blotori-asset-studio.css";
+import "./workspace-v2-final.css";
 import "./tori-paw-cursor.css";
 
 export const metadata: Metadata = {
