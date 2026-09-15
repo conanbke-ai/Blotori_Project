@@ -1,0 +1,54 @@
+name: Blotori Asset Recovery Temp
+
+on:
+  push:
+    branches:
+      - feature/composer-workspace-v2
+    paths:
+      - .github/workflows/asset-recovery-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recover canonical source from repository history
+        run: |
+          mkdir -p recovered
+          git show f21462c47c07fd798c91b7aeeb1b487a92426ae4:public/blotori-canonical-mini.webp > recovered/canonical-source.webp
+          python -m pip install pillow
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+
+          src = Path('recovered/canonical-source.webp')
+          im = Image.open(src).convert('RGBA')
+          print('canonical size=', im.size, 'format=', Image.open(src).format)
+          alpha = im.getchannel('A')
+          bbox = alpha.getbbox() or (0, 0, im.width, im.height)
+          print('alpha bbox=', bbox)
+
+          body = im.crop(bbox)
+          body.save('recovered/blotori-character-canonical.png', optimize=True)
+
+          # UI face crop: preserve both ears + face, using the upper ~58% of the visible canonical subject.
+          bw, bh = body.size
+          face_bottom = max(1, round(bh * 0.58))
+          face = body.crop((0, 0, bw, face_bottom))
+          face.save('recovered/blotori-face-canonical.png', optimize=True)
+          print('body size=', body.size, 'face size=', face.size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blotori-recovered-canonical
+          path: recovered/
+          if-no-files-found: error
