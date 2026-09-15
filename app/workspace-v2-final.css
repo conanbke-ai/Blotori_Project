@@ -2,9 +2,9 @@
 
 @media (min-width: 1181px) {
   .workspaceV2 .workspaceEmpty {
-    grid-template-columns: minmax(210px, .62fr) minmax(0, 1.38fr);
-    gap: 20px;
-    padding: 34px 34px 42px;
+    grid-template-columns: minmax(250px, .78fr) minmax(0, 1.22fr);
+    gap: 24px;
+    padding: 34px 30px 42px;
   }
 
   .workspaceV2 .emptyMascotStage {
@@ -13,29 +13,29 @@
   }
 
   .workspaceV2 .emptyGlow {
-    width: 350px;
+    width: 330px;
   }
 
   .workspaceV2 .blotoriMascotEmpty {
-    width: 430px;
+    width: 410px;
     max-width: none;
-    max-height: 560px;
-    transform: translate(12px, 8px) scale(1.55);
+    max-height: 540px;
+    transform: translate(-8px, 14px) scale(1.30);
     transform-origin: center;
   }
 
   .workspaceV2 .emptyCopy {
-    max-width: 390px;
-    padding-left: 4px;
+    max-width: 365px;
+    padding-left: 0;
   }
 
   .workspaceV2 .workspaceEmpty h3 {
-    max-width: 390px;
-    font-size: clamp(27px, 2.15vw, 33px);
+    max-width: 365px;
+    font-size: clamp(26px, 2vw, 32px);
   }
 
   .workspaceV2 .workspaceEmpty p {
-    max-width: 380px;
+    max-width: 355px;
     font-size: 14px;
   }
 
