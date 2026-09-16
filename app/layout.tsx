@@ -20,6 +20,7 @@ import "./blotori-asset-studio.css";
 import "./workspace-v2-final.css";
 import "./workspace-v2-hotfix.css";
 import "./workspace-v2-consistency.css";
+import "./workspace-v2-character-fix.css";
 import "./tori-paw-cursor.css";
 
 export const metadata: Metadata = {
