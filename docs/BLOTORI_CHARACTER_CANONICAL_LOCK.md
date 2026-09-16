@@ -39,6 +39,10 @@ Do not drift into:
 - Untori lavender / fortune-teller identity
 - a different rabbit face, body proportion, ear length, hand/foot anatomy, or rendering style
 
+## UI crop rule
+
+UI assets may crop the canonical character, but they must preserve the original character pixels and remove any sheet/background residue. Header/app icons must use a transparent crop with intentional breathing room; they must not be an opaque square screenshot. Hero/loading character assets must not include disconnected alpha debris, artificial gray/blue halos, or transforms that clip ears/body.
+
 ## Change procedure
 
 Any future canonical replacement requires all of the following:
