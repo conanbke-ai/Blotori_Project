@@ -1,0 +1,160 @@
+name: Blotori Inspector Layout Polish Temp
+
+on:
+  push:
+    branches: [feature/composer-workspace-v2]
+    paths: [.github/workflows/inspector-layout-polish-temp.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+          fetch-depth: 0
+      - name: Polish inspector spacing and alignment
+        run: |
+          cat >> app/workspace-v2-final.css <<'CSS'
+
+          /* 2026-09-16 inspector visual rhythm: align heading, empty-state check and guide cards. */
+          .workspaceV2 .inspectorRail {
+            padding-left: 14px;
+            padding-right: 14px;
+          }
+
+          .workspaceV2 .inspectorHeading {
+            margin: 0 0 12px;
+            padding: 2px 4px 0;
+          }
+
+          .workspaceV2 .inspectorHeading > div {
+            display: grid;
+            grid-template-columns: 30px minmax(0, 1fr);
+            gap: 10px;
+            align-items: start;
+            width: 100%;
+          }
+
+          .workspaceV2 .inspectorHeading .step {
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            margin: 1px 0 0;
+            border-radius: 10px;
+            background: rgba(105, 199, 213, .14);
+            color: #2d8fa0;
+            font-size: 10px;
+            font-weight: 850;
+            line-height: 1;
+          }
+
+          .workspaceV2 .inspectorHeading h2 {
+            margin: 0;
+            font-size: 19px;
+            line-height: 1.25;
+            letter-spacing: -0.025em;
+            color: #315b7a;
+          }
+
+          .workspaceV2 .inspectorHeading p {
+            margin: 5px 0 0;
+            font-size: 11.5px;
+            line-height: 1.5;
+            letter-spacing: -0.015em;
+          }
+
+          .workspaceV2 .inspectorTabs {
+            margin: 0 0 16px;
+          }
+
+          .workspaceV2 .inspectorEmpty {
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr);
+            column-gap: 11px;
+            row-gap: 3px;
+            align-items: start;
+            padding: 16px 4px 8px;
+            text-align: left;
+          }
+
+          .workspaceV2 .inspectorEmptyIcon {
+            grid-column: 1;
+            grid-row: 1 / span 2;
+            width: 36px;
+            height: 36px;
+            margin: 0;
+            align-self: start;
+            border-radius: 12px;
+          }
+
+          .workspaceV2 .inspectorEmpty > strong {
+            grid-column: 2;
+            grid-row: 1;
+            margin: 1px 0 0;
+            font-size: 13px;
+            line-height: 1.4;
+            letter-spacing: -0.018em;
+          }
+
+          .workspaceV2 .inspectorEmpty > p {
+            grid-column: 2;
+            grid-row: 2;
+            margin: 0;
+            font-size: 11px;
+            line-height: 1.5;
+            letter-spacing: -0.012em;
+          }
+
+          .workspaceV2 .inspectorEmptyGuide {
+            grid-column: 1 / -1;
+            display: grid;
+            gap: 9px;
+            margin-top: 12px;
+          }
+
+          .workspaceV2 .inspectorEmptyGuide > div {
+            grid-template-columns: 34px minmax(0, 1fr);
+            gap: 11px;
+            min-height: 58px;
+            padding: 11px 12px;
+            align-items: center;
+          }
+
+          .workspaceV2 .inspectorEmptyGuide b {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            font-size: 10px;
+            line-height: 1;
+          }
+
+          .workspaceV2 .inspectorEmptyGuide span {
+            gap: 3px;
+            min-width: 0;
+          }
+
+          .workspaceV2 .inspectorEmptyGuide strong {
+            font-size: 12px;
+            line-height: 1.35;
+            letter-spacing: -0.015em;
+          }
+
+          .workspaceV2 .inspectorEmptyGuide small {
+            font-size: 10.5px;
+            line-height: 1.4;
+            letter-spacing: -0.01em;
+          }
+          CSS
+      - name: Remove temporary workflow and commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/inspector-layout-polish-temp.yml
+          git add app/workspace-v2-final.css
+          git commit -m 'fix: polish Blotori inspector spacing and alignment'
+          git push origin HEAD:feature/composer-workspace-v2
