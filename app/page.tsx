@@ -221,9 +221,9 @@ export default function Home() {
         <div className="brandIntro compactBrand">
           <img className="blotoriMascotTop" src="/blotori-face-ui.png" alt="블로토리" />
           <div>
-            <div className="eyebrow">BLOTORI · BLOG WORKSPACE</div>
+            <div className="eyebrow">BLOTORI · BLOG STUDIO</div>
             <h1>글과 이미지를 엮어, 이야기를 완성해요.</h1>
-            <p>주제와 몇 가지 조건만 정하면 플랫폼에 맞는 글 구조·강조·이미지 배치까지 한 번에 구성합니다.</p>
+            <p>자료를 넣고 문체를 고르면, 게시할 수 있는 블로그 초안과 이미지 가이드까지 한 흐름으로 완성해요.</p>
           </div>
         </div>
         <div className="topActions workspaceTopActions">
@@ -242,25 +242,25 @@ export default function Home() {
       </header>
 
       <nav className="mobileWorkspaceTabs" aria-label="모바일 작업 단계">
-        <button className={mobilePanel === "settings" ? "active" : ""} onClick={() => setMobilePanel("settings")}>설정</button>
-        <button className={mobilePanel === "preview" ? "active" : ""} onClick={() => setMobilePanel("preview")}>미리보기</button>
-        <button className={mobilePanel === "review" ? "active" : ""} onClick={() => setMobilePanel("review")}>이미지·검수</button>
+        <button className={mobilePanel === "settings" ? "active" : ""} onClick={() => setMobilePanel("settings")}>입력 · 문체</button>
+        <button className={mobilePanel === "preview" ? "active" : ""} onClick={() => setMobilePanel("preview")}>초안</button>
+        <button className={mobilePanel === "review" ? "active" : ""} onClick={() => setMobilePanel("review")}>이미지 · 검수</button>
       </nav>
 
       <div className={`workspace workspaceApp workspaceGridV2 ${settingsOpen ? "" : "settingsClosed"} ${guideOpen ? "" : "guideClosed"}`}>
         {settingsOpen && <aside className="panel controls scrollPanel settingsRail" data-mobile-panel="settings">
           <div className="railHeading">
-            <div><span className="step">01</span><div><h2>작성 설정</h2><p>무엇을, 어디에, 어떤 방식으로 쓸지 정해요.</p></div></div>
-            <span className="subtle">플랫폼 + 주제 필수</span>
+            <div><span className="step">01</span><div><h2>입력 · 문체</h2><p>플랫폼과 주제를 정하고, 참고자료와 문체를 선택해요.</p></div></div>
+            <span className="subtle">필수 2개 · 나머지 선택</span>
           </div>
 
-          <SettingGroup index="1" title="플랫폼" description="게시할 공간에 맞춰 글 구조와 복사 형식이 달라져요.">
+          <SettingGroup index="1" title="게시 플랫폼" description="게시할 공간에 맞춰 글 구조와 복사 형식을 준비해요.">
             <Field label="게시 플랫폼 *"><select value={form.platformId} onChange={(e) => patch({ platformId: e.target.value as PlatformId | "", otherPlatform: "" })}><option value="">플랫폼 선택</option>{PLATFORM_PROFILES.map((platform) => <option key={platform.id} value={platform.id}>{platform.label}</option>)}</select></Field>
             {platformProfile && <p className="hint platformHint">{platformProfile.description} · {platformProfile.exportHint}</p>}
             {form.platformId === "other" && <Field label="기타 플랫폼명 *"><input value={form.otherPlatform ?? ""} onChange={(e) => patch({ otherPlatform: e.target.value })} placeholder="예: 회사 자체 블로그" /></Field>}
           </SettingGroup>
 
-          <SettingGroup index="2" title="주제" description="추천 주제를 고르거나 자유롭게 입력할 수 있어요.">
+          <SettingGroup index="2" title="글 주제" description="추천 주제를 고르거나 직접 쓸 내용을 입력해요.">
             <Field label="상위 카테고리"><select value={form.categoryId ?? ""} onChange={(e) => patch({ categoryId: e.target.value, presetId: "", attributes: {} })}><option value="">선택 안 함</option>{CATEGORY_DEFINITIONS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></Field>
             {category?.presets.length ? <Field label="추천 주제"><select value={form.presetId ?? ""} onChange={(e) => patch({ presetId: e.target.value })}><option value="">직접 주제 입력</option>{category.presets.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></Field> : null}
             <Field label="자유 주제·추가 설명"><textarea value={form.freeTopic ?? ""} onChange={(e) => patch({ freeTopic: e.target.value })} rows={3} placeholder="주제를 문장이나 단어로 자유롭게 입력" /></Field>
@@ -288,17 +288,17 @@ export default function Home() {
             })}
           </SettingGroup>}
 
-          <SettingGroup index="6" title="출력 설정" description="글 길이와 이미지 수, 기타 요청을 마지막으로 확인해요.">
+          <SettingGroup index="6" title="최종 옵션" description="글 길이·이미지 수와 꼭 반영할 요청만 마지막으로 확인해요.">
             <div className="splitRow"><Field label="글 길이"><select value={form.length} onChange={(e) => patch({ length: e.target.value as Length })}>{(Object.keys(lengthLabel) as Length[]).map((key) => <option key={key} value={key}>{lengthLabel[key]}</option>)}</select></Field><Field label="이미지 수"><select value={form.imageCount} onChange={(e) => patch({ imageCount: Number(e.target.value) })}>{[2,3,4,5].map((n) => <option key={n} value={n}>{n}장</option>)}</select></Field></div>
             <Field label="기타 조건·요청"><textarea value={form.extraConditions ?? ""} onChange={(e) => patch({ extraConditions: e.target.value })} rows={3} placeholder="꼭 넣을 내용, 제외할 표현, 별도 요청" /></Field>
           </SettingGroup>
 
-          <div className="controlsActionDock stickyGenerateDock">{error && <div className="errorBox stickyError">{error}</div>}{!apiHealth?.keyDetected && apiHealth && <div className="apiWarning">{apiHealth.message}</div>}<button className="primary generatePrimary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "구성 중…" : "✦ 블로그 글 생성하기"}</button><small>글 생성은 기본 AI 호출 1회로 진행돼요.</small></div>
+          <div className="controlsActionDock stickyGenerateDock">{error && <div className="errorBox stickyError">{error}</div>}{!apiHealth?.keyDetected && apiHealth && <div className="apiWarning">{apiHealth.message}</div>}<button className="primary generatePrimary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "블로토리가 초안을 만드는 중…" : "✦ 블로그 초안 만들기"}</button><small>입력한 자료·문체·옵션을 반영해 하나의 초안으로 정리해요.</small></div>
         </aside>}
 
         <section className="panel previewPanel appPreviewPanel previewStage" data-mobile-panel="preview">
           <div className="panelHeader previewHeader workspacePreviewHeader">
-            <div><span className="step">02</span><div><h2>{platformProfile ? `${platformProfile.label} 게시물 미리보기` : "게시물 미리보기"}</h2><p>{platformProfile ? `${platformProfile.label} 형식으로 실제 게시될 모습을 확인해요.` : "플랫폼을 선택하면 해당 형식에 맞춰 보여드려요."}</p></div></div>
+            <div><span className="step">02</span><div><h2>{platformProfile ? `${platformProfile.label} 초안 미리보기` : "초안 미리보기"}</h2><p>{platformProfile ? `${platformProfile.label}에 옮기기 전 실제 글 흐름을 확인해요.` : "플랫폼을 선택하면 해당 형식에 맞춰 보여드려요."}</p></div></div>
             <div className="headerActions">
               {mode && <span className={`mode ${mode}`}>{mode === "api" ? "AI 생성" : "샘플"}</span>}
               <div className="segmentedMode"><button className={!editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(false)}>미리보기</button><button className={editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(true)}>직접 편집</button></div>
@@ -331,7 +331,7 @@ export default function Home() {
         </aside>}
       </div>
 
-      {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-character-ui.png" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">AI 호출은 기존 1회 그대로예요.</span></div></div>}
+      {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-character-ui.png" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">자료와 문체를 반영해 게시 전 초안을 정리하고 있어요.</span></div></div>}
       {successVisible && draft && <div className="successToast" role="status" aria-live="polite"><div className="successPaw">✦</div><div><strong>블로토리가 원고를 완성했어요.</strong><span>제목·이미지·검수 결과까지 확인해 주세요.</span></div><button onClick={() => setSuccessVisible(false)} aria-label="완료 알림 닫기">×</button></div>}
     </main>
   );

@@ -356,19 +356,19 @@ export default function BlotoriAssetStudio({
 
   return <>
     <section className="settingGroup assetStudioGroup referenceMaterialGroup">
-      <div className="settingGroupHeader"><span>3</span><div><div className="settingGroupTitle"><h3>참고자료</h3><em>선택</em></div><p>이번 글의 내용·근거로 참고할 파일을 올리거나 자료함에서 골라요.</p></div></div>
+      <div className="settingGroupHeader"><span>3</span><div><div className="settingGroupTitle"><h3>참고자료 · 내 자료함</h3><em>선택</em></div><p>이번 글에서 실제로 참고할 파일을 올리거나, 저장해 둔 자료에서 골라요.</p></div></div>
       <div className="settingGroupBody assetStudioBody">
         <input ref={fileInput} className="assetHiddenInput" type="file" multiple accept=".pdf,.docx,.txt,.md" onChange={addFiles} />
-        <button type="button" className="assetDropzone" onClick={() => fileInput.current?.click()}><strong>＋ 참고자료 추가</strong><span>PDF · DOCX · TXT · MD, 파일당 12MB 이하</span></button>
+        <button type="button" className="assetDropzone" onClick={() => fileInput.current?.click()}><strong>＋ 파일 올리기</strong><span>PDF · DOCX · TXT · MD · 파일당 12MB 이하</span></button>
         {materials.length > 0 && <div className="assetList">{materials.map((item) => <label key={item.id} className={`assetRow ${selectedMaterialIds.includes(item.id) ? "selected" : ""}`}><input type="checkbox" checked={selectedMaterialIds.includes(item.id)} onChange={() => setSelectedMaterialIds((current) => current.includes(item.id) ? current.filter((id) => id !== item.id) : [...current, item.id])} /><span><strong>{item.name}</strong><small>{formatBytes(item.size)} · 내 자료함</small></span><button type="button" className="assetMiniButton danger" onClick={(event) => { event.preventDefault(); void deleteMaterial(item.id).then(() => { setMaterials((current) => current.filter((x) => x.id !== item.id)); setSelectedMaterialIds((current) => current.filter((materialId) => materialId !== item.id)); }); }}>삭제</button></label>)}</div>}
-        <p className="assetHint">체크한 자료만 이번 글에 참고합니다. 현재 V1 자료함은 이 브라우저에 저장돼요.</p>
+        <p className="assetHint">체크한 자료만 이번 글에 사용해요. 올린 자료는 내 자료함에 남아 다음 글에서도 다시 선택할 수 있어요.</p>
       </div>
     </section>
 
     <section className="settingGroup assetStudioGroup unifiedWritingGroup">
-      <div className="settingGroupHeader"><span>4</span><div><div className="settingGroupTitle"><h3>문체 · 글 구성</h3></div><p>기본 문체와 저장한 내 문체를 한곳에서 고르고, 글의 구조와 강도까지 함께 정해요.</p></div></div>
+      <div className="settingGroupHeader"><span>4</span><div><div className="settingGroupTitle"><h3>내 문체 · 글 구성</h3></div><p>저장한 문체를 다시 쓰거나 새 문체를 만들고, 이번 글의 구성과 강도를 조정해요.</p></div></div>
       <div className="settingGroupBody assetStudioBody">
-        <div className="writingSectionLabel"><span>현재 적용 문체</span><small>이번 글에서 사용할 말투를 고릅니다.</small></div>
+        <div className="writingSectionLabel"><span>이번 글에 적용할 문체</span><small>저장한 내 문체 또는 블로토리 기본 문체를 선택해요.</small></div>
         <label className="field"><span>문체 선택</span><select value={styleChoice} onChange={(event) => handleStyleChoice(event.target.value)}>
           <option value="builtin:auto">자동 추천</option>
           {styles.length > 0 && <optgroup label="내 문체">{styles.map((item) => <option key={item.id} value={`saved:${item.id}`}>{item.name}</option>)}</optgroup>}
@@ -396,7 +396,7 @@ export default function BlotoriAssetStudio({
         </select></label>
         {structureId === "custom" && <label className="field"><span>직접 구성</span><input value={customStructure} onChange={(event) => onCustomStructureChange(event.target.value)} placeholder="예: 문제 제기 → 원인 → 실천 팁 → 요약" /></label>}
 
-        <div className="writingSectionLabel writingSectionCreate"><span>새 문체 만들기</span><small>참고 글을 분석해 이름을 붙여 저장하고 반복 사용합니다.</small></div>
+        <div className="writingSectionLabel writingSectionCreate"><span>새 문체 저장하기</span><small>블로그 전체·포스팅 1개·붙여넣은 글을 분석해 이름을 붙여 반복 사용해요.</small></div>
         <details className="styleBuilder"><summary>＋ 새 문체 만들기</summary><div className="styleBuilderBody">
           <p className="assetBuilderLead">참고 글을 분석해 말투·문장 길이·문단 리듬·도입·소제목·마무리 같은 특징만 저장합니다.</p>
           <div className="sourceTabs">{([['blog', '블로그 전체'], ['post', '포스팅 1개'], ['pasted_text', '글 붙여넣기'], ['manual', '직접 설정']] as const).map(([id, label]) => <button key={id} type="button" className={sourceType === id ? "active" : ""} onClick={() => { setSourceType(id); setSource(""); setSignature(""); }}>{label}</button>)}</div>
@@ -408,7 +408,7 @@ export default function BlotoriAssetStudio({
     </section>
 
     <section className="assetUtilityGroup">
-      <div className="assetUtilityCopy"><strong>자료 · 문체 공유</strong><span>문체와 선택한 자료를 .blotori 파일로 묶어 다른 사용자에게 전달할 수 있어요.</span></div>
+      <div className="assetUtilityCopy"><strong>블로토리 팩</strong><span>문체와 선택한 자료를 .blotori 파일 하나로 묶어 다른 사용자에게 전달하거나 다시 가져올 수 있어요.</span></div>
       <div className="packActions"><input ref={packInput} className="assetHiddenInput" type="file" accept=".blotori,application/json" onChange={importPack} /><button type="button" className="ghost" onClick={() => packInput.current?.click()}>팩 가져오기</button><button type="button" className="ghost" onClick={() => void exportPack()}>팩 내보내기</button></div>
     </section>
 
