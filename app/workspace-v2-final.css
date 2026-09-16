@@ -138,3 +138,20 @@
   .workspaceV2 .emptyMascotStage { min-height: 215px; }
   .workspaceV2 .blotoriMascotEmpty { height: 205px !important; }
 }
+
+/* 2026-09-16 final visible-size correction for canonical Blotori loading state. */
+.generationOverlay .loadingMascot {
+  width: auto !important;
+  height: 190px !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  transform: none !important;
+  filter: none !important;
+  margin: 0 auto 8px !important;
+}
+@media (max-width: 760px) {
+  .generationOverlay .loadingMascot {
+    height: 145px !important;
+  }
+}
