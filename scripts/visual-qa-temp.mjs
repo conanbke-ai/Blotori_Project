@@ -90,7 +90,7 @@ async function prepareDraft(page, name) {
 
   const platform = page.locator('select').filter({ has: page.locator('option[value="naver"]') }).first();
   const topic = page.locator('textarea[placeholder*="주제를 문장이나 단어로 자유롭게 입력"]');
-  const generate = page.getByRole('button', { name: /블로그 글 생성하기/ });
+  const generate = page.getByRole('button', { name: /블로그 초안 만들기/ });
   console.log(`[${name}] qa-counts`, { platform: await platform.count(), topic: await topic.count(), generate: await generate.count() });
   await platform.selectOption('naver');
   await topic.fill('50대 목 스트레칭과 스마트폰 자세 관리 팁');
