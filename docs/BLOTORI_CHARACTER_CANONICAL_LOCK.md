@@ -43,6 +43,8 @@ Do not drift into:
 
 UI assets may crop the canonical character, but they must preserve the original character pixels and remove any sheet/background residue. Header/app icons must use a transparent crop with intentional breathing room; they must not be an opaque square screenshot. Hero/loading character assets must not include disconnected alpha debris, artificial gray/blue halos, or transforms that clip ears/body.
 
+The 2026-09-16 UI correction uses a transparent full-character crop, a tighter transparent face icon crop, and explicit visible-size loading rules; visual acceptance still requires rendered screenshot review rather than asset/CI success alone.
+
 ## Change procedure
 
 Any future canonical replacement requires all of the following:
