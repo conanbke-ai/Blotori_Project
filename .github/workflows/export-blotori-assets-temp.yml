@@ -19,13 +19,6 @@ jobs:
       - name: Inspect current Blotori assets
         run: |
           file public/blotori-character-ui.png public/blotori-face-ui.png public/blotori-canonical-mini.webp
-          python - <<'PY'
-          from PIL import Image
-          from pathlib import Path
-          for p in [Path('public/blotori-character-ui.png'), Path('public/blotori-face-ui.png'), Path('public/blotori-canonical-mini.webp')]:
-              im = Image.open(p)
-              print(p, im.size, im.mode, im.getbbox())
-          PY
       - name: Upload source assets
         uses: actions/upload-artifact@v4
         with:
@@ -35,4 +28,4 @@ jobs:
             public/blotori-face-ui.png
             public/blotori-canonical-mini.webp
           if-no-files-found: error
-# rerun 2026-09-16 UI asset inspection
+# rerun 2026-09-16 source asset export without Pillow dependency
