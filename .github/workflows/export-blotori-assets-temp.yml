@@ -1,0 +1,37 @@
+name: Export Blotori Assets Temp
+
+on:
+  push:
+    branches: [feature/composer-workspace-v2]
+    paths:
+      - .github/workflows/export-blotori-assets-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+      - name: Inspect current Blotori assets
+        run: |
+          file public/blotori-character-ui.png public/blotori-face-ui.png public/blotori-canonical-mini.webp
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          for p in [Path('public/blotori-character-ui.png'), Path('public/blotori-face-ui.png'), Path('public/blotori-canonical-mini.webp')]:
+              im = Image.open(p)
+              print(p, im.size, im.mode, im.getbbox())
+          PY
+      - name: Upload source assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: blotori-source-assets
+          path: |
+            public/blotori-character-ui.png
+            public/blotori-face-ui.png
+            public/blotori-canonical-mini.webp
+          if-no-files-found: error
