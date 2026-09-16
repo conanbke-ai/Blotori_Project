@@ -1,0 +1,11 @@
+/* Final scoped visual hotfixes for canonical Blotori workspace QA. */
+.workspaceV2 .settingGroupHeader > span {
+  font-size: 10px !important;
+  font-weight: 850;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+}
+
+.workspaceV2 .settingGroupHeader > span::after {
+  content: none !important;
+}
