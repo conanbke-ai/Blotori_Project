@@ -85,3 +85,56 @@
     margin: 8px auto 20px;
   }
 }
+
+/* 2026-09-16 canonical crop correction: no artificial halo, no oversized transform. */
+.workspaceV2 .emptyGlow { display: none !important; }
+.workspaceV2 .blotoriMascotTop {
+  width: 48px;
+  height: 48px;
+  box-sizing: border-box;
+  object-fit: contain;
+  padding: 3px;
+  border-radius: 16px;
+  border: 1px solid rgba(105,199,213,.28);
+  background: #f5fcfd;
+  box-shadow: 0 4px 12px rgba(49,91,122,.07);
+}
+.workspaceV2 .workspaceEmpty {
+  background: linear-gradient(145deg, #fffdf9 0%, #f8fcfc 100%);
+}
+.workspaceV2 .emptyMascotStage {
+  min-height: 320px;
+  overflow: visible;
+  margin: 0;
+}
+.workspaceV2 .blotoriMascotEmpty {
+  width: auto !important;
+  height: 300px !important;
+  max-width: 100%;
+  max-height: none !important;
+  object-fit: contain;
+  transform: none !important;
+  filter: none !important;
+  margin: 0 auto;
+  justify-self: center;
+}
+@media (min-width:1181px) {
+  .workspaceV2 .workspaceEmpty {
+    grid-template-columns: 250px minmax(340px,390px);
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    gap: 38px;
+    padding: 44px 34px;
+  }
+  .workspaceV2 .emptyCopy { padding: 0; max-width: 390px; }
+}
+@media (max-width:900px) {
+  .workspaceV2 .emptyMascotStage { min-height: 245px; }
+  .workspaceV2 .blotoriMascotEmpty { height: 230px !important; }
+}
+@media (max-width:760px) {
+  .workspaceV2 .blotoriMascotTop { width: 44px; height: 44px; }
+  .workspaceV2 .emptyMascotStage { min-height: 215px; }
+  .workspaceV2 .blotoriMascotEmpty { height: 205px !important; }
+}
