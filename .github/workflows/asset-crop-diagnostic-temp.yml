@@ -1,0 +1,66 @@
+name: Blotori Asset Crop Diagnostic Temp
+
+on:
+  push:
+    branches: [feature/composer-workspace-v2]
+    paths: [.github/workflows/asset-crop-diagnostic-temp.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/composer-workspace-v2
+      - name: Prepare diagnostic crops
+        run: |
+          python -m pip install pillow >/dev/null
+          mkdir -p asset-diagnostic
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+
+          src = Path('public/blotori-character-ui.png')
+          face = Path('public/blotori-face-ui.png')
+
+          for path in (src, face):
+              im = Image.open(path).convert('RGBA')
+              alpha = im.getchannel('A')
+              print(path.name, 'size=', im.size, 'alpha_extrema=', alpha.getextrema(), 'alpha_bbox=', alpha.getbbox())
+
+          im = Image.open(src).convert('RGBA')
+          bbox = im.getchannel('A').getbbox()
+          if not bbox:
+              raise SystemExit('character asset has no visible alpha')
+          trim = im.crop(bbox)
+          print('trim size=', trim.size)
+          trim.save('asset-diagnostic/character-trim.png')
+
+          def square_pad(crop, margin_ratio=0.08):
+              w,h = crop.size
+              margin = max(6, round(max(w,h) * margin_ratio))
+              side = max(w,h) + margin*2
+              out = Image.new('RGBA', (side,side), (0,0,0,0))
+              out.alpha_composite(crop, ((side-w)//2, (side-h)//2))
+              return out
+
+          for ratio in (0.34, 0.40, 0.46, 0.52):
+              h = max(1, round(trim.height * ratio))
+              crop = trim.crop((0, 0, trim.width, h))
+              cb = crop.getchannel('A').getbbox()
+              if cb:
+                  crop = crop.crop(cb)
+              icon = square_pad(crop)
+              icon.save(f'asset-diagnostic/face-candidate-{int(ratio*100)}.png')
+              print('face candidate', ratio, 'crop=', crop.size, 'square=', icon.size)
+
+          Image.open(face).convert('RGBA').save('asset-diagnostic/current-face.png')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blotori-asset-crop-diagnostic
+          path: asset-diagnostic/
+          if-no-files-found: error
