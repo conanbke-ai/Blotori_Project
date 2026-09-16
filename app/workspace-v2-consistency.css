@@ -1,0 +1,538 @@
+/*
+ * Blotori workspace consistency layer.
+ * One spacing/type system for settings, preview chrome and image/QA inspector.
+ * This file is intentionally imported last among workspace styles.
+ */
+.workspaceV2 {
+  --bl-ui-step: 28px;
+  --bl-ui-card-radius: 16px;
+  --bl-ui-control-radius: 11px;
+  --bl-ui-control-h: 44px;
+  --bl-ui-panel-pad-x: 14px;
+  --bl-ui-card-pad-x: 13px;
+  --bl-ui-card-pad-y: 13px;
+  --bl-ui-gap-1: 4px;
+  --bl-ui-gap-2: 8px;
+  --bl-ui-gap-3: 10px;
+  --bl-ui-gap-4: 12px;
+  --bl-ui-title: 14px;
+  --bl-ui-body: 12px;
+  --bl-ui-caption: 11px;
+  --bl-ui-micro: 10px;
+  --bl-ui-line: 1.5;
+  --bl-ui-heading-letter: -0.02em;
+  --bl-ui-body-letter: -0.012em;
+  --bl-ui-border: rgba(49, 91, 122, .10);
+  --bl-ui-border-accent: rgba(105, 199, 213, .24);
+}
+
+/* Desktop rail proportions: enough width for Korean copy without forced wrapping. */
+@media (min-width: 1181px) {
+  .workspaceV2 .workspaceGridV2 {
+    grid-template-columns: minmax(300px, 312px) minmax(0, 1fr) minmax(292px, 304px) !important;
+    gap: 14px !important;
+  }
+}
+
+/* All three workspace headings use the same geometry. */
+.workspaceV2 .settingsRail,
+.workspaceV2 .inspectorRail {
+  padding-left: var(--bl-ui-panel-pad-x) !important;
+  padding-right: var(--bl-ui-panel-pad-x) !important;
+}
+
+.workspaceV2 .settingsRail > .railHeading,
+.workspaceV2 .inspectorHeading,
+.workspaceV2 .workspacePreviewHeader {
+  min-height: 58px;
+  margin: 0 !important;
+  padding: 12px 4px 11px !important;
+  box-sizing: border-box;
+}
+
+.workspaceV2 .settingsRail > .railHeading > div,
+.workspaceV2 .inspectorHeading > div,
+.workspaceV2 .workspacePreviewHeader > div:first-child {
+  display: grid !important;
+  grid-template-columns: var(--bl-ui-step) minmax(0, 1fr) !important;
+  gap: var(--bl-ui-gap-3) !important;
+  align-items: start !important;
+  min-width: 0;
+}
+
+.workspaceV2 .railHeading .step,
+.workspaceV2 .workspacePreviewHeader .step,
+.workspaceV2 .inspectorHeading .step {
+  width: var(--bl-ui-step) !important;
+  height: var(--bl-ui-step) !important;
+  min-width: var(--bl-ui-step) !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 9px !important;
+  border: 1px solid rgba(105,199,213,.24) !important;
+  background: rgba(105,199,213,.12) !important;
+  color: #2d8fa0 !important;
+  font-size: var(--bl-ui-micro) !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  box-shadow: none !important;
+}
+
+.workspaceV2 .railHeading h2,
+.workspaceV2 .workspacePreviewHeader h2,
+.workspaceV2 .inspectorHeading h2 {
+  margin: 0 !important;
+  color: #315b7a !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  line-height: 1.32 !important;
+  letter-spacing: var(--bl-ui-heading-letter) !important;
+}
+
+.workspaceV2 .railHeading p,
+.workspaceV2 .workspacePreviewHeader p,
+.workspaceV2 .inspectorHeading p {
+  margin: 4px 0 0 !important;
+  color: #70818d !important;
+  font-size: var(--bl-ui-caption) !important;
+  line-height: var(--bl-ui-line) !important;
+  letter-spacing: var(--bl-ui-body-letter) !important;
+}
+
+.workspaceV2 .settingsRail > .railHeading .subtle {
+  align-self: start;
+  margin-top: 1px;
+  padding: 5px 7px;
+  border: 1px solid rgba(49,91,122,.08);
+  border-radius: 999px;
+  background: rgba(49,91,122,.035);
+  color: #7b8992;
+  font-size: 9.5px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+}
+
+/* Settings cards: same number badge, title baseline and body inset every time. */
+.workspaceV2 .settingGroup {
+  margin: 0 0 10px !important;
+  padding: var(--bl-ui-card-pad-y) var(--bl-ui-card-pad-x) !important;
+  border: 1px solid var(--bl-ui-border-accent) !important;
+  border-radius: var(--bl-ui-card-radius) !important;
+  background: rgba(255,255,255,.82) !important;
+  box-shadow: none !important;
+}
+
+.workspaceV2 .settingGroupHeader {
+  display: grid !important;
+  grid-template-columns: var(--bl-ui-step) minmax(0, 1fr) !important;
+  gap: var(--bl-ui-gap-3) !important;
+  align-items: start !important;
+  margin: 0 0 var(--bl-ui-gap-4) !important;
+}
+
+.workspaceV2 .settingGroupHeader > span {
+  width: var(--bl-ui-step) !important;
+  height: var(--bl-ui-step) !important;
+  min-width: var(--bl-ui-step) !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: rgba(105,199,213,.12) !important;
+  color: #2d8fa0 !important;
+  font-size: var(--bl-ui-micro) !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+}
+
+.workspaceV2 .settingGroupHeader > span::after { content: none !important; }
+
+.workspaceV2 .settingGroupTitle {
+  min-height: var(--bl-ui-step) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+.workspaceV2 .settingGroupTitle h3 {
+  margin: 0 !important;
+  color: #315b7a !important;
+  font-size: var(--bl-ui-title) !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+  letter-spacing: var(--bl-ui-heading-letter) !important;
+}
+
+.workspaceV2 .settingGroupTitle em {
+  padding: 3px 6px !important;
+  font-size: 9.5px !important;
+  line-height: 1 !important;
+}
+
+.workspaceV2 .settingGroupHeader p {
+  margin: 3px 0 0 !important;
+  color: #74838c !important;
+  font-size: var(--bl-ui-caption) !important;
+  line-height: var(--bl-ui-line) !important;
+  letter-spacing: var(--bl-ui-body-letter) !important;
+}
+
+.workspaceV2 .settingGroupBody {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+/* Every option control shares one height/radius/type treatment. */
+.workspaceV2 .field {
+  display: grid !important;
+  gap: 6px !important;
+  margin: 0 !important;
+}
+
+.workspaceV2 .field > span {
+  margin: 0 !important;
+  color: #4f6472 !important;
+  font-size: 11.5px !important;
+  font-weight: 750 !important;
+  line-height: 1.35 !important;
+  letter-spacing: var(--bl-ui-body-letter) !important;
+}
+
+.workspaceV2 .field input:not([type=range]),
+.workspaceV2 .field select,
+.workspaceV2 .field textarea,
+.workspaceV2 .styleBuilder input,
+.workspaceV2 .styleBuilder select,
+.workspaceV2 .styleBuilder textarea {
+  width: 100%;
+  min-height: var(--bl-ui-control-h) !important;
+  margin: 0 !important;
+  padding: 10px 11px !important;
+  border: 1px solid #d9e7ea !important;
+  border-radius: var(--bl-ui-control-radius) !important;
+  background: #fffefb !important;
+  color: #31505f !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: none !important;
+}
+
+.workspaceV2 .field select,
+.workspaceV2 .styleBuilder select {
+  height: var(--bl-ui-control-h) !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.workspaceV2 .field textarea,
+.workspaceV2 .styleBuilder textarea {
+  min-height: 78px !important;
+}
+
+.workspaceV2 .hint,
+.workspaceV2 .assetHint,
+.workspaceV2 .assetBuilderLead {
+  margin: 0 !important;
+  color: #7b8991 !important;
+  font-size: 10.5px !important;
+  line-height: 1.5 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Reference/style widgets are cards within the same system, not separate mini UIs. */
+.workspaceV2 .assetDropzone,
+.workspaceV2 .selectedStyleCard,
+.workspaceV2 .styleBuilder,
+.workspaceV2 .assetUtilityGroup {
+  border-radius: 13px !important;
+}
+
+.workspaceV2 .assetDropzone {
+  min-height: 76px;
+  padding: 12px !important;
+  gap: 3px !important;
+}
+
+.workspaceV2 .assetDropzone strong {
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.workspaceV2 .assetDropzone span {
+  font-size: 10.5px !important;
+  line-height: 1.4 !important;
+}
+
+.workspaceV2 .sourceTabs {
+  gap: 6px !important;
+}
+
+.workspaceV2 .sourceTabs button,
+.workspaceV2 .packActions button {
+  min-height: 38px !important;
+  padding: 7px 8px !important;
+  border-radius: 10px !important;
+  font-size: 10.5px !important;
+  line-height: 1.25 !important;
+}
+
+.workspaceV2 .styleBuilder > summary {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  padding: 9px 11px !important;
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+}
+
+.workspaceV2 .styleBuilderBody {
+  padding: 11px !important;
+  gap: 10px !important;
+}
+
+.workspaceV2 .writingSectionLabel {
+  padding: 1px 0 7px !important;
+  gap: 2px !important;
+}
+
+.workspaceV2 .writingSectionLabel span {
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+}
+
+.workspaceV2 .writingSectionLabel small {
+  font-size: 10px !important;
+  line-height: 1.45 !important;
+}
+
+/* Preview header segmented control uses same 40px interaction rhythm as inspector tabs. */
+.workspaceV2 .segmentedMode,
+.workspaceV2 .inspectorTabs {
+  min-height: 40px;
+  padding: 3px !important;
+  gap: 4px !important;
+  border-radius: 12px !important;
+  background: rgba(49,91,122,.05) !important;
+}
+
+.workspaceV2 .segmentedMode button,
+.workspaceV2 .inspectorTabs button {
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 11px !important;
+  border-radius: 9px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Right inspector: one baseline for intro block and numbered guide cards. */
+.workspaceV2 .inspectorTabs {
+  margin: 0 0 14px !important;
+}
+
+.workspaceV2 .inspectorEmpty {
+  display: grid !important;
+  grid-template-columns: 38px minmax(0,1fr) !important;
+  column-gap: 10px !important;
+  row-gap: 3px !important;
+  align-items: start !important;
+  padding: 10px 4px 8px !important;
+  text-align: left !important;
+}
+
+.workspaceV2 .inspectorEmptyIcon {
+  grid-column: 1 !important;
+  grid-row: 1 / span 2 !important;
+  width: 34px !important;
+  height: 34px !important;
+  margin: 0 !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+.workspaceV2 .inspectorEmpty > strong {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: end;
+  margin: 0 !important;
+  color: #315b7a !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.4 !important;
+  letter-spacing: var(--bl-ui-heading-letter) !important;
+}
+
+.workspaceV2 .inspectorEmpty > p {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  margin: 0 !important;
+  color: #788790 !important;
+  font-size: 10.5px !important;
+  line-height: 1.45 !important;
+  letter-spacing: var(--bl-ui-body-letter) !important;
+}
+
+.workspaceV2 .inspectorEmptyGuide {
+  grid-column: 1 / -1 !important;
+  display: grid !important;
+  gap: 8px !important;
+  margin: 10px 0 0 !important;
+}
+
+.workspaceV2 .inspectorEmptyGuide > div {
+  min-height: 58px !important;
+  display: grid !important;
+  grid-template-columns: 32px minmax(0,1fr) !important;
+  gap: 10px !important;
+  align-items: center !important;
+  padding: 10px 11px !important;
+  border: 1px solid var(--bl-ui-border) !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,.82) !important;
+  box-shadow: none !important;
+}
+
+.workspaceV2 .inspectorEmptyGuide b {
+  width: 30px !important;
+  height: 30px !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 9px !important;
+  background: rgba(105,199,213,.12) !important;
+  color: #2d8fa0 !important;
+  font-size: 10px !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+}
+
+.workspaceV2 .inspectorEmptyGuide span {
+  min-width: 0;
+  display: grid !important;
+  gap: 2px !important;
+  align-content: center;
+}
+
+.workspaceV2 .inspectorEmptyGuide strong {
+  margin: 0 !important;
+  color: #315b7a !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+  letter-spacing: var(--bl-ui-heading-letter) !important;
+}
+
+.workspaceV2 .inspectorEmptyGuide small {
+  margin: 0 !important;
+  color: #7b8991 !important;
+  font-size: 10px !important;
+  line-height: 1.4 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Generated QA and image cards must retain the same rhythm after draft creation. */
+.workspaceV2 .guideRailContent,
+.workspaceV2 .qualityInspector,
+.workspaceV2 .qaChecklist {
+  gap: 8px !important;
+}
+
+.workspaceV2 .guideTitle {
+  min-height: 34px;
+  margin: 0 0 4px !important;
+  padding: 0 2px 8px !important;
+  align-items: center !important;
+}
+
+.workspaceV2 .guideTitle strong {
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.workspaceV2 .promptCard,
+.workspaceV2 .qaRow,
+.workspaceV2 .qaSummary {
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+.workspaceV2 .promptCard {
+  margin: 0 !important;
+  padding: 11px !important;
+}
+
+.workspaceV2 .promptTop {
+  min-height: 26px;
+  align-items: center !important;
+}
+
+.workspaceV2 .promptTop strong,
+.workspaceV2 .promptLabel,
+.workspaceV2 .qaRow strong {
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+  letter-spacing: var(--bl-ui-heading-letter) !important;
+}
+
+.workspaceV2 .promptLabel {
+  margin: 7px 0 5px !important;
+}
+
+.workspaceV2 .meta,
+.workspaceV2 .promptText,
+.workspaceV2 .qaRow p {
+  font-size: 10.5px !important;
+  line-height: 1.48 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.workspaceV2 .qaRow {
+  grid-template-columns: 30px minmax(0,1fr) !important;
+  gap: 10px !important;
+  align-items: start !important;
+  padding: 11px !important;
+}
+
+.workspaceV2 .qaIcon {
+  width: 28px !important;
+  height: 28px !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+.workspaceV2 .qaRow p { margin: 3px 0 0 !important; }
+
+.workspaceV2 .copyButton {
+  min-height: 36px !important;
+  border-radius: 9px !important;
+  font-size: 10.5px !important;
+}
+
+@media (max-width: 760px) {
+  .workspaceV2 .settingsRail,
+  .workspaceV2 .inspectorRail {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .workspaceV2 .settingsRail > .railHeading,
+  .workspaceV2 .inspectorHeading,
+  .workspaceV2 .workspacePreviewHeader {
+    min-height: 54px;
+    padding: 10px 2px !important;
+  }
+
+  .workspaceV2 .settingsRail > .railHeading .subtle { display: none !important; }
+}
