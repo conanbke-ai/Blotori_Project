@@ -5,7 +5,8 @@
  */
 .workspaceV2 .emptyMascotStage::after,
 .generationOverlay .blotoriStateCard::before,
-.blotoriCharacterMotion::before {
+.blotoriCharacterMotion::before,
+.workspaceV2 .compactBrand::before {
   content: none !important;
   display: none !important;
   background: none !important;
