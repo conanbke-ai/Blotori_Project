@@ -285,3 +285,246 @@
   line-height: 1.4;
   letter-spacing: -0.01em;
 }
+
+/* 2026-09-16 canonical source recovery + rail rhythm cleanup. The DOM still
+ * contains legacy image paths, so hide them and render only the locked common
+ * TORI canonical until those references are removed from JSX. */
+.workspaceV2 .blotoriMascotTop,
+.workspaceV2 .blotoriMascotEmpty,
+.generationOverlay .loadingMascot,
+.blotoriCharacterMotion .loadingMascot {
+  display: none !important;
+}
+
+.workspaceV2 .compactBrand::before {
+  content: "" !important;
+  display: block !important;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border-radius: 16px;
+  border: 1px solid rgba(105, 199, 213, .30);
+  background-color: #f5fcfd;
+  background-image: url('/blotori-canonical-mini.webp');
+  background-repeat: no-repeat;
+  background-size: auto 178%;
+  background-position: center 16%;
+  box-shadow: 0 4px 12px rgba(49, 91, 122, .07);
+}
+
+.workspaceV2 .emptyMascotStage::after {
+  content: "";
+  display: block;
+  width: min(310px, 32vw);
+  height: 340px;
+  max-width: 100%;
+  margin: 0 auto;
+  background: url('/blotori-canonical-mini.webp') center / contain no-repeat;
+  filter: drop-shadow(0 22px 26px rgba(49, 91, 122, .13));
+}
+
+.generationOverlay .blotoriStateCard::before {
+  content: "";
+  display: block;
+  width: 220px;
+  height: 190px;
+  margin: 0 auto 8px;
+  background: url('/blotori-canonical-mini.webp') center / contain no-repeat;
+}
+
+.blotoriCharacterMotion::before {
+  content: "";
+  display: block;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto;
+  background: url('/blotori-canonical-mini.webp') center / contain no-repeat;
+  filter: drop-shadow(0 18px 24px rgba(49, 91, 122, .12));
+}
+
+.workspaceV2 .settingsRail {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.workspaceV2 .settingsRail > .railHeading {
+  margin: 0 0 14px;
+  padding: 2px 4px 0;
+  align-items: start;
+}
+
+.workspaceV2 .settingsRail > .railHeading > div {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  min-width: 0;
+}
+
+.workspaceV2 .settingsRail > .railHeading .step,
+.workspaceV2 .workspacePreviewHeader .step {
+  width: 28px;
+  height: 28px;
+  margin-top: 1px;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.workspaceV2 .settingsRail > .railHeading h2,
+.workspaceV2 .workspacePreviewHeader h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+.workspaceV2 .settingsRail > .railHeading p,
+.workspaceV2 .workspacePreviewHeader p {
+  margin: 5px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  letter-spacing: -0.015em;
+}
+
+.workspaceV2 .settingsRail > .railHeading .subtle {
+  padding-top: 7px;
+  font-size: 10px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.workspaceV2 .settingGroup {
+  margin-bottom: 10px;
+  padding: 14px 13px;
+}
+
+.workspaceV2 .settingGroupHeader {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 12px;
+}
+
+.workspaceV2 .settingGroupHeader > span {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 10px;
+  font-size: 0;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.workspaceV2 .settingGroupHeader > span::after {
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.workspaceV2 .settingGroupTitle {
+  min-height: 28px;
+  align-items: center;
+  gap: 7px;
+}
+
+.workspaceV2 .settingGroupTitle h3 {
+  font-size: 14px;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.workspaceV2 .settingGroupHeader p {
+  margin: 3px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: -0.012em;
+}
+
+.workspaceV2 .settingGroupBody {
+  gap: 10px;
+}
+
+.workspaceV2 .field {
+  margin-bottom: 0;
+}
+
+.workspaceV2 .field > span {
+  margin-bottom: 6px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+}
+
+.workspaceV2 .field input:not([type=range]),
+.workspaceV2 .field select,
+.workspaceV2 .field textarea {
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.workspaceV2 .inspectorTabs button {
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.workspaceV2 .qaRow {
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px 11px;
+}
+
+.workspaceV2 .qaIcon {
+  width: 28px;
+  height: 28px;
+  margin-top: 1px;
+  line-height: 1;
+}
+
+.workspaceV2 .qaRow strong {
+  display: block;
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+.workspaceV2 .qaRow p {
+  margin: 3px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: -0.012em;
+}
+
+@media (max-width: 900px) {
+  .workspaceV2 .emptyMascotStage::after {
+    width: min(270px, 62vw);
+    height: 245px;
+  }
+}
+
+@media (max-width: 760px) {
+  .workspaceV2 .compactBrand::before {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+    border-radius: 14px;
+  }
+
+  .workspaceV2 .emptyMascotStage::after {
+    width: min(235px, 68vw);
+    height: 215px;
+  }
+
+  .generationOverlay .blotoriStateCard::before {
+    width: 180px;
+    height: 145px;
+  }
+
+  .blotoriCharacterMotion::before {
+    width: 180px;
+    height: 185px;
+  }
+}
