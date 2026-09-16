@@ -1,0 +1,88 @@
+/*
+ * Canonical Blotori presentation fix.
+ * The UI must render the prepared character/icon assets directly.
+ * Never overlay/crop the canonical standard sheet with pseudo-elements.
+ */
+.workspaceV2 .emptyMascotStage::after,
+.generationOverlay .blotoriStateCard::before,
+.blotoriCharacterMotion::before {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+.workspaceV2 .blotoriMascotEmpty,
+.generationOverlay .loadingMascot,
+.blotoriCharacterMotion .loadingMascot {
+  display: block !important;
+  object-fit: contain !important;
+}
+
+.workspaceV2 .blotoriMascotEmpty {
+  width: auto !important;
+  height: 286px !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  margin: 0 auto !important;
+  transform: none !important;
+  filter: drop-shadow(0 16px 22px rgba(49, 91, 122, .10)) !important;
+}
+
+.generationOverlay .loadingMascot {
+  width: auto !important;
+  height: 168px !important;
+  margin: 0 auto 12px !important;
+  transform: none !important;
+  filter: drop-shadow(0 10px 16px rgba(49, 91, 122, .09)) !important;
+}
+
+.blotoriCharacterMotion .loadingMascot {
+  width: auto !important;
+  height: 196px !important;
+  margin: 0 auto 8px !important;
+}
+
+/* Give the center workspace header its own breathing room instead of inheriting
+ * the narrow rail-heading inset used by the side columns. */
+.workspaceV2 .workspacePreviewHeader {
+  padding: 12px 20px 11px !important;
+}
+
+.workspaceV2 .blotoriMascotTop {
+  display: block !important;
+  width: 50px !important;
+  height: 50px !important;
+  padding: 4px !important;
+  box-sizing: border-box !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  border-radius: 17px !important;
+  border: 1px solid rgba(105, 199, 213, .30) !important;
+  background: #f7fcfc !important;
+  box-shadow: 0 6px 16px rgba(49, 91, 122, .08) !important;
+}
+
+@media (max-width: 900px) {
+  .workspaceV2 .workspacePreviewHeader {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .workspaceV2 .blotoriMascotEmpty { height: 224px !important; }
+  .generationOverlay .loadingMascot { height: 146px !important; }
+}
+
+@media (max-width: 760px) {
+  .workspaceV2 .workspacePreviewHeader {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  .workspaceV2 .blotoriMascotTop {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 15px !important;
+  }
+  .workspaceV2 .blotoriMascotEmpty { height: 196px !important; }
+  .generationOverlay .loadingMascot { height: 128px !important; }
+  .blotoriCharacterMotion .loadingMascot { height: 156px !important; }
+}
