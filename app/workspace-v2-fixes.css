@@ -1,0 +1,238 @@
+.workspaceV2 .eyebrow::before,
+.workspaceV2 .topbar h1::after {
+  content: none;
+  display: none;
+}
+
+.workspaceV2 .apiWarning {
+  display: none;
+}
+
+.workspaceV2 .settingsRail {
+  counter-reset: visible-setting-step;
+}
+
+.workspaceV2 .settingGroup {
+  counter-increment: visible-setting-step;
+}
+
+.workspaceV2 .settingGroupHeader > span {
+  font-size: 0;
+}
+
+.workspaceV2 .settingGroupHeader > span::after {
+  content: counter(visible-setting-step);
+  font-size: 13px;
+}
+
+/* Brand hierarchy: the approved Blotori canonical is cropped into a face icon
+ * for app chrome and shown as a full-body character in empty/loading states.
+ * Paw assets remain cursor and success feedback only. */
+.workspaceV2 .blotoriMascotTop {
+  display: block;
+  flex: 0 0 auto;
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  border-radius: 20px;
+  border: 1px solid rgba(105, 199, 213, .34);
+  box-shadow: 0 9px 22px rgba(49, 91, 122, .10);
+}
+
+.workspaceV2 .compactBrand::before {
+  content: none;
+  display: none;
+}
+
+.workspaceV2 .blotoriMascotEmpty,
+.workspaceV2 .loadingMascot {
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 22px rgba(49, 91, 122, .12));
+}
+
+.workspaceV2 .blotoriMascotEmpty {
+  width: min(230px, 42vw);
+  max-height: 330px;
+  margin-inline: auto;
+}
+
+.workspaceV2 .loadingMascot {
+  width: 154px;
+  max-height: 220px;
+  margin: 0 auto 4px;
+}
+
+.workspaceV2 .workspaceEmpty::before {
+  content: none;
+  display: none;
+}
+
+.workspaceV2 .successPaw {
+  background:
+    url('/blotori-paw-default.png') center / 38px 38px no-repeat,
+    linear-gradient(145deg, #eaf8fa, #fff1e9);
+}
+
+/* Keep the top chrome calm. Panel navigation belongs to each workspace area,
+ * not beside the brand title. */
+.workspaceV2 .workspaceTopActions > .iconGhost {
+  display: none;
+}
+
+.workspaceV2 .workspaceTopActions {
+  gap: 8px;
+}
+
+.workspaceV2 .devStatusMenu > summary {
+  font-size: 12px;
+  opacity: .74;
+}
+
+.workspaceV2 .settingGroup {
+  box-shadow: none;
+}
+
+.workspaceV2 .settingGroup + .settingGroup {
+  margin-top: 2px;
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  .workspaceGridV2.settingsClosed,
+  .workspaceGridV2.settingsClosed.guideClosed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspaceV2 .blotoriMascotTop {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 760px) {
+  .workspaceV2.mobile-settings .settingsRail,
+  .workspaceV2.mobile-review .inspectorRail {
+    overflow: auto;
+  }
+
+  .workspaceV2.mobile-preview .previewStage {
+    overflow: hidden;
+  }
+
+  .workspaceV2 .blotoriMascotTop {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+  }
+
+  .workspaceV2 .blotoriMascotEmpty {
+    width: min(190px, 58vw);
+    max-height: 265px;
+  }
+
+  .workspaceV2 .loadingMascot {
+    width: 132px;
+    max-height: 205px;
+  }
+
+  .workspaceV2 .successToast {
+    top: auto;
+    bottom: max(82px, calc(env(safe-area-inset-bottom) + 82px));
+  }
+}
+
+/* Empty composer is a branded stage, not a mascot dropped on blank canvas. */
+.workspaceV2 .workspaceEmpty {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(230px, .72fr) minmax(300px, 1.05fr);
+  align-items: center;
+  justify-content: center;
+  gap: clamp(22px, 4vw, 56px);
+  padding: clamp(34px, 6vw, 82px);
+  background:
+    radial-gradient(circle at 24% 46%, rgba(105,199,213,.18), transparent 30%),
+    radial-gradient(circle at 78% 55%, rgba(255,139,114,.08), transparent 28%),
+    linear-gradient(145deg, rgba(255,253,249,.98), rgba(244,251,252,.82));
+}
+.workspaceV2 .workspaceEmpty::after {
+  content: "";
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  right: 8%;
+  bottom: 8%;
+  border-radius: 44px;
+  border: 1px solid rgba(105,199,213,.16);
+  transform: rotate(8deg);
+  background: rgba(255,255,255,.25);
+  box-shadow: 0 24px 70px rgba(49,91,122,.06);
+  pointer-events: none;
+}
+.workspaceV2 .workspaceEmpty > div { position: relative; z-index: 1; max-width: 520px; }
+.workspaceV2 .workspaceEmpty h3 { font-size: clamp(21px, 2.2vw, 32px); line-height: 1.3; margin: 4px 0 10px; color: #315b7a; }
+.workspaceV2 .workspaceEmpty p { max-width: 440px; font-size: 14px; line-height: 1.7; color: #71818b; }
+.workspaceV2 .blotoriMascotEmpty {
+  position: relative;
+  z-index: 2;
+  width: min(310px, 31vw);
+  max-height: 430px;
+  justify-self: end;
+  margin: 0;
+  transform: translateY(8px);
+  filter: drop-shadow(0 24px 26px rgba(49,91,122,.15));
+}
+@media (max-width: 900px) {
+  .workspaceV2 .workspaceEmpty { grid-template-columns: 1fr; text-align: center; gap: 12px; padding: 28px 20px 42px; }
+  .workspaceV2 .blotoriMascotEmpty { justify-self: center; width: min(250px, 48vw); max-height: 340px; }
+  .workspaceV2 .workspaceEmpty > div { margin: 0 auto; }
+  .workspaceV2 .workspaceEmpty p { margin-inline: auto; }
+  .workspaceV2 .workspaceEmpty::after { right: 3%; bottom: 4%; width: 145px; height: 145px; }
+}
+@media (max-width: 760px) {
+  .workspaceV2 .workspaceEmpty { min-height: calc(100dvh - 190px); padding: 24px 16px 36px; }
+  .workspaceV2 .blotoriMascotEmpty { width: min(218px, 62vw); max-height: 300px; }
+  .workspaceV2 .workspaceEmpty h3 { font-size: 21px; }
+}
+
+
+/* 2026-09-15 visual acceptance polish: calm chrome, branded hero, balanced empty inspector. */
+.workspaceV2 .blotoriMascotTop { width:44px; height:44px; border-radius:15px; box-shadow:0 6px 16px rgba(49,91,122,.08); }
+.workspaceV2 .compactBrand { gap:12px; }
+.workspaceV2 .compactBrand h1 { margin-top:1px; }
+.workspaceV2 .workspaceEmpty { grid-template-columns:minmax(280px,.9fr) minmax(340px,1fr); gap:clamp(30px,5vw,74px); padding:clamp(42px,7vw,92px); }
+.workspaceV2 .workspaceEmpty::after { content:none; display:none; }
+.workspaceV2 .emptyMascotStage { position:relative; min-height:390px; display:grid; place-items:center; isolation:isolate; }
+.workspaceV2 .emptyGlow { position:absolute; width:min(430px,36vw); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,rgba(105,199,213,.24) 0%,rgba(105,199,213,.09) 42%,transparent 70%); filter:blur(2px); z-index:-1; }
+.workspaceV2 .blotoriMascotEmpty { width:min(390px,36vw); max-height:520px; justify-self:center; transform:translateY(10px) scale(1.06); filter:drop-shadow(0 28px 30px rgba(49,91,122,.16)); }
+.workspaceV2 .emptyCopy { max-width:540px; }
+.workspaceV2 .workspaceEmpty h3 { font-size:clamp(25px,2.45vw,36px); max-width:520px; }
+.workspaceV2 .workspaceEmpty p { font-size:15px; max-width:500px; }
+.workspaceV2 .emptyQuickActions { display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }
+.workspaceV2 .emptyQuickActions button { min-height:43px; }
+.workspaceV2 .emptyFeatureRow { display:flex; flex-wrap:wrap; gap:7px; margin-top:16px; }
+.workspaceV2 .emptyFeatureRow span { padding:6px 9px; border-radius:999px; background:rgba(255,255,255,.72); border:1px solid rgba(105,199,213,.18); color:#62808b; font-size:11px; font-weight:750; }
+.workspaceV2 .inspectorEmpty { display:grid; gap:8px; align-content:start; text-align:left; padding:18px 4px 8px; }
+.workspaceV2 .inspectorEmptyIcon { width:38px; height:38px; display:grid; place-items:center; border-radius:13px; background:linear-gradient(145deg,rgba(105,199,213,.2),rgba(255,139,114,.09)); color:#2d8fa0; font-weight:900; margin-bottom:3px; }
+.workspaceV2 .inspectorEmpty > p { margin:0 0 5px; line-height:1.55; }
+.workspaceV2 .inspectorEmptyGuide { display:grid; gap:8px; margin-top:5px; }
+.workspaceV2 .inspectorEmptyGuide > div { display:grid; grid-template-columns:30px 1fr; gap:9px; align-items:center; padding:10px; border:1px solid rgba(49,91,122,.08); border-radius:13px; background:rgba(255,255,255,.76); }
+.workspaceV2 .inspectorEmptyGuide b { width:28px; height:28px; display:grid; place-items:center; border-radius:9px; background:rgba(105,199,213,.12); color:#2d8fa0; font-size:10px; }
+.workspaceV2 .inspectorEmptyGuide span { display:grid; gap:2px; }
+.workspaceV2 .inspectorEmptyGuide strong { font-size:12px; }
+.workspaceV2 .inspectorEmptyGuide small { color:#7a8b95; font-size:10.5px; }
+@media (max-width:900px) {
+  .workspaceV2 .workspaceEmpty { grid-template-columns:1fr; gap:8px; padding:30px 22px 44px; }
+  .workspaceV2 .emptyMascotStage { min-height:260px; }
+  .workspaceV2 .emptyGlow { width:min(330px,72vw); }
+  .workspaceV2 .blotoriMascotEmpty { width:min(290px,66vw); max-height:370px; }
+  .workspaceV2 .emptyCopy { margin:0 auto; text-align:center; }
+  .workspaceV2 .emptyQuickActions,.workspaceV2 .emptyFeatureRow { justify-content:center; }
+}
+@media (max-width:760px) {
+  .workspaceV2 .blotoriMascotTop { width:40px; height:40px; border-radius:14px; }
+  .workspaceV2 .emptyMascotStage { min-height:230px; }
+  .workspaceV2 .blotoriMascotEmpty { width:min(250px,70vw); }
+  .workspaceV2 .emptyQuickActions { display:grid; grid-template-columns:1fr; width:100%; }
+}

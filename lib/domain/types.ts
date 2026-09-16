@@ -9,6 +9,14 @@ export type EmphasisKind = "bold" | "accent" | "highlight";
 export type SectionVisualStyle = "standard" | "key-point" | "callout" | "quote" | "glossary";
 export type ImageContinuityMode = "independent" | "series";
 
+export interface ReferenceFileInput {
+  id: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  dataUrl: string;
+}
+
 export interface GenerateRequest {
   platformId: PlatformId;
   otherPlatform?: string;
@@ -20,10 +28,12 @@ export interface GenerateRequest {
   styleId: StyleId;
   styleIntensity?: StyleIntensity;
   customStyle?: string;
+  styleProfileName?: string;
   structureId: StructureId;
   customStructure?: string;
   length: Length;
   imageCount: number;
+  referenceFiles?: ReferenceFileInput[];
 }
 
 export interface TextEmphasis {

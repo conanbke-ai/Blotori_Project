@@ -38,7 +38,9 @@ function buildRenderedGuide(paper: HTMLElement, platformId: PlatformId) {
   const intro = paper.querySelector<HTMLElement>(".introBlock");
   if (intro?.classList.contains("align-center")) lines.push("도입부는 가운데 정렬로 적용");
   paper.querySelectorAll<HTMLElement>(".articleSection").forEach((section) => {
-    const heading = section.querySelector<HTMLElement>("h3"); const headingText = heading?.textContent?.trim(); if (!headingText) return;
+    const heading = section.querySelector<HTMLElement>("h3");
+    const headingText = heading?.textContent?.trim();
+    if (!heading || !headingText) return;
     if (heading.classList.contains("align-center")) lines.push(`소제목 ‘${headingText}’ → 가운데 정렬`);
     if (section.classList.contains("visual-key-point")) lines.push(`‘${headingText}’ → 핵심 포인트 영역으로 강조`);
     if (section.classList.contains("visual-callout")) lines.push(`‘${headingText}’ → 안내/주의 박스 느낌으로 강조`);
@@ -109,7 +111,7 @@ export default function ComposerWorkflowEnhancer() {
         <button type="button" onClick={() => runExisting(/태그 (복사|복사됨)/, "tags")}><b>4</b><span><strong>태그 복사</strong><small>{feedback === "tags" ? "복사됨 ✓" : "태그/라벨 입력란에 붙여넣기"}</small></span></button>
       </div>
       {guideLines.length > 0 && <details className="formatGuide" open={isNaver}><summary>서식 적용 가이드 <span>{guideLines.length}</span></summary><div className="formatGuideList">{guideLines.map((line, index) => <p key={`${line}-${index}`}><b>{index + 1}</b><span>{line}</span></p>)}</div></details>}
-      <div className="runtimeDiagnostics"><div className={`diagnosticChip ${health?.keyDetected ? "ok" : "warn"}`}><span>API</span><strong>{health?.keyDetected ? health.model : "키 미감지"}</strong></div><div className={`diagnosticChip ${health?.knowledge?.ready ? "ok" : "neutral"}`} title={health?.knowledge?.message}><span>Knowledge</span><strong>{health?.knowledge?.ready ? "준비됨" : "미사용"}</strong></div><div className={`diagnosticChip ${health?.verified ? "ok" : "neutral"}`}><span>연결 검증</span><strong>{health?.verified ? "완료" : "상단 연결 테스트 사용"}</strong></div></div>
+      <div className="runtimeDiagnostics"><div className={`diagnosticChip ${health?.keyDetected ? "ok" : "warn"}`}><span>API</span><strong>{health?.keyDetected ? health.model : "키 미감지"}</strong></div><div className={`diagnosticChip ${health?.knowledge?.ready ? "ok" : "neutral"}`} title={health?.knowledge?.message}><span>전문자료</span><strong>{health?.knowledge?.ready ? "준비됨" : "미사용"}</strong></div><div className={`diagnosticChip ${health?.verified ? "ok" : "neutral"}`}><span>연결 상태</span><strong>{health?.verified ? "확인됨" : "연결 상태 메뉴에서 확인"}</strong></div></div>
       {feedback === "not-found" && <p className="workflowError">복사 버튼을 찾지 못했어요. 화면을 새로고침한 뒤 다시 시도해 주세요.</p>}
     </div>}
   </div>, runtime.host);

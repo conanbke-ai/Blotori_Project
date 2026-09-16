@@ -1,0 +1,58 @@
+.assetStudioGroup { position: relative; }
+.assetStudioBody { display: grid; gap: 12px; }
+.assetHiddenInput { display: none !important; }
+.assetDropzone { width: 100%; border: 1.5px dashed rgba(45,143,160,.42); background: linear-gradient(180deg,#fffdf9,#f4fbfc); border-radius: 18px; padding: 20px 16px; display: grid; gap: 6px; place-items: center; color: #315b7a; cursor: pointer; }
+.assetDropzone:hover { border-color: #2d8fa0; background: #eefafa; transform: translateY(-1px); }
+.assetDropzone strong { font-size: 14px; }
+.assetDropzone span { font-size: 12px; color: #6e7c86; }
+.assetList { display: grid; gap: 8px; }
+.assetRow { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 10px; border: 1px solid #e7ecee; border-radius: 14px; padding: 10px 11px; background: #fff; cursor: pointer; }
+.assetRow.selected { border-color: rgba(45,143,160,.5); box-shadow: inset 0 0 0 1px rgba(105,199,213,.16); background: #fbfefe; }
+.assetRow span { min-width: 0; display: grid; gap: 2px; }
+.assetRow strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.assetRow small, .assetHint { color: #78848c; font-size: 11px; line-height: 1.55; }
+.assetMiniButton { border: 0; background: transparent; font-size: 11px; cursor: pointer; color: #55707c; padding: 5px 7px; }
+.assetMiniButton.danger { color: #b35c55; }
+.selectedStyleCard { border: 1px solid rgba(105,199,213,.42); background: #f8fdfd; border-radius: 16px; padding: 12px; display: grid; grid-template-columns: 1fr auto; gap: 7px 10px; }
+.selectedStyleCard > div { display: grid; gap: 3px; }
+.selectedStyleCard span { color: #6f7c83; font-size: 11px; }
+.selectedStyleCard p { grid-column: 1/-1; margin: 2px 0 0; max-height: 92px; overflow: auto; font-size: 12px; line-height: 1.65; color: #425968; white-space: pre-wrap; }
+.styleBuilder { border: 1px solid #e6ecee; border-radius: 16px; background: #fff; overflow: hidden; }
+.styleBuilder > summary { list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 700; color: #315b7a; }
+.styleBuilder > summary::-webkit-details-marker { display: none; }
+.styleBuilderBody { border-top: 1px solid #edf0f1; padding: 13px; display: grid; gap: 12px; }
+.sourceTabs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+.sourceTabs button { border: 1px solid #dde7e9; background: #fffdf9; border-radius: 12px; padding: 8px 6px; font-size: 11px; cursor: pointer; color: #546974; }
+.sourceTabs button.active { background: #eaf8fa; border-color: #69c7d5; color: #245f69; font-weight: 700; }
+.assetAnalyze, .assetSaveStyle { width: 100%; }
+.packActions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.packActions button { min-height: 42px; }
+.assetNotice { position: fixed; z-index: 90; left: 50%; bottom: 28px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; max-width: min(560px, calc(100vw - 28px)); padding: 11px 14px; border-radius: 16px; background: rgba(49,91,122,.96); color: white; box-shadow: 0 14px 34px rgba(49,91,122,.2); font-size: 12px; }
+.assetNotice button { border: 0; background: transparent; color: white; font-size: 18px; cursor: pointer; }
+@media (max-width:760px) { .packActions { grid-template-columns: 1fr; } .assetNotice { bottom: 88px; } }
+
+.assetStudioMount { display: contents; }
+.assetStudioGroup .secondaryAction, .packActions .ghost { box-shadow: none; }
+.packGroup .settingGroupBody { padding-top: 8px; }
+.sourceTabs button { min-height: 34px; }
+@media (min-width: 1181px) { .assetDropzone { padding-block: 16px; } }
+
+/* Unified writing settings: one card for built-in styles, saved profiles and structure. */
+.unifiedWritingGroup { border-color: rgba(45,143,160,.28); background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(244,251,252,.72)); }
+.unifiedWritingGroup .settingGroupHeader { margin-bottom: 14px; }
+.writingDivider { height: 1px; background: linear-gradient(90deg, transparent, rgba(105,199,213,.38), transparent); margin: 2px 0; }
+.assetBuilderLead { margin: 0; font-size: 11px; line-height: 1.55; color: #70818b; }
+.assetUtilityGroup { margin: 4px 2px 14px; padding: 11px 12px; border-radius: 14px; border: 1px dashed rgba(49,91,122,.15); background: rgba(255,255,255,.48); display: grid; gap: 10px; }
+.assetUtilityCopy { display: grid; gap: 3px; }
+.assetUtilityCopy strong { font-size: 12px; color: #425f72; }
+.assetUtilityCopy span { font-size: 10.5px; line-height: 1.5; color: #7b8991; }
+.assetUtilityGroup .packActions button { min-height: 36px; font-size: 11px; }
+@media (max-width:760px) { .assetUtilityGroup { padding: 10px; } }
+
+
+.writingSectionLabel { display:grid; gap:2px; padding:2px 1px 7px; border-bottom:1px solid rgba(105,199,213,.18); }
+.writingSectionLabel span { color:#315b7a; font-size:12px; font-weight:850; }
+.writingSectionLabel small { color:#7b8a93; font-size:10.5px; line-height:1.45; }
+.writingSectionAdjust,.writingSectionCreate { margin-top:5px; }
+.unifiedWritingGroup .selectedStyleCard { margin-top:-2px; }
+.unifiedWritingGroup .styleBuilder { margin-top:-2px; }

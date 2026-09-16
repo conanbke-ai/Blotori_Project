@@ -1,0 +1,157 @@
+/* Final visual acceptance overrides for the Blotori workspace. */
+
+/* The old empty-state decoration injected an `Aa` badge into every direct child.
+ * It is not part of the Blotori brand language and must never appear in the hero. */
+.workspaceV2 .blotoriEmptyState > div::before {
+  content: none !important;
+  display: none !important;
+}
+
+@media (min-width: 1181px) {
+  .workspaceV2 .workspaceGridV2 {
+    grid-template-columns: minmax(280px, 292px) minmax(0, 1fr) minmax(270px, 282px);
+    gap: 14px;
+  }
+
+  .workspaceV2 .workspaceEmpty {
+    grid-template-columns: minmax(285px, .86fr) minmax(0, 1.14fr);
+    align-items: start;
+    align-content: start;
+    gap: 28px;
+    padding: 42px 34px 38px;
+  }
+
+  .workspaceV2 .emptyMascotStage {
+    min-height: 315px;
+    overflow: visible;
+    margin-top: 4px;
+  }
+
+  .workspaceV2 .emptyGlow {
+    width: 270px;
+    opacity: .88;
+  }
+
+  .workspaceV2 .blotoriMascotEmpty {
+    width: 430px;
+    max-width: none;
+    max-height: 560px;
+    transform: translate(-4px, -4px) scale(1.42);
+    transform-origin: center;
+  }
+
+  .workspaceV2 .emptyCopy {
+    max-width: 380px;
+    padding: 42px 0 0 0;
+  }
+
+  .workspaceV2 .workspaceEmpty h3 {
+    max-width: 380px;
+    font-size: clamp(26px, 2vw, 32px);
+    margin-bottom: 9px;
+  }
+
+  .workspaceV2 .workspaceEmpty p {
+    max-width: 370px;
+    font-size: 14px;
+  }
+
+  .workspaceV2 .emptyQuickActions {
+    margin-top: 16px;
+  }
+
+  .workspaceV2 .emptyFeatureRow {
+    margin-top: 13px;
+  }
+}
+
+/* Final canonical hero polish: keep the same approved Blotori asset and only tune presentation. */
+@media (min-width: 1181px) {
+  .generationOverlay .loadingMascot {
+    width: 300px;
+    max-height: 365px;
+    transform: scale(1.52);
+    transform-origin: center;
+    margin: 14px auto 34px;
+  }
+}
+
+@media (max-width: 760px) {
+  .generationOverlay .loadingMascot {
+    width: 205px;
+    max-height: 285px;
+    transform: scale(1.30);
+    transform-origin: center;
+    margin: 8px auto 20px;
+  }
+}
+
+/* 2026-09-16 canonical crop correction: no artificial halo, no oversized transform. */
+.workspaceV2 .emptyGlow { display: none !important; }
+.workspaceV2 .blotoriMascotTop {
+  width: 48px;
+  height: 48px;
+  box-sizing: border-box;
+  object-fit: contain;
+  padding: 3px;
+  border-radius: 16px;
+  border: 1px solid rgba(105,199,213,.28);
+  background: #f5fcfd;
+  box-shadow: 0 4px 12px rgba(49,91,122,.07);
+}
+.workspaceV2 .workspaceEmpty {
+  background: linear-gradient(145deg, #fffdf9 0%, #f8fcfc 100%);
+}
+.workspaceV2 .emptyMascotStage {
+  min-height: 320px;
+  overflow: visible;
+  margin: 0;
+}
+.workspaceV2 .blotoriMascotEmpty {
+  width: auto !important;
+  height: 300px !important;
+  max-width: 100%;
+  max-height: none !important;
+  object-fit: contain;
+  transform: none !important;
+  filter: none !important;
+  margin: 0 auto;
+  justify-self: center;
+}
+@media (min-width:1181px) {
+  .workspaceV2 .workspaceEmpty {
+    grid-template-columns: 250px minmax(340px,390px);
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    gap: 38px;
+    padding: 44px 34px;
+  }
+  .workspaceV2 .emptyCopy { padding: 0; max-width: 390px; }
+}
+@media (max-width:900px) {
+  .workspaceV2 .emptyMascotStage { min-height: 245px; }
+  .workspaceV2 .blotoriMascotEmpty { height: 230px !important; }
+}
+@media (max-width:760px) {
+  .workspaceV2 .blotoriMascotTop { width: 44px; height: 44px; }
+  .workspaceV2 .emptyMascotStage { min-height: 215px; }
+  .workspaceV2 .blotoriMascotEmpty { height: 205px !important; }
+}
+
+/* 2026-09-16 final visible-size correction for canonical Blotori loading state. */
+.generationOverlay .loadingMascot {
+  width: auto !important;
+  height: 190px !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  transform: none !important;
+  filter: none !important;
+  margin: 0 auto 8px !important;
+}
+@media (max-width: 760px) {
+  .generationOverlay .loadingMascot {
+    height: 145px !important;
+  }
+}
