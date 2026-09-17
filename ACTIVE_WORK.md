@@ -17,6 +17,10 @@
 - 건강·의료 전문자료 Knowledge Base / OpenAI File Search RAG 통합 QA
 - Knowledge source manifest / 라이선스 게이트 / 상용·연구 profile 분리 QA
 - 외부 생성 이미지 슬롯 drag/drop + 로컬 미리보기 UX
+- 사용자 참고자료 업로드 + 브라우저 내 자료함 + 생성 요청 직접 첨부
+- 이름을 붙여 재사용하는 `내 문체` 프로필 + 블로그/포스팅/붙여넣기/직접설정 분석
+- 문체·자료 `.blotori` 공유 팩 import/export
+- Composer V2 3-column workspace + canonical Blotori 얼굴/전체 캐릭터/생성 로딩 visual QA
 
 ## V1 scope
 
@@ -75,6 +79,16 @@
 - [x] 업로드 이미지 실제 비율 미리보기 + 교체/삭제
 - [x] 새 원고 생성 시 이전 Object URL 정리
 - [x] 이미지 슬롯 변경 CI TypeScript / production build 통과
+- [x] 참고자료 PDF/DOCX/TXT/MD 업로드 + 선택 자료 생성 요청 첨부
+- [x] 브라우저 내 자료함(IndexedDB) 재사용
+- [x] 이름 지정형 내 문체 저장/재사용 + 기본 강도 저장
+- [x] 블로그 전체 / 포스팅 1개 / 글 붙여넣기 / 직접 설정 문체 분석 UI
+- [x] 문체 프로필명은 생성 본문 프롬프트에서 분리하고 스타일 signature만 적용
+- [x] `.blotori` 문체·자료 공유 팩 import/export
+- [x] canonical Blotori 얼굴 아이콘 / 전체 캐릭터 / 생성 로딩 자산 정상 복구
+- [x] AssetStudio를 Home 내부 직접 렌더로 전환해 React hydration mismatch 제거
+- [x] 2026-09-15 desktop/tablet/mobile production visual QA + canonical asset decode PASS
+- [x] 2026-09-15 TypeScript / platform export QA / production build PASS
 - [ ] 실제 허용 전문자료를 `knowledge-base/`에 배치 후 `knowledge:plan` 검증
 - [ ] 최초 commercial vector store 동기화
 - [ ] 실제 OpenAI API + file_search 응답 통합 QA
@@ -162,6 +176,7 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - `npm run build` = Next.js production build
 - 2026-09-10 최초 CI run에서 TypeScript check / production build 모두 PASS
 - 이미지 슬롯 업로드 적용 commit `a0658f75ed03d7a86d2a745d725976999d352629`도 TypeScript check / production build PASS
+- 2026-09-15 Composer V2 user-asset/hydration 수정본도 TypeScript check / platform export QA / production build PASS; dev hydration diagnostics `NO_HYDRATION_MESSAGES`.
 
 ## Guardrails
 
@@ -176,3 +191,5 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - 캐릭터 cutout은 canonical sheet의 캐릭터 픽셀을 유지하고 배경/주변 sheet 요소만 제거한다.
 - 사용자 local preview 이미지는 브라우저 세션용이며 서버 업로드/영구 저장으로 간주하지 않는다.
 - 코드 구현 완료를 visual acceptance로 간주하지 않는다.
+
+- 2026-09-15: 공통 TORI canonical 기반 Blotori 얼굴/전신 PNG 적용 상태를 visual QA로 재확인하고, 빈 화면 hero 카피를 짧게 정리했으며 생성 로딩 전신 크기를 조정했다. 캐릭터 자체는 재생성하지 않았다.

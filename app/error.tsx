@@ -7,7 +7,7 @@ export default function ErrorScreen({ error, reset }: { error: Error & { digest?
         <div className="blotoriStateEyebrow">BLOTORI · ERROR</div>
         <img
           className="loadingMascot"
-          src="/blotori-character-transparent.webp"
+          src="/blotori-character-ui.png"
           alt="블로토리"
           style={{ animation: "none", margin: "0 auto 14px" }}
         />
