@@ -21,6 +21,18 @@
 - 의료 관련 과장·단정 표현 일부를 Rule Engine으로 감지
 - `OPENAI_API_KEY`가 없으면 Mock 모드로 UI 테스트 가능
 
+## Environment & Secrets
+
+TORI 공통 환경파일 규칙을 사용합니다.
+
+- `.env.example`: Git 포함 템플릿
+- `.env.local`: 실제 로컬 값, Git 제외
+- Render: 동일 변수명을 Secret/Environment에 등록
+- canonical contract: `configs/environment-contract.json`
+- 상세 문서: `docs/ENVIRONMENT_VARIABLES.md`
+
+블로토리의 Next.js runtime과 Knowledge sync 스크립트 모두 `.env.local`을 기준으로 사용합니다.
+
 ## 실행
 
 ```bash
