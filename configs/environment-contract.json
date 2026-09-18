@@ -1,0 +1,50 @@
+{
+  "version": "BLOTORI-ENV-V1-20260918",
+  "local_env_standard": {
+    "template": ".env.example",
+    "values": ".env.local"
+  },
+  "deployment_target": "render",
+  "variables": {
+    "OPENAI_API_KEY": {
+      "kind": "secret",
+      "required": false,
+      "capability": "content_generation"
+    },
+    "OPENAI_MODEL": {
+      "kind": "config",
+      "required": false,
+      "default": "gpt-5.6-luna"
+    },
+    "OPENAI_VECTOR_STORE_ID": {
+      "kind": "config",
+      "required": false,
+      "capability": "rag"
+    },
+    "BLOTORI_RAG_ENABLED": {
+      "kind": "config",
+      "required": false,
+      "default": "true"
+    },
+    "BLOTORI_RAG_CATEGORIES": {
+      "kind": "config",
+      "required": false,
+      "default": "health"
+    },
+    "BLOTORI_RAG_MAX_RESULTS": {
+      "kind": "config",
+      "required": false,
+      "default": "6"
+    },
+    "BLOTORI_KNOWLEDGE_DIR": {
+      "kind": "config",
+      "required": false,
+      "default": "knowledge-base"
+    },
+    "BLOTORI_KNOWLEDGE_PROFILE": {
+      "kind": "config",
+      "required": false,
+      "default": "commercial"
+    }
+  }
+}
