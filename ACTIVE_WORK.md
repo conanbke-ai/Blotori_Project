@@ -185,3 +185,12 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - 캐릭터 cutout은 canonical sheet의 캐릭터 픽셀을 유지하고 배경/주변 sheet 요소만 제거한다.
 - 사용자 local preview 이미지는 브라우저 세션용이며 서버 업로드/영구 저장으로 간주하지 않는다.
 - 코드 구현 완료를 visual acceptance로 간주하지 않는다.
+
+## POLICY_ACK — ChatGPT logical orchestration — 2026-09-18
+
+- Common baseline: `conanbke-ai/Tori_Common_Project@98946df8f04685f0b2c9814363ec9fea8be25226`
+- tags: `AGENT_ORCHESTRATION,AI_SURFACE,CREDIT,DOCUMENTATION`
+- result: `ADOPTED`
+- Runtime model: ChatGPT logical roles; no Cursor/plugin installation required.
+- Surface rule: Chat/connector first; Codex only for repository-local implementation/build/test; Work only for actual rendered/interactive acceptance; LOCAL_RUNTIME for long GPU workloads where applicable.
+- Product-specific contracts in this repository remain authoritative over generic common assumptions.
