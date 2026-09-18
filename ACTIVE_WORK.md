@@ -1,5 +1,14 @@
 # ACTIVE_WORK
 
+
+## Environment contract refreeze — 2026-09-18
+
+- TORI 공통 canonical local env: `.env.example`(Git 추적) + `.env.local`(실제 로컬 값, Git 제외).
+- Next.js runtime과 `scripts/sync-knowledge-base.mjs` 모두 `.env.local`을 기준으로 사용한다. legacy `.env` fallback 및 `.env.txt`류 진단 경로는 제거했다.
+- machine-readable contract: `configs/environment-contract.json`; human contract: `docs/ENVIRONMENT_VARIABLES.md`.
+- env 표준화 후 기존 TypeScript nullability 오류를 최소 수정했고 Blotori Validate run #156에서 TypeScript / platform export QA / production build 전체 PASS.
+- Render에서는 동일 변수명을 Secret/Environment로 관리한다.
+
 ## Status
 
 `IN_PROGRESS` — Blotori V1 실사용 기준본 구축
