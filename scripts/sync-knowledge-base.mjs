@@ -178,7 +178,6 @@ async function waitForVectorStoreFiles(client, vectorStoreId, vectorStoreFileIds
 
 const projectRoot = process.cwd();
 loadEnvFile(path.join(projectRoot, ".env.local"));
-loadEnvFile(path.join(projectRoot, ".env"));
 
 const appendMode = process.argv.includes("--append");
 const dryRun = process.argv.includes("--dry-run");
