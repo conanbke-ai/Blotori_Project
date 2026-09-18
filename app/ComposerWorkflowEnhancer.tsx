@@ -38,7 +38,10 @@ function buildRenderedGuide(paper: HTMLElement, platformId: PlatformId) {
   const intro = paper.querySelector<HTMLElement>(".introBlock");
   if (intro?.classList.contains("align-center")) lines.push("도입부는 가운데 정렬로 적용");
   paper.querySelectorAll<HTMLElement>(".articleSection").forEach((section) => {
-    const heading = section.querySelector<HTMLElement>("h3"); const headingText = heading?.textContent?.trim(); if (!headingText) return;
+    const heading = section.querySelector<HTMLElement>("h3");
+    if (!heading) return;
+    const headingText = heading.textContent?.trim();
+    if (!headingText) return;
     if (heading.classList.contains("align-center")) lines.push(`소제목 ‘${headingText}’ → 가운데 정렬`);
     if (section.classList.contains("visual-key-point")) lines.push(`‘${headingText}’ → 핵심 포인트 영역으로 강조`);
     if (section.classList.contains("visual-callout")) lines.push(`‘${headingText}’ → 안내/주의 박스 느낌으로 강조`);
