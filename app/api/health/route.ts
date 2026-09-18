@@ -35,7 +35,7 @@ function knowledgeStatus() {
 
 function diagnostics() {
   const cwd = process.cwd();
-  const envFiles = [".env.local", ".env", ".env.development.local", ".env.development", ".env.local.txt", ".env.txt"];
+  const envFiles = [".env.local"];
   const envFileStatus = Object.fromEntries(envFiles.map((name) => [name, existsSync(join(cwd, name))]));
   const openAiVariableNames = Object.keys(process.env)
     .filter((name) => /OPENAI|GPT|BLOTORI_RAG/i.test(name))
