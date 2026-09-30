@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { STRUCTURE_DEFINITIONS, STYLE_DEFINITIONS } from "../lib/domain/content-config";
-import type { StructureId, StyleId, StyleIntensity } from "../lib/domain/types";
+import type { BlogDNAApplyOptions, BlogDNAProfile, StructureId, StyleId, StyleIntensity } from "../lib/domain/types";
 
 type StyleSourceType = "preset" | "blog" | "post" | "pasted_text" | "manual";
 type StyleProfile = {
@@ -11,6 +11,7 @@ type StyleProfile = {
   sourceType: StyleSourceType;
   sourceUrl?: string;
   signature: string;
+  blogDNA?: BlogDNAProfile;
   defaultIntensity: StyleIntensity;
   createdAt: string;
   updatedAt: string;
@@ -49,6 +50,7 @@ type Props = {
 
 const STYLE_KEY = "blotori.style-profiles.v1";
 const SELECTED_STYLE_KEY = "blotori.selected-style.v1";
+const LAYOUT_HISTORY_PREFIX = "blotori.layout-history.v1";
 const DB_NAME = "blotori-assets-v1";
 const STORE = "materials";
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
@@ -60,6 +62,14 @@ const intensityLabel: Record<StyleIntensity, string> = {
   4: "적극적",
   5: "개성 강함",
 };
+const DEFAULT_DNA_APPLY: BlogDNAApplyOptions = {
+  voice: true,
+  mood: true,
+  structure: true,
+  imageRhythm: true,
+  visual: true,
+};
+
 const sourceLabel: Record<StyleSourceType, string> = {
   preset: "블로토리 프리셋",
   blog: "블로그 전체",
@@ -68,6 +78,22 @@ const sourceLabel: Record<StyleSourceType, string> = {
   manual: "직접 설정",
 };
 
+function layoutHistoryKey(styleId: string) {
+  return `${LAYOUT_HISTORY_PREFIX}:${styleId}`;
+}
+function loadLayoutHistory(styleId: string) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(layoutHistoryKey(styleId)) || "[]") as string[];
+    return parsed.filter(Boolean).slice(-6);
+  } catch {
+    return [];
+  }
+}
+function rememberLayoutFingerprint(styleId: string, fingerprint?: string) {
+  if (!fingerprint?.trim()) return;
+  const next = [...loadLayoutHistory(styleId), fingerprint.trim()].slice(-6);
+  localStorage.setItem(layoutHistoryKey(styleId), JSON.stringify(next));
+}
 function uid(prefix: string) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
 }
@@ -154,6 +180,8 @@ export default function BlotoriAssetStudio({
   const [source, setSource] = useState("");
   const [styleName, setStyleName] = useState("");
   const [signature, setSignature] = useState("");
+  const [analyzedDNA, setAnalyzedDNA] = useState<BlogDNAProfile | null>(null);
+  const [blogDNAApply, setBlogDNAApply] = useState<BlogDNAApplyOptions>(DEFAULT_DNA_APPLY);
   const [builderIntensity, setBuilderIntensity] = useState<StyleIntensity>(3);
   const [analyzing, setAnalyzing] = useState(false);
   const [notice, setNotice] = useState("");
@@ -185,9 +213,15 @@ export default function BlotoriAssetStudio({
         const profile = styles.find((item) => item.id === selectedStyleId);
         if (profile) {
           payload.styleId = "custom";
-          payload.customStyle = `${profile.signature}\n\n원문 문장을 복제하지 말고 분석된 문체 특성만 적용한다.`;
+          payload.customStyle = `${profile.signature}\n\n원문 문장을 복제하지 말고 분석된 특성만 적용한다.`;
           payload.styleIntensity = styleIntensity;
           payload.styleProfileName = profile.name;
+          if (profile.blogDNA) {
+            payload.blogDNA = profile.blogDNA;
+            payload.blogDNAApply = blogDNAApply;
+            payload.recentLayoutFingerprints = loadLayoutHistory(profile.id);
+            payload.variationNonce = uid("variation");
+          }
         }
         const chosen = materials.filter((item) => selectedMaterialIds.includes(item.id));
         if (chosen.length) {
@@ -199,13 +233,19 @@ export default function BlotoriAssetStudio({
             dataUrl: await readAsDataUrl(item.blob),
           })));
         }
-        return nativeFetch(input, { ...init, body: JSON.stringify(payload) });
+        const response = await nativeFetch(input, { ...init, body: JSON.stringify(payload) });
+        if (profile?.blogDNA && response.ok) {
+          void response.clone().json().then((data) => {
+            rememberLayoutFingerprint(profile.id, data?.draft?.layoutFingerprint);
+          }).catch(() => undefined);
+        }
+        return response;
       } catch {
         return nativeFetch(input, init);
       }
     };
     return () => { window.fetch = nativeFetch; };
-  }, [materials, selectedMaterialIds, selectedStyleId, styleIntensity, styles]);
+  }, [blogDNAApply, materials, selectedMaterialIds, selectedStyleId, styleIntensity, styles]);
 
   async function addFiles(event: ChangeEvent<HTMLInputElement>) {
     const files = [...(event.target.files ?? [])];
@@ -240,6 +280,7 @@ export default function BlotoriAssetStudio({
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "문체 분석에 실패했습니다.");
       setSignature(data.signature || "");
+      setAnalyzedDNA(data.blogDNA || null);
       if (!styleName) setStyleName(data.suggestedName || "새 문체");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "문체 분석에 실패했습니다.");
@@ -279,6 +320,7 @@ export default function BlotoriAssetStudio({
       sourceType,
       sourceUrl: sourceType === "blog" || sourceType === "post" ? source.trim() : undefined,
       signature: signature.trim(),
+      blogDNA: analyzedDNA ?? undefined,
       defaultIntensity: builderIntensity,
       createdAt: now,
       updatedAt: now,
@@ -366,9 +408,9 @@ export default function BlotoriAssetStudio({
     </section>
 
     <section className="settingGroup assetStudioGroup unifiedWritingGroup">
-      <div className="settingGroupHeader"><span>4</span><div><div className="settingGroupTitle"><h3>내 문체 · 글 구성</h3></div><p>저장한 문체를 다시 쓰거나 새 문체를 만들고, 이번 글의 구성과 강도를 조정해요.</p></div></div>
+      <div className="settingGroupHeader"><span>4</span><div><div className="settingGroupTitle"><h3>내 블로그 스타일 · 글 구성</h3></div><p>말투뿐 아니라 분위기·구성·사진 리듬·꾸밈까지 저장하고, 새 글에서는 자연스럽게 변주해요.</p></div></div>
       <div className="settingGroupBody assetStudioBody">
-        <div className="writingSectionLabel"><span>이번 글에 적용할 문체</span><small>저장한 내 문체 또는 블로토리 기본 문체를 선택해요.</small></div>
+        <div className="writingSectionLabel"><span>이번 글에 적용할 스타일</span><small>저장한 Blog DNA 또는 블로토리 기본 문체를 선택해요.</small></div>
         <label className="field"><span>문체 선택</span><select value={styleChoice} onChange={(event) => handleStyleChoice(event.target.value)}>
           <option value="builtin:auto">자동 추천</option>
           {styles.length > 0 && <optgroup label="내 문체">{styles.map((item) => <option key={item.id} value={`saved:${item.id}`}>{item.name}</option>)}</optgroup>}
@@ -379,7 +421,13 @@ export default function BlotoriAssetStudio({
           <option value="builtin:custom">직접 설정</option>
         </select></label>
 
-        {selectedStyle && <div className="selectedStyleCard"><div><strong>{selectedStyle.name}</strong><span>{sourceLabel[selectedStyle.sourceType]} · 저장 기본 강도 {selectedStyle.defaultIntensity}/5</span></div><button type="button" className="assetMiniButton danger" onClick={() => removeStyle(selectedStyle.id)}>삭제</button><p>{selectedStyle.signature}</p></div>}
+        {selectedStyle && <div className="selectedStyleCard"><div><strong>{selectedStyle.name}</strong><span>{sourceLabel[selectedStyle.sourceType]} · 저장 기본 강도 {selectedStyle.defaultIntensity}/5{selectedStyle.blogDNA ? ` · Blog DNA ${selectedStyle.blogDNA.confidence}` : " · 기존 문체 프로필"}</span></div><button type="button" className="assetMiniButton danger" onClick={() => removeStyle(selectedStyle.id)}>삭제</button><p>{selectedStyle.signature}</p>{selectedStyle.blogDNA && <div className="dnaApplyPanel"><strong>이번 글에 적용</strong><div className="dnaToggleGrid">{([
+  ["voice", "문체"],
+  ["mood", "분위기"],
+  ["structure", "글 구성"],
+  ["imageRhythm", "사진 배치"],
+  ["visual", "꾸밈"],
+] as const).map(([key, label]) => <label key={key}><input type="checkbox" checked={blogDNAApply[key]} onChange={(event) => setBlogDNAApply((current) => ({ ...current, [key]: event.target.checked }))} /><span>{label}</span></label>)}</div><small>고정 템플릿 복사가 아니라 콘텐츠와 사진 수에 맞춰 변주합니다.</small></div>}</div>}
 
         {!selectedStyle && styleId === "custom" && <label className="field"><span>직접 문체</span><input value={customStyle} onChange={(event) => onCustomStyleChange(event.target.value)} placeholder="예: 친절한 해요체, 짧은 문단, 소제목 자주 사용" /></label>}
 
@@ -396,13 +444,13 @@ export default function BlotoriAssetStudio({
         </select></label>
         {structureId === "custom" && <label className="field"><span>직접 구성</span><input value={customStructure} onChange={(event) => onCustomStructureChange(event.target.value)} placeholder="예: 문제 제기 → 원인 → 실천 팁 → 요약" /></label>}
 
-        <div className="writingSectionLabel writingSectionCreate"><span>새 문체 저장하기</span><small>블로그 전체·포스팅 1개·붙여넣은 글을 분석해 이름을 붙여 반복 사용해요.</small></div>
-        <details className="styleBuilder"><summary>＋ 새 문체 만들기</summary><div className="styleBuilderBody">
-          <p className="assetBuilderLead">참고 글을 분석해 말투·문장 길이·문단 리듬·도입·소제목·마무리 같은 특징만 저장합니다.</p>
-          <div className="sourceTabs">{([['blog', '블로그 전체'], ['post', '포스팅 1개'], ['pasted_text', '글 붙여넣기'], ['manual', '직접 설정']] as const).map(([id, label]) => <button key={id} type="button" className={sourceType === id ? "active" : ""} onClick={() => { setSourceType(id); setSource(""); setSignature(""); }}>{label}</button>)}</div>
+        <div className="writingSectionLabel writingSectionCreate"><span>새 블로그 스타일 저장하기</span><small>문체·분위기·구성·사진 리듬·꾸밈을 Blog DNA로 분석해 반복 사용해요.</small></div>
+        <details className="styleBuilder"><summary>＋ 새 블로그 스타일 만들기</summary><div className="styleBuilderBody">
+          <p className="assetBuilderLead">링크나 글에서 말투뿐 아니라 분위기·구성·이미지 리듬·꾸밈과 변주 폭까지 추출합니다. 링크에서 시각 정보를 충분히 확인하지 못하면 해당 항목의 신뢰도를 낮춰 과도하게 적용하지 않습니다.</p>
+          <div className="sourceTabs">{([['blog', '블로그 전체'], ['post', '포스팅 1개'], ['pasted_text', '글 붙여넣기'], ['manual', '직접 설정']] as const).map(([id, label]) => <button key={id} type="button" className={sourceType === id ? "active" : ""} onClick={() => { setSourceType(id); setSource(""); setSignature(""); setAnalyzedDNA(null); }}>{label}</button>)}</div>
           <label className="field"><span>{sourceType === "blog" ? "블로그 주소" : sourceType === "post" ? "포스팅 주소" : sourceType === "pasted_text" ? "참고할 글" : "원하는 문체 설명"}</span>{sourceType === "pasted_text" || sourceType === "manual" ? <textarea rows={5} value={source} onChange={(event) => setSource(event.target.value)} placeholder={sourceType === "pasted_text" ? "참고하고 싶은 글 일부를 붙여넣으세요." : "예: 짧은 문단, 부드러운 해요체, 공감 질문으로 시작"} /> : <input value={source} onChange={(event) => setSource(event.target.value)} placeholder="https://..." />}</label>
-          <button type="button" className="ghost assetAnalyze" disabled={analyzing} onClick={analyzeStyle}>{analyzing ? "문체 분석 중…" : "문체 특징 분석"}</button>
-          {signature && <><label className="field"><span>분석된 문체 특성</span><textarea rows={6} value={signature} onChange={(event) => setSignature(event.target.value)} /></label><label className="field"><span>문체 이름</span><input value={styleName} onChange={(event) => setStyleName(event.target.value)} placeholder="예: 내 건강정보 블로그체" /></label><label className="field"><span>저장 기본 강도</span><select value={builderIntensity} onChange={(event) => setBuilderIntensity(Number(event.target.value) as StyleIntensity)}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {intensityLabel[level]}</option>)}</select></label><button type="button" className="secondaryAction assetSaveStyle" onClick={saveStyle}>내 문체로 저장</button></>}
+          <button type="button" className="ghost assetAnalyze" disabled={analyzing} onClick={analyzeStyle}>{analyzing ? "Blog DNA 분석 중…" : "Blog DNA 분석"}</button>
+          {signature && <>{analyzedDNA && <div className="dnaAnalysisCard"><div><strong>Blog DNA · {analyzedDNA.confidence}</strong><span>{analyzedDNA.evidenceSummary}</span></div><div className="dnaSummaryGrid"><span><b>문체</b>{analyzedDNA.voice.summary}</span><span><b>분위기</b>{analyzedDNA.mood.summary}</span><span><b>구성</b>{analyzedDNA.structure.summary}</span><span><b>사진 리듬</b>{analyzedDNA.imageRhythm.summary}</span><span><b>꾸밈</b>{analyzedDNA.visual.summary}</span><span><b>변주</b>정체성 {Math.round(analyzedDNA.variation.identityFidelity * 100)}% · 구조 자유도 {Math.round(analyzedDNA.variation.structureFreedom * 100)}%</span></div></div>}<label className="field"><span>핵심 스타일 요약</span><textarea rows={6} value={signature} onChange={(event) => setSignature(event.target.value)} /></label><label className="field"><span>문체 이름</span><input value={styleName} onChange={(event) => setStyleName(event.target.value)} placeholder="예: 내 건강정보 블로그체" /></label><label className="field"><span>저장 기본 강도</span><select value={builderIntensity} onChange={(event) => setBuilderIntensity(Number(event.target.value) as StyleIntensity)}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {intensityLabel[level]}</option>)}</select></label><button type="button" className="secondaryAction assetSaveStyle" onClick={saveStyle}>내 블로그 스타일로 저장</button></>}
         </div></details>
       </div>
     </section>
