@@ -297,7 +297,10 @@ export default function BlotoriAssetStudio({
     }
     localStorage.setItem(SELECTED_STYLE_KEY, id);
     const profile = styles.find((item) => item.id === id);
-    if (profile) {\n      onStyleIntensityChange(profile.defaultIntensity);\n      setBlogDNAApply(DEFAULT_DNA_APPLY);\n    }
+    if (profile) {
+      onStyleIntensityChange(profile.defaultIntensity);
+      setBlogDNAApply(DEFAULT_DNA_APPLY);
+    }
   }
 
   function handleStyleChoice(value: string) {
