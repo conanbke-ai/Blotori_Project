@@ -85,7 +85,7 @@ ${styleInstruction}
 
 문체 규칙은 콘텐츠의 사실성·안전 규칙을 깨지 않는 범위에서 플랫폼 기본 말투보다 우선한다. 특히 사용자가 특정 문체를 직접 골랐다면, 안전 정보라는 이유만으로 모든 문장을 획일적인 '-합니다/-됩니다' 안내문체로 되돌리지 않는다. 필요한 경고·주의 문장만 정확하고 단정하게 쓰고, 나머지 제목·도입·소제목·설명·전환·마무리는 선택 문체를 유지한다. 문체 강도는 단순히 농담이나 이모지를 늘리는 값이 아니며 선택한 문체 Strategy의 고유 특성을 얼마나 선명하게 드러낼지 조절한다.
 
-[제목 전략]
+${blogDNAInstruction ? `${blogDNAInstruction}\n\n` : ""}[제목 전략]
 ${titleInstruction}
 - titlePurpose에는 이번 제목이 최우선으로 반영한 목적을 짧은 한국어로 기록한다.
 - titleCandidates에는 후보를 정확히 3개 반환하고, title은 그중 하나와 완전히 동일해야 한다.
@@ -121,7 +121,9 @@ ${titleInstruction}
 12. 첫 이미지는 HERO이며 afterSectionId=null이다. 나머지는 CONTEXT, EXPLAINER, PROCESS, TIP, CAUTION 중 내용에 맞는 역할을 고른다.
 13. 이미지는 연속 배치하지 않고 관련 섹션 뒤에 둔다. placement는 사람이 복붙 후 바로 찾을 수 있게 구체적으로 쓴다.
 14. 동일한 내용을 반복하지 않고, 선택한 분량과 글 구성에 맞게 충분한 섹션과 문단을 작성한다.
-15. styleUsed와 structureUsed를 반드시 반환한다.\n16. Blog DNA가 제공된 경우 styleUsed에 이름만 적고 끝내지 말고 실제 Voice/Mood/Structure/Image/Visual DNA를 적용한다. 다만 고정 템플릿 복제가 아니라 Adaptive Variation 규칙대로 새 콘텐츠에 맞게 자연스럽게 재구성한다.\n17. layoutFingerprint를 반드시 반환한다. 이번 글에서 실제 선택한 도입 방식 + 섹션 흐름 + 이미지 리듬 + 마무리 방식을 120자 이내 한국어로 요약한다.
+15. styleUsed와 structureUsed를 반드시 반환한다.
+16. Blog DNA가 제공된 경우 styleUsed에 이름만 적고 끝내지 말고 실제 Voice/Mood/Structure/Image/Visual DNA를 적용한다. 다만 고정 템플릿 복제가 아니라 Adaptive Variation 규칙대로 새 콘텐츠에 맞게 자연스럽게 재구성한다.
+17. layoutFingerprint를 반드시 반환한다. 이번 글에서 실제 선택한 도입 방식 + 섹션 흐름 + 이미지 리듬 + 마무리 방식을 120자 이내 한국어로 요약한다.
 
 JSON 외의 문장을 출력하지 마라.
 {
@@ -131,6 +133,7 @@ JSON 외의 문장을 출력하지 마라.
   "summary": "string",
   "styleUsed": "string",
   "structureUsed": "string",
+  "layoutFingerprint": "도입 방식 → 섹션 흐름 → 이미지 리듬 → 마무리 방식",
   "presentation": {
     "titleAlign": "left|center",
     "introAlign": "left|center",
