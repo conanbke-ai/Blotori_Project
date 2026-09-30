@@ -183,6 +183,7 @@ export interface BlogDraft {
   summary: string;
   styleUsed?: string;
   structureUsed?: string;
+  layoutFingerprint?: string;
   presentation?: DraftPresentation;
   intro: string[];
   sections: BlogSection[];
