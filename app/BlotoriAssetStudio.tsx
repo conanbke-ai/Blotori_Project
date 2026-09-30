@@ -297,7 +297,7 @@ export default function BlotoriAssetStudio({
     }
     localStorage.setItem(SELECTED_STYLE_KEY, id);
     const profile = styles.find((item) => item.id === id);
-    if (profile) onStyleIntensityChange(profile.defaultIntensity);
+    if (profile) {\n      onStyleIntensityChange(profile.defaultIntensity);\n      setBlogDNAApply(DEFAULT_DNA_APPLY);\n    }
   }
 
   function handleStyleChoice(value: string) {
@@ -329,7 +329,7 @@ export default function BlotoriAssetStudio({
     saveStyles(next);
     setStyles(next);
     chooseSavedStyle(profile.id);
-    setNotice(`'${profile.name}' 문체를 저장했어요.`);
+    setNotice(`'${profile.name}' 블로그 스타일을 저장했어요.`);
   }
 
   function removeStyle(id: string) {
@@ -411,9 +411,9 @@ export default function BlotoriAssetStudio({
       <div className="settingGroupHeader"><span>4</span><div><div className="settingGroupTitle"><h3>내 블로그 스타일 · 글 구성</h3></div><p>말투뿐 아니라 분위기·구성·사진 리듬·꾸밈까지 저장하고, 새 글에서는 자연스럽게 변주해요.</p></div></div>
       <div className="settingGroupBody assetStudioBody">
         <div className="writingSectionLabel"><span>이번 글에 적용할 스타일</span><small>저장한 Blog DNA 또는 블로토리 기본 문체를 선택해요.</small></div>
-        <label className="field"><span>문체 선택</span><select value={styleChoice} onChange={(event) => handleStyleChoice(event.target.value)}>
+        <label className="field"><span>스타일 선택</span><select value={styleChoice} onChange={(event) => handleStyleChoice(event.target.value)}>
           <option value="builtin:auto">자동 추천</option>
-          {styles.length > 0 && <optgroup label="내 문체">{styles.map((item) => <option key={item.id} value={`saved:${item.id}`}>{item.name}</option>)}</optgroup>}
+          {styles.length > 0 && <optgroup label="내 블로그 스타일">{styles.map((item) => <option key={item.id} value={`saved:${item.id}`}>{item.name}</option>)}</optgroup>}
           <optgroup label="블로토리 기본 문체">
             {recommendedStyleIds.length > 0 && recommendedStyleIds.map((id) => { const item = STYLE_DEFINITIONS.find((candidate) => candidate.id === id); return item ? <option key={`recommended-${id}`} value={`builtin:${id}`}>★ {item.label}</option> : null; })}
             {STYLE_DEFINITIONS.filter((item) => !recommendedStyleIds.includes(item.id)).map((item) => <option key={item.id} value={`builtin:${item.id}`}>{item.label}</option>)}
@@ -450,13 +450,13 @@ export default function BlotoriAssetStudio({
           <div className="sourceTabs">{([['blog', '블로그 전체'], ['post', '포스팅 1개'], ['pasted_text', '글 붙여넣기'], ['manual', '직접 설정']] as const).map(([id, label]) => <button key={id} type="button" className={sourceType === id ? "active" : ""} onClick={() => { setSourceType(id); setSource(""); setSignature(""); setAnalyzedDNA(null); }}>{label}</button>)}</div>
           <label className="field"><span>{sourceType === "blog" ? "블로그 주소" : sourceType === "post" ? "포스팅 주소" : sourceType === "pasted_text" ? "참고할 글" : "원하는 문체 설명"}</span>{sourceType === "pasted_text" || sourceType === "manual" ? <textarea rows={5} value={source} onChange={(event) => setSource(event.target.value)} placeholder={sourceType === "pasted_text" ? "참고하고 싶은 글 일부를 붙여넣으세요." : "예: 짧은 문단, 부드러운 해요체, 공감 질문으로 시작"} /> : <input value={source} onChange={(event) => setSource(event.target.value)} placeholder="https://..." />}</label>
           <button type="button" className="ghost assetAnalyze" disabled={analyzing} onClick={analyzeStyle}>{analyzing ? "Blog DNA 분석 중…" : "Blog DNA 분석"}</button>
-          {signature && <>{analyzedDNA && <div className="dnaAnalysisCard"><div><strong>Blog DNA · {analyzedDNA.confidence}</strong><span>{analyzedDNA.evidenceSummary}</span></div><div className="dnaSummaryGrid"><span><b>문체</b>{analyzedDNA.voice.summary}</span><span><b>분위기</b>{analyzedDNA.mood.summary}</span><span><b>구성</b>{analyzedDNA.structure.summary}</span><span><b>사진 리듬</b>{analyzedDNA.imageRhythm.summary}</span><span><b>꾸밈</b>{analyzedDNA.visual.summary}</span><span><b>변주</b>정체성 {Math.round(analyzedDNA.variation.identityFidelity * 100)}% · 구조 자유도 {Math.round(analyzedDNA.variation.structureFreedom * 100)}%</span></div></div>}<label className="field"><span>핵심 스타일 요약</span><textarea rows={6} value={signature} onChange={(event) => setSignature(event.target.value)} /></label><label className="field"><span>문체 이름</span><input value={styleName} onChange={(event) => setStyleName(event.target.value)} placeholder="예: 내 건강정보 블로그체" /></label><label className="field"><span>저장 기본 강도</span><select value={builderIntensity} onChange={(event) => setBuilderIntensity(Number(event.target.value) as StyleIntensity)}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {intensityLabel[level]}</option>)}</select></label><button type="button" className="secondaryAction assetSaveStyle" onClick={saveStyle}>내 블로그 스타일로 저장</button></>}
+          {signature && <>{analyzedDNA && <div className="dnaAnalysisCard"><div><strong>Blog DNA · {analyzedDNA.confidence}</strong><span>{analyzedDNA.evidenceSummary}</span></div><div className="dnaSummaryGrid"><span><b>문체</b>{analyzedDNA.voice.summary}</span><span><b>분위기</b>{analyzedDNA.mood.summary}</span><span><b>구성</b>{analyzedDNA.structure.summary}</span><span><b>사진 리듬</b>{analyzedDNA.imageRhythm.summary}</span><span><b>꾸밈</b>{analyzedDNA.visual.summary}</span><span><b>변주</b>정체성 {Math.round(analyzedDNA.variation.identityFidelity * 100)}% · 구조 자유도 {Math.round(analyzedDNA.variation.structureFreedom * 100)}%</span></div></div>}<label className="field"><span>핵심 스타일 요약</span><textarea rows={6} value={signature} onChange={(event) => setSignature(event.target.value)} /></label><label className="field"><span>스타일 이름</span><input value={styleName} onChange={(event) => setStyleName(event.target.value)} placeholder="예: 따뜻한 사진형 맛집 블로그" /></label><label className="field"><span>저장 기본 강도</span><select value={builderIntensity} onChange={(event) => setBuilderIntensity(Number(event.target.value) as StyleIntensity)}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {intensityLabel[level]}</option>)}</select></label><button type="button" className="secondaryAction assetSaveStyle" onClick={saveStyle}>내 블로그 스타일로 저장</button></>}
         </div></details>
       </div>
     </section>
 
     <section className="assetUtilityGroup">
-      <div className="assetUtilityCopy"><strong>블로토리 팩</strong><span>문체와 선택한 자료를 .blotori 파일 하나로 묶어 다른 사용자에게 전달하거나 다시 가져올 수 있어요.</span></div>
+      <div className="assetUtilityCopy"><strong>블로토리 팩</strong><span>블로그 스타일과 선택한 자료를 .blotori 파일 하나로 묶어 다른 사용자에게 전달하거나 다시 가져올 수 있어요.</span></div>
       <div className="packActions"><input ref={packInput} className="assetHiddenInput" type="file" accept=".blotori,application/json" onChange={importPack} /><button type="button" className="ghost" onClick={() => packInput.current?.click()}>팩 가져오기</button><button type="button" className="ghost" onClick={() => void exportPack()}>팩 내보내기</button></div>
     </section>
 
