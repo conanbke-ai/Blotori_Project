@@ -18,7 +18,7 @@
 - Knowledge source manifest / 라이선스 게이트 / 상용·연구 profile 분리 QA
 - 외부 생성 이미지 슬롯 drag/drop + 로컬 미리보기 UX
 - 사용자 참고자료 업로드 + 브라우저 내 자료함 + 생성 요청 직접 첨부
-- 이름을 붙여 재사용하는 `내 문체` 프로필 + 블로그/포스팅/붙여넣기/직접설정 분석
+- 이름을 붙여 재사용하는 `내 블로그 스타일` + Blog DNA(문체/분위기/구성/사진 리듬/꾸밈) + Adaptive Variation
 - 문체·자료 `.blotori` 공유 팩 import/export
 - Composer V2 3-column workspace + canonical Blotori 얼굴/전체 캐릭터/생성 로딩 visual QA
 
@@ -82,7 +82,7 @@
 - [x] 참고자료 PDF/DOCX/TXT/MD 업로드 + 선택 자료 생성 요청 첨부
 - [x] 브라우저 내 자료함(IndexedDB) 재사용
 - [x] 이름 지정형 내 문체 저장/재사용 + 기본 강도 저장
-- [x] 블로그 전체 / 포스팅 1개 / 글 붙여넣기 / 직접 설정 문체 분석 UI
+- [x] 블로그 전체 / 포스팅 1개 / 글 붙여넣기 / 직접 설정 Blog DNA 분석 UI\n- [x] Blog DNA: Voice / Mood / Structure / Image Rhythm / Visual / Variation 구조화 저장\n- [x] Blog DNA 차원별 적용 ON/OFF\n- [x] 최근 6개 layout fingerprint 기반 반복 구조 억제\n- [x] 콘텐츠/사진 수에 따라 이미지 역할 중심 재분배하도록 Adaptive Variation 적용
 - [x] 문체 프로필명은 생성 본문 프롬프트에서 분리하고 스타일 signature만 적용
 - [x] `.blotori` 문체·자료 공유 팩 import/export
 - [x] canonical Blotori 얼굴 아이콘 / 전체 캐릭터 / 생성 로딩 자산 정상 복구
@@ -107,7 +107,7 @@
 - 자동 추천/직접 설정 문체에도 동일한 강도 개념을 적용한다.
 - 문체 강도는 기존 단일 생성 프롬프트에 포함하며 추가 AI 재호출을 만들지 않는다.
 
-상세 기준: `docs/WRITING_STYLE_INTENSITY_STANDARD.md`
+상세 기준: `docs/WRITING_STYLE_INTENSITY_STANDARD.md`\n\n## Blog DNA + Adaptive Variation\n\n- 참고 블로그는 단일 `signature`가 아니라 문체·분위기·구성·이미지 리듬·꾸밈·변주 규칙으로 분해한다.\n- 고정 템플릿 복제를 금지하고 콘텐츠 의미와 사진 수를 우선해 자연스럽게 재배치한다.\n- 같은 저장 스타일의 최근 생성 결과에서 layout fingerprint를 최대 6개 기억해 도입/섹션/이미지/마무리 반복을 줄인다.\n- 링크 분석으로 실제 렌더링을 충분히 확인하지 못한 시각 규칙은 confidence를 낮춰 과도하게 강제하지 않는다.\n- 기존 v1 문체 프로필은 구조화 DNA가 없어도 그대로 동작한다.\n\n상세 기준: `docs/BLOG_DNA_ADAPTIVE_STANDARD.md`
 
 ## Glossary footnote
 
