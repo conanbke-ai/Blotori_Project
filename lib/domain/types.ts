@@ -9,6 +9,94 @@ export type EmphasisKind = "bold" | "accent" | "highlight";
 export type SectionVisualStyle = "standard" | "key-point" | "callout" | "quote" | "glossary";
 export type ImageContinuityMode = "independent" | "series";
 
+export interface BlogDNAApplyOptions {
+  voice: boolean;
+  mood: boolean;
+  structure: boolean;
+  imageRhythm: boolean;
+  visual: boolean;
+}
+
+export interface BlogDNAVoiceProfile {
+  summary: string;
+  endings: string[];
+  sentenceRhythm: string;
+  paragraphRhythm: string;
+  transitions: string[];
+  lexicalHabits: string[];
+  emotionPattern: string;
+  readerDistance: string;
+  punctuationHabits: string[];
+  avoid: string[];
+  metrics?: {
+    avgSentenceChars?: number;
+    avgParagraphSentences?: number;
+    questionRate?: string;
+    exclamationRate?: string;
+    emoticonDensity?: string;
+  };
+}
+
+export interface BlogDNAMoodProfile {
+  summary: string;
+  keywords: string[];
+  warmth: string;
+  energy: string;
+  intimacy: string;
+  informationDensity: string;
+  visualMood: string;
+}
+
+export interface BlogDNAStructureProfile {
+  summary: string;
+  openingPatterns: string[];
+  sectionPatterns: string[];
+  closingPatterns: string[];
+  fixedPrinciples: string[];
+  flexiblePatterns: string[];
+  contentBalance: string;
+}
+
+export interface BlogDNAImageRhythmProfile {
+  summary: string;
+  cadence: string;
+  grouping: string;
+  placementRules: string[];
+  rolePreferences: string[];
+  adaptationRules: string[];
+}
+
+export interface BlogDNAVisualProfile {
+  summary: string;
+  alignment: string;
+  emphasis: string;
+  whitespace: string;
+  headingStyle: string;
+  decorationHabits: string[];
+  avoid: string[];
+}
+
+export interface BlogDNAVariationProfile {
+  identityFidelity: number;
+  structureFreedom: number;
+  wordingFreedom: number;
+  imageFreedom: number;
+  antiRepetitionRules: string[];
+}
+
+export interface BlogDNAProfile {
+  version: 2;
+  signature: string;
+  confidence: "high" | "medium" | "low";
+  evidenceSummary: string;
+  voice: BlogDNAVoiceProfile;
+  mood: BlogDNAMoodProfile;
+  structure: BlogDNAStructureProfile;
+  imageRhythm: BlogDNAImageRhythmProfile;
+  visual: BlogDNAVisualProfile;
+  variation: BlogDNAVariationProfile;
+}
+
 export interface ReferenceFileInput {
   id: string;
   name: string;
@@ -29,6 +117,10 @@ export interface GenerateRequest {
   styleIntensity?: StyleIntensity;
   customStyle?: string;
   styleProfileName?: string;
+  blogDNA?: BlogDNAProfile;
+  blogDNAApply?: Partial<BlogDNAApplyOptions>;
+  recentLayoutFingerprints?: string[];
+  variationNonce?: string;
   structureId: StructureId;
   customStructure?: string;
   length: Length;
