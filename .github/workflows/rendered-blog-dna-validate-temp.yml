@@ -1,0 +1,32 @@
+name: Rendered Blog DNA Validate Temp
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BLOTORI_MOCK_MODE: "true"
+      OPENAI_MODEL: "gpt-5.6-luna"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund
+      - name: Chromium smoke
+        run: node -e "const {chromium}=require('playwright'); (async()=>{const b=await chromium.launch({headless:true}); const p=await b.newPage(); await p.setContent('<h1>render-ok</h1><img alt=sample width=100 height=80>'); const h=await p.locator('h1').innerText(); if(h!=='render-ok') throw new Error('render smoke failed'); await b.close(); console.log('CHROMIUM_RENDER_PASS')})()"
+      - name: TypeScript check
+        run: npm run lint
+      - name: Platform export QA
+        run: npm run qa:platform
+      - name: Production build
+        run: npm run build
