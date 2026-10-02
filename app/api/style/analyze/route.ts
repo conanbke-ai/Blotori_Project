@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import type { BlogDNAProfile } from "../../../../lib/domain/types";
+import { captureRenderedBlogEvidence, type RenderedBlogEvidence } from "../../../../lib/infrastructure/rendered-blog-capture";
 
 export const runtime = "nodejs";
 
@@ -19,6 +20,47 @@ function extractJson(text: string) {
   const end = raw.lastIndexOf("}");
   if (start < 0 || end < start) throw new Error("블로그 스타일 분석 결과를 읽지 못했습니다.");
   return JSON.parse(raw.slice(start, end + 1)) as AnalysisResponse;
+}
+
+function renderedEvidenceText(evidence: RenderedBlogEvidence) {
+  const pages = evidence.pages.map((page, pageIndex) => ({
+    page: pageIndex + 1,
+    url: page.url,
+    title: page.title,
+    viewport: page.viewport,
+    documentHeight: page.documentHeight,
+    frameCount: page.frameCount,
+    headings: page.headings.slice(0, 24),
+    blocks: page.blocks.slice(0, 80).map((block) => ({
+      order: block.order,
+      tag: block.tag,
+      text: block.text.slice(0, 260),
+      align: block.align,
+      fontSize: block.fontSize,
+      fontWeight: block.fontWeight,
+      backgroundColor: block.backgroundColor,
+      marginTop: block.marginTop,
+      marginBottom: block.marginBottom,
+      width: block.width,
+      height: block.height,
+    })),
+    images: page.images.slice(0, 70).map((image) => ({
+      order: image.order,
+      alt: image.alt,
+      width: image.width,
+      height: image.height,
+      top: image.top,
+      nearestTextBefore: image.nearestTextBefore,
+      nearestTextAfter: image.nearestTextAfter,
+    })),
+    textPreview: page.textPreview.slice(0, 9000),
+  }));
+  return JSON.stringify({
+    captureType: "rendered-browser",
+    capturedAt: evidence.capturedAt,
+    limitation: evidence.limitation,
+    pages,
+  });
 }
 
 function validUrl(value: string) {
@@ -116,6 +158,15 @@ export async function POST(request: Request) {
 
     const client = new OpenAI({ apiKey });
     const isUrl = sourceType === "blog" || sourceType === "post";
+    let renderedEvidence: RenderedBlogEvidence | null = null;
+    let renderedCaptureError = "";
+    if (isUrl && process.env.BLOTORI_RENDERED_ANALYSIS !== "off") {
+      try {
+        renderedEvidence = await captureRenderedBlogEvidence(source, sourceType);
+      } catch (error) {
+        renderedCaptureError = error instanceof Error ? error.message : "렌더링 캡처 실패";
+      }
+    }
     const scope =
       sourceType === "blog"
         ? "해당 블로그에서 공개적으로 확인 가능한 여러 글의 공통 편집 DNA. 가능하면 여러 대표/최근 글의 공통점과 변주 폭을 함께 파악한다."
@@ -128,6 +179,8 @@ export async function POST(request: Request) {
     const input = `다음 자료를 바탕으로 한국어 블로그의 'Blog DNA'를 분석하라.
 참고 범위: ${scope}
 자료: ${source}
+${renderedEvidence ? `\n[실제 브라우저 렌더링 증거]\n${renderedEvidenceText(renderedEvidence)}\n` : ""}
+${renderedCaptureError ? `\n[렌더링 캡처 제한]\n${renderedCaptureError}\n실제 브라우저 렌더링 증거를 확보하지 못했으므로 시각/이미지 배치에 대해 추측하지 않는다.\n` : ""}
 
 목표는 원문 문장을 복사하는 것이 아니라, 새 주제에도 자연스럽게 이식할 수 있는 편집 규칙을 추출하는 것이다.
 특정 문구/표현을 그대로 재사용하지 말고 패턴·분포·리듬으로 설명한다.
@@ -141,7 +194,9 @@ export async function POST(request: Request) {
 6) variation: 공장형 반복을 막기 위한 변주 폭. 정체성은 유지하되 구조/표현/사진 배치를 매번 동일하게 만들지 않는다.
 
 중요:
-- 링크 검색만으로 실제 렌더링/이미지 위치/꾸밈을 충분히 확인하지 못했다면 추측하지 말고 confidence를 medium/low로 낮추고 evidenceSummary에 한계를 명시한다.
+- 실제 브라우저 렌더링 증거가 있으면 DOM 순서, 이미지 위치/크기, 정렬, 여백, 소제목, 강조와 스크린샷을 함께 사용한다.
+- 렌더링 증거가 없거나 일부 페이지만 수집됐다면 추측하지 말고 confidence를 medium/low로 낮추고 evidenceSummary에 한계를 명시한다.
+- DOM에서 관찰된 값과 스크린샷의 인상이 충돌하면 구체적인 위치/개수는 DOM을 우선하고 분위기/시각적 밀도는 스크린샷을 보조 근거로 사용한다.
 - '블로그 전체'는 한 글의 우연한 특징을 전체 스타일이라고 단정하지 않는다.
 - 이미지 수나 내용이 원본과 다르면 슬롯 번호를 고정하지 말고 역할 중심으로 재배치한다.
 - 같은 스타일을 여러 번 생성해도 동일한 도입/섹션 순서/사진 패턴/마무리를 반복하지 않도록 variation 규칙을 만든다.
@@ -220,11 +275,25 @@ JSON만 반환한다:
   }
 }`;
 
+    const screenshots = (renderedEvidence?.pages ?? [])
+      .map((page) => page.screenshotDataUrl)
+      .filter((value): value is string => Boolean(value))
+      .slice(0, 4);
+    const responseInput = screenshots.length
+      ? [{
+          role: "user" as const,
+          content: [
+            { type: "input_text", text: input },
+            ...screenshots.map((imageUrl) => ({ type: "input_image", image_url: imageUrl })),
+          ],
+        }]
+      : input;
+
     const response = await client.responses.create({
       model: process.env.OPENAI_MODEL || "gpt-5.6-luna",
-      input,
+      input: responseInput as never,
       ...(isUrl ? { tools: [{ type: "web_search" } as never] } : {}),
-      max_output_tokens: 3600,
+      max_output_tokens: 4200,
     });
 
     const parsed = extractJson(response.output_text);
@@ -234,6 +303,18 @@ JSON만 반환한다:
       suggestedName: parsed.suggestedName || "새 블로그 스타일",
       signature: parsed.signature,
       blogDNA: { ...blogDNA, version: 2, signature: parsed.signature },
+      analysisEvidence: isUrl ? {
+        rendered: Boolean(renderedEvidence),
+        renderedPageCount: renderedEvidence?.pages.length ?? 0,
+        screenshotsUsed: screenshots.length,
+        webSearchSupplement: true,
+        limitation: renderedEvidence?.limitation || renderedCaptureError || undefined,
+      } : {
+        rendered: false,
+        renderedPageCount: 0,
+        screenshotsUsed: 0,
+        webSearchSupplement: false,
+      },
     });
   } catch (error) {
     return NextResponse.json(
