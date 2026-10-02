@@ -19,7 +19,8 @@
     "knowledge:sync": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --profile=commercial",
     "knowledge:sync:research": "node scripts/audit-knowledge-base.mjs && node scripts/sync-knowledge-base.mjs --profile=research",
     "knowledge:append": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --append --profile=commercial",
-    "browser:install": "playwright install chromium"
+    "browser:install": "playwright install chromium",
+    "postinstall": "playwright install chromium"
   },
   "dependencies": {
     "next": "16.3.4",
