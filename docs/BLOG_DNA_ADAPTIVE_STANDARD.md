@@ -29,11 +29,26 @@ Generation must:
 
 The client stores up to six recent layout fingerprints per saved profile and sends them with the next generation request.
 
-## Confidence rule
+## Rendered evidence
 
-URL analysis currently uses searchable public web evidence. If rendered layout, exact image placement or decoration cannot be verified, the analyzer must lower confidence and state the limitation. Medium/low-confidence visual rules are advisory and must not override content or platform naturalness.
+URL analysis first attempts a guarded headless Chromium capture.
 
-Do not introduce arbitrary server-side URL fetching only to improve visual fidelity. A future rendered-browser capture path must use a controlled browser/sandbox and explicit SSRF protections.
+For a single post, Blotori records:
+- rendered text blocks and heading order;
+- computed alignment, font size/weight, margins and block dimensions;
+- rendered image order, dimensions, vertical position and nearest surrounding text;
+- frame count and the richest visible frame;
+- a full-page JPEG screenshot when it remains within the capture size limit.
+
+For a blog root, Blotori also discovers likely same-site post links and captures up to three additional content-rich pages. The analyzer then derives common patterns and variation instead of treating one post as the whole blog.
+
+The rendered DOM summary and screenshots are passed to the analysis model together. Public web search remains a supplementary source for context.
+
+## Network safety and confidence
+
+The capture path accepts only HTTP/HTTPS, resolves requested and subresource hosts, and rejects localhost, private, link-local, documentation/test ranges, multicast and other special IP ranges before browser requests are allowed. Redirected requests are guarded by the same policy.
+
+If Chromium cannot start, a page blocks automation, no stable post candidates are found, or visual evidence is incomplete, analysis falls back to searchable public web evidence and explicitly lowers confidence. Medium/low-confidence visual rules are advisory and must not override content or platform naturalness.
 
 ## User controls
 
