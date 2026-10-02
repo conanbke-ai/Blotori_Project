@@ -19,6 +19,7 @@
 - 외부 생성 이미지 슬롯 drag/drop + 로컬 미리보기 UX
 - 사용자 참고자료 업로드 + 브라우저 내 자료함 + 생성 요청 직접 첨부
 - 이름을 붙여 재사용하는 `내 블로그 스타일` + Blog DNA(문체/분위기/구성/사진 리듬/꾸밈) + Adaptive Variation
+- Playwright/Chromium 렌더 분석 + DOM/이미지 위치/전체 페이지 스크린샷 Visual DNA 증거
 - 문체·자료 `.blotori` 공유 팩 import/export
 - Composer V2 3-column workspace + canonical Blotori 얼굴/전체 캐릭터/생성 로딩 visual QA
 
@@ -83,6 +84,12 @@
 - [x] 브라우저 내 자료함(IndexedDB) 재사용
 - [x] 이름 지정형 내 문체 저장/재사용 + 기본 강도 저장
 - [x] 블로그 전체 / 포스팅 1개 / 글 붙여넣기 / 직접 설정 Blog DNA 분석 UI\n- [x] Blog DNA: Voice / Mood / Structure / Image Rhythm / Visual / Variation 구조화 저장\n- [x] Blog DNA 차원별 적용 ON/OFF\n- [x] 최근 6개 layout fingerprint 기반 반복 구조 억제\n- [x] 콘텐츠/사진 수에 따라 이미지 역할 중심 재분배하도록 Adaptive Variation 적용
+- [x] URL 실제 Chromium 렌더링 + DOM/이미지 배치/스타일 메타데이터 수집
+- [x] 블로그 전체 입력 시 동일 사이트 포스트 후보 최대 3개 추가 렌더링
+- [x] 전체 페이지 스크린샷을 시각 입력으로 Blog DNA 분석에 전달
+- [x] localhost/사설망/링크로컬/특수 IP 차단 SSRF guard
+- [x] 렌더링 실패 시 web search fallback + evidence/confidence UI 표시
+- [x] Chromium smoke / TypeScript / platform QA / production build PASS
 - [x] 문체 프로필명은 생성 본문 프롬프트에서 분리하고 스타일 signature만 적용
 - [x] `.blotori` 문체·자료 공유 팩 import/export
 - [x] canonical Blotori 얼굴 아이콘 / 전체 캐릭터 / 생성 로딩 자산 정상 복구
