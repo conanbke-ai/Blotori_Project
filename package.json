@@ -18,13 +18,15 @@
     "knowledge:plan:research": "node scripts/audit-knowledge-base.mjs && node scripts/sync-knowledge-base.mjs --dry-run --profile=research",
     "knowledge:sync": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --profile=commercial",
     "knowledge:sync:research": "node scripts/audit-knowledge-base.mjs && node scripts/sync-knowledge-base.mjs --profile=research",
-    "knowledge:append": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --append --profile=commercial"
+    "knowledge:append": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --append --profile=commercial",
+    "browser:install": "playwright install chromium"
   },
   "dependencies": {
     "next": "16.3.4",
     "openai": "7.10.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "playwright": "1.55.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
