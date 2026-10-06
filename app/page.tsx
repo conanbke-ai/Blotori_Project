@@ -267,6 +267,7 @@ export default function Home() {
           </SettingGroup>
 
           <BlotoriAssetStudio
+            categoryId={form.categoryId}
             styleId={form.styleId}
             styleIntensity={form.styleIntensity ?? 3}
             customStyle={form.customStyle ?? ""}
