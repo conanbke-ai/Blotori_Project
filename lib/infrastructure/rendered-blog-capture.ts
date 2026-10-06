@@ -40,6 +40,7 @@ export type RenderedPageEvidence = {
   screenshotDataUrl?: string;
   candidateLinks: string[];
   frameCount: number;
+  contentRoot?: string;
 };
 
 export type RenderedBlogEvidence = {
