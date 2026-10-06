@@ -12,7 +12,7 @@ const theme=arg("theme");
 const outputDir=String(arg("output","tmp-blog-corpus/naver"));
 const delayMs=Number(arg("delay-ms","120"));
 const maxPostsRaw=arg("max-posts");
-const maxPosts=maxPostsRaw?Number(maxPostsRaw):Infinity;
+const maxPosts=maxPostsRaw?Number(maxPostsRaw):Infinity;\nconst concurrency=Math.max(1,Math.min(8,Number(arg("concurrency","4"))));
 
 if(!blogId&&!seedPath) throw new Error("Use --blog <id> or --seed <json> [--theme code]");
 
@@ -41,20 +41,28 @@ for(const [targetIndex,target] of targets.entries()){
   }
   const selected=listed.slice(0,Number.isFinite(maxPosts)?maxPosts:listed.length);
   console.log("BLOG_LISTED",target.blogId,listed.length,"SELECTED",selected.length);
-  for(const [i,post] of selected.entries()){
-    if(post.blocked||post.notOpen) {
-      failures.push({logNo:post.logNo,stage:"skip",message:"blocked_or_not_open"});
-      continue;
+  let cursor=0,completed=0;
+  async function worker(){
+    while(true){
+      const i=cursor++;
+      if(i>=selected.length) return;
+      const post=selected[i];
+      if(post.blocked||post.notOpen) {
+        failures.push({logNo:post.logNo,stage:"skip",message:"blocked_or_not_open"});
+      } else {
+        try{
+          const metric=await fetchNaverPostMetrics(target.blogId,post,{delayMs});
+          if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
+          analyzed.push(metric);
+        }catch(error){
+          failures.push({logNo:post.logNo,stage:"post",message:String(error).slice(0,300)});
+        }
+      }
+      completed++;
+      if(completed%50===0||completed===selected.length) console.log("BLOG_PROGRESS",target.blogId,completed,selected.length,"ok",analyzed.length,"fail",failures.length);
     }
-    try{
-      const metric=await fetchNaverPostMetrics(target.blogId,post,{delayMs});
-      if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
-      analyzed.push(metric);
-    }catch(error){
-      failures.push({logNo:post.logNo,stage:"post",message:String(error).slice(0,300)});
-    }
-    if((i+1)%50===0||i===selected.length-1) console.log("BLOG_PROGRESS",target.blogId,i+1,selected.length,"ok",analyzed.length,"fail",failures.length);
   }
+  await Promise.all(Array.from({length:Math.min(concurrency,Math.max(1,selected.length))},()=>worker()));
   const aggregate=aggregateNaverBlogCorpus(target.blogId,listed,analyzed,failures);
   aggregate.rank=target.rank;
   aggregate.theme=target.theme;
