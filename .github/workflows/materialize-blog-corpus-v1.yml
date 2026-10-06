@@ -8,7 +8,7 @@ on:
       - .github/workflows/materialize-blog-corpus-v1.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   seed:
@@ -189,3 +189,19 @@ jobs:
             tmp-blog-corpus/category-blog-presets-v1.json
             tmp-blog-corpus/coverage-v1.json
           retention-days: 90
+      - name: Persist observed preset library
+        if: github.ref == 'refs/heads/feature/blog-dna-adaptive-v1'
+        run: |
+          mkdir -p data/blog-corpus
+          cp tmp-blog-corpus/category-blog-presets-v1.json data/blog-corpus/category-blog-presets-v1.json
+          cp tmp-blog-corpus/coverage-v1.json data/blog-corpus/coverage-v1.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/blog-corpus/category-blog-presets-v1.json data/blog-corpus/coverage-v1.json
+          if git diff --cached --quiet; then
+            echo "No materialized corpus changes."
+            exit 0
+          fi
+          git commit -m "data: materialize BlogChart full-corpus Blog DNA v1"
+          git pull --rebase origin feature/blog-dna-adaptive-v1
+          git push origin HEAD:feature/blog-dna-adaptive-v1
