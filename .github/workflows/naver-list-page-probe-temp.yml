@@ -1,0 +1,18 @@
+name: Naver List Page Probe Temp
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - scripts/blog-corpus/probe-naver-list-page.mjs
+      - .github/workflows/naver-list-page-probe-temp.yml
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/blog-corpus/probe-naver-list-page.mjs
