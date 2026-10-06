@@ -1,0 +1,35 @@
+name: Generic Corpus Pilot Temp
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - scripts/blog-corpus/generic-corpus-lib.mjs
+      - scripts/blog-corpus/collect-generic-full-corpus.mjs
+      - .github/workflows/generic-corpus-pilot-temp.yml
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Build pilot seed
+        run: |
+          mkdir -p tmp-blog-corpus
+          cat > tmp-blog-corpus/generic-seed.json <<'JSON'
+          {"themes":[{"code":"fishing","blogs":[{"rank":1,"platform":"tistory","url":"https://slds2.tistory.com/"}]},{"code":"books","blogs":[{"rank":5,"platform":"other","url":"https://blog.aladin.co.kr/714960143"}]}]}
+          JSON
+      - name: Tistory pilot
+        run: node scripts/blog-corpus/collect-generic-full-corpus.mjs --seed tmp-blog-corpus/generic-seed.json --theme fishing --output tmp-blog-corpus/tistory --max-posts 10 --delay-ms 50
+      - name: Aladin pilot
+        run: node scripts/blog-corpus/collect-generic-full-corpus.mjs --seed tmp-blog-corpus/generic-seed.json --theme books --output tmp-blog-corpus/aladin --max-posts 10 --delay-ms 50
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: generic-corpus-pilot
+          path: tmp-blog-corpus/
