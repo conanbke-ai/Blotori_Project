@@ -12,7 +12,8 @@ const theme=arg("theme");
 const outputDir=String(arg("output","tmp-blog-corpus/naver"));
 const delayMs=Number(arg("delay-ms","120"));
 const maxPostsRaw=arg("max-posts");
-const maxPosts=maxPostsRaw?Number(maxPostsRaw):Infinity;\nconst concurrency=Math.max(1,Math.min(8,Number(arg("concurrency","4"))));
+const maxPosts=maxPostsRaw?Number(maxPostsRaw):Infinity;
+const concurrency=Math.max(1,Math.min(8,Number(arg("concurrency","4"))));
 
 if(!blogId&&!seedPath) throw new Error("Use --blog <id> or --seed <json> [--theme code]");
 
