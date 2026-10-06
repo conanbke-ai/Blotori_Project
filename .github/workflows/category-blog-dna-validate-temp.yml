@@ -7,6 +7,7 @@ on:
       - lib/domain/category-blog-dna.ts
       - app/BlotoriAssetStudio.tsx
       - app/page.tsx
+      - lib/infrastructure/rendered-blog-capture.ts
       - .github/workflows/category-blog-dna-validate-temp.yml
 
 permissions:
