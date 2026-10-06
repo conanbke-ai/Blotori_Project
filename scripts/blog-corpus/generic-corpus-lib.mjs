@@ -57,10 +57,18 @@ export async function discoverAladinPosts(baseUrl,{delayMs=120,maxPages=10000}={
   if(!user) return [];
   const found=new Map();
   let emptyPages=0;
+  let successfulPageFetches=0;
+  let lastFetchError=null;
   for(let page=1;page<=maxPages;page++){
     const url=`${base.origin}/${user}/category/0?CommunityType=MyPaper&page=${page}&cnt=50`;
     let html;
-    try{html=await fetchText(url);}catch{emptyPages++;if(emptyPages>=2)break;continue;}
+    try{html=await fetchText(url);successfulPageFetches++;}
+    catch(error){
+      lastFetchError=error;
+      emptyPages++;
+      if(emptyPages>=2) break;
+      continue;
+    }
     const $=cheerio.load(html);
     let fresh=0;
     $("a[href]").each((_,a)=>{
@@ -77,6 +85,7 @@ export async function discoverAladinPosts(baseUrl,{delayMs=120,maxPages=10000}={
     if(emptyPages>=2) break;
     if(delayMs) await sleep(delayMs);
   }
+  if(successfulPageFetches===0) throw new Error(`BLOCKED_BY_SOURCE: ${String(lastFetchError||"no successful page response")}`);
   return [...found.values()];
 }
 
