@@ -269,3 +269,5 @@ export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
     failures:failures.slice(0,100),
   };
 }
+
+export const parseBlogPostMetrics = parseNaverPostMetrics;
