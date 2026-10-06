@@ -59,7 +59,7 @@ for(const [targetIndex,target] of targets.entries()){
   aggregate.rank=target.rank;
   aggregate.theme=target.theme;
   aggregate.requestedPosts=selected.length;
-  aggregate.fullCoverage=selected.length===listed.length;
+  aggregate.fullCoverage=selected.length===listed.length && !failures.some((item)=>item.stage==="list");
   const filename=path.join(outputDir,`${target.theme||"single"}__${target.rank??0}__${target.blogId}.json`);
   fs.writeFileSync(filename,JSON.stringify(aggregate,null,2));
   summaries.push({
