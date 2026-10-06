@@ -186,6 +186,8 @@ jobs:
           fs.writeFileSync("tmp-blog-corpus/coverage-v1.json",JSON.stringify(report,null,2));
           console.log("GLOBAL_COVERAGE",JSON.stringify(report));
           NODE
+      - name: Validate materialized corpus QA gate
+        run: node scripts/blog-corpus/validate-materialized-corpus.mjs tmp-blog-corpus/category-blog-presets-v1.json tmp-blog-corpus/coverage-v1.json
       - uses: actions/upload-artifact@v4
         with:
           name: category-blog-dna-v1
