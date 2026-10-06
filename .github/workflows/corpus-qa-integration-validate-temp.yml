@@ -1,0 +1,33 @@
+name: Corpus QA Integration Validate Temp
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - scripts/blog-corpus/validate-materialized-corpus.mjs
+      - lib/domain/category-blog-dna.ts
+      - app/BlotoriAssetStudio.tsx
+      - app/blotori-asset-studio.css
+      - .github/workflows/corpus-qa-integration-validate-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BLOTORI_MOCK_MODE: "true"
+      OPENAI_MODEL: "gpt-5.6-luna"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run qa:platform
+      - run: npm run build
