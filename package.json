@@ -20,14 +20,17 @@
     "knowledge:sync:research": "node scripts/audit-knowledge-base.mjs && node scripts/sync-knowledge-base.mjs --profile=research",
     "knowledge:append": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --append --profile=commercial",
     "browser:install": "playwright install chromium",
-    "postinstall": "playwright install chromium"
+    "postinstall": "playwright install chromium",
+    "corpus:naver": "node scripts/blog-corpus/collect-naver-full-corpus.mjs",
+    "corpus:cluster": "node scripts/blog-corpus/cluster-blog-dna.mjs"
   },
   "dependencies": {
     "next": "16.3.4",
     "openai": "7.10.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "playwright": "1.55.0"
+    "playwright": "1.55.0",
+    "cheerio": "1.1.2"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
