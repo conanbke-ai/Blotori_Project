@@ -1,7 +1,158 @@
 {
   "schemaVersion": 1,
-  "generatedAt": null,
-  "source": "pending BlogChart TOP10 x public full-post corpus materialization",
+  "generatedAt": "2026-10-06T10:15:39.169Z",
+  "source": "BlogChart TOP10 x public full-post corpus",
   "inputBlogs": 0,
-  "categories": {}
+  "categories": {
+    "health": {
+      "themes": [
+        "health-medical",
+        "diet"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "food": {
+      "themes": [
+        "food"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "daily": {
+      "themes": [
+        "parenting",
+        "photography"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "travel": {
+      "themes": [
+        "domestic-travel",
+        "overseas-travel"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "review": {
+      "themes": [
+        "it-review",
+        "car-review",
+        "beauty"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "education": {
+      "themes": [
+        "education",
+        "books"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "hobby": {
+      "themes": [
+        "design",
+        "music",
+        "photography"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "tech": {
+      "themes": [
+        "it-review"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "beauty-fashion": {
+      "themes": [
+        "beauty",
+        "fashion"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "parenting-family": {
+      "themes": [
+        "parenting",
+        "wedding"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "pets": {
+      "themes": [
+        "pets"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "real-estate": {
+      "themes": [
+        "real-estate"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "finance": {
+      "themes": [
+        "finance"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "career": {
+      "themes": [
+        "jobs"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "auto": {
+      "themes": [
+        "car-review"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "gaming-entertainment": {
+      "themes": [
+        "games",
+        "movies",
+        "comics-anime",
+        "entertainment",
+        "celebrities"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "living-interior": {
+      "themes": [
+        "interior"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "marketing-business": {
+      "themes": [
+        "marketing"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    },
+    "outdoor-sports": {
+      "themes": [
+        "sports",
+        "hiking",
+        "camping",
+        "fishing"
+      ],
+      "analyzedBlogs": 0,
+      "presets": []
+    }
+  }
 }
