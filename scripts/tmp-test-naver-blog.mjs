@@ -26,12 +26,16 @@ for (const [index, frame] of page.frames().entries()) {
   try {
     const data = await frame.evaluate(() => {
       const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
-      const text = clean(document.body?.innerText || "");
-      const headings = [...document.querySelectorAll("h1,h2,h3,h4")]
+      const preferred = [".se-main-container",".se-viewer","#postViewArea",".post-view",".post_ct","article","main","[role=main]"];
+      const roots = preferred.flatMap((selector) => [...document.querySelectorAll(selector)]);
+      const score = (root) => clean(root.innerText || root.textContent).length + [...root.querySelectorAll("img")].length * 100;
+      const contentRoot = roots.sort((a,b)=>score(b)-score(a))[0] || document.body;
+      const text = clean(contentRoot?.innerText || "");
+      const headings = [...contentRoot.querySelectorAll("h1,h2,h3,h4")]
         .map((el) => clean(el.textContent))
         .filter(Boolean)
         .slice(0, 40);
-      const blocks = [...document.querySelectorAll("p,blockquote,li,figcaption")]
+      const blocks = [...contentRoot.querySelectorAll("p,blockquote,li,figcaption")]
         .map((el) => {
           const r = el.getBoundingClientRect();
           const s = getComputedStyle(el);
@@ -49,7 +53,7 @@ for (const [index, frame] of page.frames().entries()) {
         })
         .filter((x) => x.text)
         .slice(0, 220);
-      const images = [...document.images]
+      const images = [...contentRoot.querySelectorAll("img")]
         .map((img) => {
           const r = img.getBoundingClientRect();
           return {
@@ -70,7 +74,8 @@ for (const [index, frame] of page.frames().entries()) {
         headings,
         blocks,
         images,
-        bodyHeight: document.body?.scrollHeight || 0,
+        bodyHeight: contentRoot?.scrollHeight || 0,
+        contentRoot: contentRoot === document.body ? "body" : (contentRoot.id ? `#${contentRoot.id}` : `.${[...contentRoot.classList].slice(0,3).join(".")}`),
       };
     });
     frames.push({ index, ...data });
@@ -80,7 +85,7 @@ for (const [index, frame] of page.frames().entries()) {
 }
 frames.sort((a,b)=>(b.textLength||0)+(b.images?.length||0)*120-((a.textLength||0)+(a.images?.length||0)*120));
 console.log("FRAME_SUMMARY", JSON.stringify(frames.map(f => ({
-  index:f.index,url:f.url,title:f.title,textLength:f.textLength||0,images:f.images?.length||0,headings:f.headings?.slice(0,8)||[],error:f.error
+  index:f.index,url:f.url,title:f.title,contentRoot:f.contentRoot,textLength:f.textLength||0,images:f.images?.length||0,headings:f.headings?.slice(0,8)||[],error:f.error
 })), null, 2));
 
 const richest = frames[0];
