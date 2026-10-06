@@ -185,6 +185,90 @@ export const CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [
   makePreset({
     id: "hobby-culture-review", categoryId: "hobby", label: "전시·공연·콘텐츠 감상", description: "정보보다 장면과 감상을 살리되 스포일러는 조절하는 문화 후기", referenceThemes: ["영화", "음악", "디자인/편집", "만화/애니"], tags: ["감상", "문화", "에세이"], voice: "부드러운 해요체와 장면 중심 감상", mood: "개인 취향이 드러나는 차분한 문화 기록", structure: "보게 된 계기 → 첫인상 → 기억에 남은 요소 → 개인 해석/감상 → 추천 대상", image: "공간·포스터·디테일 이미지를 감상 흐름에 맞게 배치", visual: "여백과 짧은 인용/강조를 활용하는 감성형"
   }),
+  makePreset({
+    id: "tech-hands-on", categoryId: "tech", label: "실사용 IT 리뷰", description: "스펙 나열보다 실제 사용 경험과 체감을 중심으로 쓰는 테크 리뷰", referenceThemes: ["IT리뷰"], tags: ["IT", "실사용", "리뷰"], voice: "구체적이고 친근한 해요체, 전문용어는 바로 풀어 설명", mood: "깔끔하고 실용적인 테크 리뷰 분위기", structure: "사용 계기 → 첫인상 → 주요 기능 → 실사용 체감 → 장단점 → 추천 대상", image: "제품 전체컷·디테일·실사용 화면을 기능 설명과 붙여 배치", visual: "제품 사진과 핵심 포인트가 또렷한 미니멀 리뷰"
+  }),
+  makePreset({
+    id: "tech-guide", categoryId: "tech", label: "앱·기능 활용 가이드", description: "기능을 따라 하기 쉽게 단계별로 설명하는 사용법 중심", referenceThemes: ["IT리뷰", "교육/학문"], tags: ["가이드", "앱", "사용법"], voice: "명확한 해요체, 단계마다 짧고 정확한 안내", mood: "정돈되고 따라 하기 쉬운 분위기", structure: "무엇을 해결하는지 → 준비 → 단계별 사용법 → 자주 막히는 지점 → 팁", image: "단계별 화면·설정 캡처를 과정 순서대로 배치", visual: "스크린샷과 번호 흐름이 명확한 실용형"
+  }),
+
+  makePreset({
+    id: "beauty-honest", categoryId: "beauty-fashion", label: "솔직한 뷰티 사용기", description: "발림·지속력·사용감과 장단점을 실제 체감 중심으로 정리", referenceThemes: ["뷰티"], tags: ["뷰티", "사용감", "후기"], voice: "친근한 해요체와 구체적 체감 표현", mood: "개인 취향이 드러나는 밝고 솔직한 분위기", structure: "사용 계기 → 제형/첫인상 → 사용 과정 → 장점 → 아쉬움 → 추천 대상", image: "패키지·제형·사용 전후·디테일 컷을 설명에 맞춰 배치", visual: "밝고 깨끗하며 이미지 비중이 높은 구성"
+  }),
+  makePreset({
+    id: "fashion-diary", categoryId: "beauty-fashion", label: "패션·스타일링 다이어리", description: "코디와 착용 장면을 사진 중심으로 보여주는 스타일 기록", referenceThemes: ["패션/스타일", "사진"], tags: ["패션", "코디", "사진"], voice: "가볍고 자연스러운 해요체, 짧은 코디 코멘트", mood: "감각적이고 개인 취향이 느껴지는 분위기", structure: "오늘의 룩 → 착용 포인트 → 디테일 → 다른 조합 → 총평", image: "전신컷·디테일·다른 각도 사진을 번갈아 배치", visual: "사진 우선, 여백 넓고 장식은 최소"
+  }),
+
+  makePreset({
+    id: "parenting-diary-dna", categoryId: "parenting-family", label: "따뜻한 육아 일상", description: "아이의 하루와 변화, 가족의 감정을 자연스럽게 기록", referenceThemes: ["육아"], tags: ["육아", "가족", "일상"], voice: "부드러운 해요체와 짧은 감정 표현", mood: "따뜻하고 개인적인 가족 기록 분위기", structure: "오늘의 상황 → 아이 반응 → 부모의 생각 → 작은 변화 → 마무리", image: "장면 사진 사이에 짧은 코멘트를 넣고 시간 흐름을 살림", visual: "사진과 여백 중심의 부드러운 기록형"
+  }),
+  makePreset({
+    id: "parenting-info-dna", categoryId: "parenting-family", label: "육아 정보·준비 가이드", description: "지원제도·준비물·생활팁을 빠르게 찾기 쉽게 정리", referenceThemes: ["육아", "교육/학문"], tags: ["육아정보", "가이드", "체크리스트"], voice: "친절하고 명확한 해요체", mood: "안심되고 실용적인 정보 분위기", structure: "대상/상황 → 핵심 요약 → 준비사항 → 단계/팁 → 주의 → 한 줄 요약", image: "설명용 이미지와 체크포인트를 단계에 맞춰 배치", visual: "체크리스트와 핵심 강조가 잘 보이는 구성"
+  }),
+
+  makePreset({
+    id: "pets-diary-dna", categoryId: "pets", label: "반려동물 사진 일기", description: "사진과 짧은 에피소드로 반려생활을 기록", referenceThemes: ["반려동물"], tags: ["반려동물", "사진", "일상"], voice: "귀엽고 편안한 해요체, 리액션은 소량", mood: "밝고 애정 어린 일상 분위기", structure: "오늘의 사건 → 반응 → 사진 장면 → 짧은 감상 → 마무리", image: "사진 1~3장마다 짧은 문장을 배치", visual: "사진 존재감이 크고 꾸밈은 가볍게"
+  }),
+  makePreset({
+    id: "pets-guide-dna", categoryId: "pets", label: "반려생활 실용 가이드", description: "용품·생활관리·초보 팁을 경험 기반으로 정리", referenceThemes: ["반려동물"], tags: ["용품", "생활관리", "가이드"], voice: "친근하지만 과장 없는 정보형 해요체", mood: "현실적이고 신뢰감 있는 생활관리 분위기", structure: "문제/필요 → 선택 기준 → 사용 경험 → 장단점 → 팁 → 추천 대상", image: "용품·사용 장면·전후 상황을 정보와 연결", visual: "정보와 사진이 균형 잡힌 실용형"
+  }),
+
+  makePreset({
+    id: "realestate-field", categoryId: "real-estate", label: "현장 임장 리포트", description: "직접 걸어본 입지와 생활권을 현장 사진과 함께 정리", referenceThemes: ["부동산정보"], tags: ["임장", "입지", "현장"], voice: "담백한 해요체와 객관적 관찰 문장", mood: "현장감 있고 분석적인 분위기", structure: "지역 개요 → 이동 동선 → 상권/교통 → 단지/환경 → 체감 장단점 → 총평", image: "거리·시설·단지·지도성 이미지를 동선 순서대로 배치", visual: "사진과 분석 포인트가 명확한 리포트형"
+  }),
+  makePreset({
+    id: "realestate-analysis", categoryId: "real-estate", label: "지역·입지 분석형", description: "교통·생활권·가격·개발요인을 구조적으로 분석", referenceThemes: ["부동산정보"], tags: ["지역분석", "입지", "데이터"], voice: "신뢰감 있는 설명형, 쉬운 재설명을 섞은 전문가 톤", mood: "차분하고 데이터 중심의 분위기", structure: "핵심 요약 → 교통 → 생활권 → 가격/수요 → 개발 이슈 → 리스크 → 결론", image: "지도·표·현장 사진을 핵심 주장에 붙여 배치", visual: "텍스트와 도식 중심의 정돈된 분석형", identity:0.88, structureFreedom:0.32
+  }),
+
+  makePreset({
+    id: "finance-easy", categoryId: "finance", label: "쉽게 읽는 재테크 설명", description: "금융 개념과 선택 기준을 일반 독자에게 쉽게 설명", referenceThemes: ["재테크정보"], tags: ["재테크", "쉬운설명", "정보"], voice: "쉽고 정확한 해요체, 숫자는 맥락과 함께 설명", mood: "차분하고 실용적인 금융 정보 분위기", structure: "왜 중요한지 → 개념 → 예시 → 장단점 → 주의 → 한 줄 정리", image: "도식·비교·핵심 수치 이미지를 설명 직후 배치", visual: "과도한 장식 없이 핵심 수치와 비교가 잘 보이는 구성"
+  }),
+  makePreset({
+    id: "finance-market", categoryId: "finance", label: "시장·경제 브리핑형", description: "시장 이슈와 숫자의 의미를 짧고 밀도 있게 정리", referenceThemes: ["재테크정보"], tags: ["시장", "경제", "브리핑"], voice: "간결한 합니다체/해요체 혼합, 원인과 의미를 분리해 설명", mood: "빠르고 정돈된 브리핑 분위기", structure: "무슨 일이 있었나 → 왜 움직였나 → 숫자/근거 → 영향 → 앞으로 볼 것", image: "차트·수치·핵심 이슈 이미지를 구간별 배치", visual: "정보 밀도는 높지만 문단과 강조는 절제"
+  }),
+
+  makePreset({
+    id: "career-guide-dna", categoryId: "career", label: "취업 준비 체크리스트형", description: "서류·시험·면접 준비를 단계와 체크포인트로 정리", referenceThemes: ["취업정보"], tags: ["취업", "면접", "체크리스트"], voice: "명확하고 응원하는 해요체", mood: "실용적이고 부담을 줄여주는 분위기", structure: "목표 → 준비 순서 → 체크포인트 → 흔한 실수 → 일정/팁 → 요약", image: "단계·체크리스트·예시 화면 위주", visual: "스캔하기 쉬운 구조적 레이아웃"
+  }),
+  makePreset({
+    id: "career-story-dna", categoryId: "career", label: "직무·이직 경험담", description: "실제 경험과 시행착오, 배운 점을 중심으로 쓰는 커리어 기록", referenceThemes: ["취업정보"], tags: ["이직", "직무", "경험"], voice: "솔직한 해요체와 차분한 회고 문장", mood: "현실적이고 공감 가능한 커리어 분위기", structure: "상황 → 고민 → 시도 → 결과 → 배운 점 → 추천/조언", image: "문서·업무환경·과정 이미지를 필요한 지점에만 배치", visual: "텍스트 중심, 장식은 최소"
+  }),
+
+  makePreset({
+    id: "auto-drive-review", categoryId: "auto", label: "시승·실사용 자동차 후기", description: "주행감·공간·편의기능·단점을 실제 체감 위주로 리뷰", referenceThemes: ["자동차리뷰"], tags: ["자동차", "시승", "실사용"], voice: "구체적이고 솔직한 해요체", mood: "전문성과 개인 체감이 균형 잡힌 분위기", structure: "첫인상 → 주행 → 실내/공간 → 기능 → 장점 → 아쉬움 → 총평", image: "외관·실내·디테일·주행 관련 이미지를 항목별 배치", visual: "자동차 사진 비중이 높고 설명은 짧게"
+  }),
+  makePreset({
+    id: "auto-compare-dna", categoryId: "auto", label: "차량 비교·선택 가이드", description: "가격·공간·성능·용도 기준으로 선택을 돕는 비교형", referenceThemes: ["자동차리뷰"], tags: ["비교", "선택", "차량"], voice: "객관적이고 쉬운 설명형", mood: "판단하기 쉬운 정돈된 분위기", structure: "비교 대상 → 핵심 차이 → 기준별 비교 → 사용자 유형별 추천 → 결론", image: "비교 가능한 외관/실내/기능 이미지를 대응 배치", visual: "비교 기준과 결론이 한눈에 보이는 구성"
+  }),
+
+  makePreset({
+    id: "game-playlog", categoryId: "gaming-entertainment", label: "게임 플레이 로그형", description: "플레이 경험과 재미 포인트를 장면 중심으로 기록", referenceThemes: ["게임"], tags: ["게임", "플레이", "후기"], voice: "가볍고 생동감 있는 해요체, 리액션은 적당히", mood: "즐겁고 현장감 있는 플레이 분위기", structure: "시작 계기 → 첫인상 → 핵심 플레이 → 좋았던 점 → 아쉬움 → 추천 대상", image: "게임 화면을 장면 흐름에 맞춰 배치", visual: "스크린샷 중심의 빠른 호흡"
+  }),
+  makePreset({
+    id: "media-review-dna", categoryId: "gaming-entertainment", label: "영화·드라마·애니 감상형", description: "작품 정보와 개인 감상을 균형 있게 정리", referenceThemes: ["영화","만화/애니","방송/연예"], tags: ["감상", "콘텐츠", "리뷰"], voice: "부드러운 해요체와 개인 해석 중심", mood: "취향과 감상이 드러나는 차분한 분위기", structure: "보게 된 계기 → 첫인상 → 기억에 남은 요소 → 감상/해석 → 추천 대상", image: "포스터·장면·공간성 이미지를 과하지 않게 배치", visual: "텍스트와 이미지 균형이 좋은 감상형"
+  }),
+
+  makePreset({
+    id: "interior-beforeafter", categoryId: "living-interior", label: "비포·애프터 공간 기록", description: "공간 변화와 선택 이유를 전후 사진 중심으로 기록", referenceThemes: ["인테리어정보"], tags: ["인테리어", "비포애프터", "공간"], voice: "친근하고 구체적인 해요체", mood: "깔끔하고 변화가 잘 느껴지는 분위기", structure: "문제 상황 → 계획 → 과정 → 완성 → 사용 체감 → 비용/팁", image: "전후 사진과 과정 디테일을 명확히 대응 배치", visual: "큰 공간 사진과 넓은 여백 중심"
+  }),
+  makePreset({
+    id: "living-guide-dna", categoryId: "living-interior", label: "살림·인테리어 실용 가이드", description: "수납·배치·자재·비용 정보를 따라 하기 쉽게 정리", referenceThemes: ["인테리어정보"], tags: ["살림", "수납", "가이드"], voice: "친절하고 실용적인 해요체", mood: "정돈되고 현실적인 생활정보 분위기", structure: "문제 → 선택 기준 → 방법 → 비용/주의 → 사용 팁 → 요약", image: "과정·도구·완성 사진을 단계별 배치", visual: "체크포인트가 잘 보이는 깔끔한 정보형"
+  }),
+
+  makePreset({
+    id: "marketing-case-dna", categoryId: "marketing-business", label: "마케팅 사례 분석", description: "문제·전략·실행·성과를 사례 중심으로 분석", referenceThemes: ["마케팅"], tags: ["마케팅", "사례", "전략"], voice: "전문적이지만 읽기 쉬운 설명형", mood: "실무적이고 분석적인 분위기", structure: "상황 → 문제 → 전략 → 실행 → 결과 → 배운 점", image: "캠페인 예시·퍼널·수치 이미지를 주장과 연결", visual: "텍스트와 도식이 균형 잡힌 비즈니스형"
+  }),
+  makePreset({
+    id: "business-howto-dna", categoryId: "marketing-business", label: "실무 노하우 가이드", description: "업무 절차와 체크포인트를 실전형으로 정리", referenceThemes: ["마케팅"], tags: ["실무", "노하우", "가이드"], voice: "명확한 해요체, 불필요한 수사는 줄임", mood: "빠르게 적용할 수 있는 실용적 분위기", structure: "목표 → 준비 → 단계 → 예시 → 실수 방지 → 체크리스트", image: "프로세스·예시 화면·핵심 체크포인트 중심", visual: "번호와 소제목이 분명한 실무형"
+  }),
+
+  makePreset({
+    id: "outdoor-triplog", categoryId: "outdoor-sports", label: "등산·캠핑·낚시 현장 기록", description: "코스와 장비, 현장 사진과 체감을 함께 담는 아웃도어 기록", referenceThemes: ["등산","캠핑","낚시","스포츠"], tags: ["아웃도어", "현장", "코스"], voice: "활기찬 해요체와 솔직한 체감 표현", mood: "현장감 있고 활동적인 분위기", structure: "준비 → 이동/코스 → 주요 장면 → 장비/체감 → 팁 → 마무리", image: "코스 전환마다 대표 사진, 장비·풍경은 묶음 활용", visual: "사진 비중이 높고 이동 흐름이 보이는 구성"
+  }),
+  makePreset({
+    id: "outdoor-guide-dna", categoryId: "outdoor-sports", label: "초보 아웃도어 가이드", description: "준비물·코스·안전·장비를 초보자 눈높이에서 정리", referenceThemes: ["등산","캠핑","낚시","스포츠"], tags: ["초보", "준비물", "안전"], voice: "친절하고 명확한 해요체", mood: "안심되고 따라 하기 쉬운 분위기", structure: "누구에게 맞는지 → 준비물 → 코스/순서 → 안전 → 비용/팁 → 체크리스트", image: "준비물·코스·주의 포인트 이미지를 단계에 맞춰 배치", visual: "체크리스트와 경고 포인트가 잘 보이는 실용형"
+  }),
+
 ];
 
 export function getCategoryBlogDNAPresets(categoryId?: string) {
