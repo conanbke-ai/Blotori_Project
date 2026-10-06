@@ -7,12 +7,35 @@ export interface CategoryBlogDNAPreset {
   label: string;
   description: string;
   tags: string[];
-  sourceMeta: {
-    kind: "launch-curated";
-    version: "v1";
-    referenceThemes: string[];
-    note: string;
-  };
+  sourceMeta:
+    | {
+        kind: "launch-curated";
+        version: "v1";
+        referenceThemes: string[];
+        note: string;
+      }
+    | {
+        kind: "blogchart-top10-full-corpus";
+        schemaVersion: number;
+        generatedAt: string;
+        blogCount: number;
+        totalListedPosts: number;
+        analyzedPosts: number;
+        failedPosts: number;
+        successRate: number;
+        members: Array<{
+          theme: string;
+          rank: number | null;
+          platform: string;
+          sourceUrl: string;
+          coverage?: {
+            totalListed?: number;
+            analyzed?: number;
+            failed?: number;
+            successRate?: number;
+          };
+        }>;
+      };
   dna: BlogDNAProfile;
 }
 
