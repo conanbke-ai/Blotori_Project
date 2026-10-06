@@ -24,6 +24,18 @@ jobs:
       - run: npm install --no-audit --no-fund
       - name: Snapshot BlogChart 31 themes x TOP10
         run: node scripts/blog-corpus/collect-blogchart-top10.mjs
+      - name: Validate 31 x TOP10 seed
+        run: |
+          node - <<'NODE'
+          const fs=require("fs");
+          const d=JSON.parse(fs.readFileSync("tmp-blog-corpus/blogchart-top10-v1.json","utf8"));
+          if(d.themes.length!==31) throw new Error(`expected 31 themes, got ${d.themes.length}`);
+          const bad=d.themes.filter(t=>t.blogs.length!==10);
+          if(bad.length) throw new Error("TOP10 incomplete: "+bad.map(t=>`${t.code}:${t.blogs.length}`).join(","));
+          const total=d.themes.reduce((a,t)=>a+t.blogs.length,0);
+          if(total!==310) throw new Error(`expected 310 ranked slots, got ${total}`);
+          console.log("SEED_GATE_PASS themes=31 slots=310");
+          NODE
       - uses: actions/upload-artifact@v4
         with:
           name: blogchart-top10-v1
@@ -144,6 +156,8 @@ jobs:
           merge-multiple: true
       - name: Cluster whole-blog metrics into category archetypes
         run: node scripts/blog-corpus/cluster-blog-dna.mjs tmp-blog-corpus/all tmp-blog-corpus/category-blog-dna-v1.json
+      - name: Synthesize structured Blog DNA preset library
+        run: node scripts/blog-corpus/synthesize-category-presets.mjs tmp-blog-corpus/category-blog-dna-v1.json tmp-blog-corpus/category-blog-presets-v1.json
       - name: Aggregate global coverage
         run: |
           node - <<'NODE'
@@ -172,5 +186,6 @@ jobs:
           name: category-blog-dna-v1
           path: |
             tmp-blog-corpus/category-blog-dna-v1.json
+            tmp-blog-corpus/category-blog-presets-v1.json
             tmp-blog-corpus/coverage-v1.json
           retention-days: 90
