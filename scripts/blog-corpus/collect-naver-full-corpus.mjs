@@ -13,7 +13,8 @@ const outputDir=String(arg("output","tmp-blog-corpus/naver"));
 const delayMs=Number(arg("delay-ms","120"));
 const maxPostsRaw=arg("max-posts");
 const maxPosts=maxPostsRaw?Number(maxPostsRaw):Infinity;
-const concurrency=Math.max(1,Math.min(8,Number(arg("concurrency","4"))));
+const concurrency=Math.max(1,Math.min(8,Number(arg("concurrency","3"))));
+const blogConcurrency=Math.max(1,Math.min(4,Number(arg("blog-concurrency","2"))));
 
 if(!blogId&&!seedPath) throw new Error("Use --blog <id> or --seed <json> [--theme code]");
 
@@ -30,7 +31,8 @@ if(blogId){
 fs.mkdirSync(outputDir,{recursive:true});
 
 const summaries=[];
-for(const [targetIndex,target] of targets.entries()){
+
+async function processTarget(target,targetIndex){
   console.log("BLOG_START",targetIndex+1,targets.length,target.theme,target.rank,target.blogId);
   let listed=[];
   const analyzed=[];
@@ -109,7 +111,7 @@ for(const [targetIndex,target] of targets.entries()){
   aggregate.fullCoverage=selected.length===listed.length && !failures.some((item)=>item.stage==="list");
   const filename=path.join(outputDir,`${target.theme||"single"}__${target.rank??0}__${target.blogId}.json`);
   fs.writeFileSync(filename,JSON.stringify(aggregate,null,2));
-  summaries.push({
+  const summary={
     theme:target.theme,rank:target.rank,blogId:target.blogId,
     totalListed:aggregate.coverage.totalListed,
     analyzed:aggregate.coverage.analyzed,
@@ -117,8 +119,21 @@ for(const [targetIndex,target] of targets.entries()){
     successRate:aggregate.coverage.successRate,
     fullCoverage:aggregate.fullCoverage,
     file:path.basename(filename),
-  });
-  console.log("BLOG_DONE",JSON.stringify(summaries.at(-1)));
+  };
+  summaries.push(summary);
+  console.log("BLOG_DONE",JSON.stringify(summary));
 }
+
+let targetCursor=0;
+async function targetWorker(){
+  while(true){
+    const index=targetCursor++;
+    if(index>=targets.length) return;
+    await processTarget(targets[index],index);
+  }
+}
+await Promise.all(Array.from({length:Math.min(blogConcurrency,Math.max(1,targets.length))},()=>targetWorker()));
+
+summaries.sort((a,b)=>(a.rank??999)-(b.rank??999));
 fs.writeFileSync(path.join(outputDir,"summary.json"),JSON.stringify({generatedAt:new Date().toISOString(),targets:summaries},null,2));
 console.log("CORPUS_DONE",JSON.stringify(summaries));
