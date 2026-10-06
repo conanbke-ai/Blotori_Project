@@ -161,7 +161,30 @@ async function extractPageEvidence(page: Page): Promise<Omit<RenderedPageEvidenc
         };
         const clean = (value: string | null | undefined, max = 500) => (value || "").replace(/\s+/g, " ").trim().slice(0, max);
         const blockSelectors = "h1,h2,h3,h4,p,blockquote,li,figcaption,pre";
-        const blockNodes = Array.from(document.querySelectorAll(blockSelectors)).filter(visible).slice(0, 240);
+        const preferredSelectors = [
+          ".se-main-container",
+          ".se-viewer",
+          "#postViewArea",
+          ".post-view",
+          ".post_ct",
+          "article",
+          "main",
+          "[role=main]",
+        ];
+        const scoreRoot = (root: Element) => {
+          const text = clean((root as HTMLElement).innerText || root.textContent, 50000);
+          const images = Array.from(root.querySelectorAll("img")).filter(visible).length;
+          const blocks = root.querySelectorAll(blockSelectors).length;
+          return text.length + images * 110 + Math.min(blocks, 120) * 12;
+        };
+        const preferredRoots = preferredSelectors
+          .flatMap((selector) => Array.from(document.querySelectorAll(selector)))
+          .filter(visible)
+          .map((root) => ({ root, score: scoreRoot(root) }))
+          .filter((item) => item.score > 700)
+          .sort((a, b) => b.score - a.score);
+        const contentRoot = preferredRoots[0]?.root ?? document.body;
+        const blockNodes = Array.from(contentRoot.querySelectorAll(blockSelectors)).filter(visible).slice(0, 240);
         const blocks = blockNodes.map((node, index) => {
           const element = node as HTMLElement;
           const rect = element.getBoundingClientRect();
@@ -183,7 +206,7 @@ async function extractPageEvidence(page: Page): Promise<Omit<RenderedPageEvidenc
         }).filter((item) => item.text.length > 0);
 
         const textNodes = blocks.map((item) => item.text);
-        const imageNodes = Array.from(document.images).filter(visible).slice(0, 120);
+        const imageNodes = Array.from(contentRoot.querySelectorAll("img")).filter(visible).slice(0, 120);
         const images = imageNodes.map((image, index) => {
           const rect = image.getBoundingClientRect();
           const centerY = rect.top + window.scrollY + rect.height / 2;
@@ -243,6 +266,7 @@ async function extractPageEvidence(page: Page): Promise<Omit<RenderedPageEvidenc
         return {
           title: document.title,
           url: location.href,
+          contentRoot: contentRoot === document.body ? "body" : (contentRoot.id ? `#${contentRoot.id}` : `.${Array.from(contentRoot.classList).slice(0,3).join(".")}`),
           blocks,
           images,
           headings: blocks.filter((item) => /^h[1-4]$/.test(item.tag)).map((item) => item.text).slice(0, 40),
@@ -282,6 +306,7 @@ async function extractPageEvidence(page: Page): Promise<Omit<RenderedPageEvidenc
     textPreview: primary.textPreview,
     candidateLinks,
     frameCount: page.frames().length,
+    contentRoot: primary.contentRoot,
   };
 }
 
