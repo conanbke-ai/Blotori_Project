@@ -1,0 +1,12 @@
+const url="https://blog.aladin.co.kr/714960143";
+const res=await fetch(url,{headers:{"user-agent":"Mozilla/5.0"}});
+const html=await res.text();
+console.log("STATUS",res.status,"LEN",html.length);
+const hrefs=[...html.matchAll(/href=["']([^"']+)["']/gi)].map(m=>m[1]);
+const picked=[...new Set(hrefs)].filter(h=>/714960143|category|CommunityType|page=|MyPaper/i.test(h)).slice(0,300);
+console.log("LINKS",JSON.stringify(picked,null,2));
+console.log("COUNT CommunityType",html.split("CommunityType").length-1);
+console.log("COUNT category/",html.split("category/").length-1);
+console.log("COUNT page=",html.split("page=").length-1);
+console.log("COUNT MyPaper",html.split("MyPaper").length-1);
+console.log("COUNT userpath",html.split("714960143/").length-1);
