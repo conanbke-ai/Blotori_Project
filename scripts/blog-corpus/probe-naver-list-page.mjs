@@ -9,5 +9,5 @@ for(const url of urls){
  const mains=(html.match(/se-main-container/g)||[]).length;
  const viewers=(html.match(/se-viewer/g)||[]).length;
  const logs=[...html.matchAll(/logNo[=:"'&]+(\d{8,})/g)].map(m=>m[1]);
- console.log("LIST_PAGE",res.status,html.length,"mains",mains,"viewers",viewers,"uniqueLogs",new Set(logs).size,url);
+ console.log("LIST_PAGE",res.status,html.length,"mains",mains,"viewers",viewers,"uniqueLogs",JSON.stringify([...new Set(logs)].slice(0,10)),url);
 }
