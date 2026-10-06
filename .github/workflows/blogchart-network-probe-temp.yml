@@ -1,0 +1,25 @@
+name: BlogChart Network Probe Temp
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - scripts/tmp-blogchart-network-probe.mjs
+      - .github/workflows/blogchart-network-probe-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/tmp-blogchart-network-probe.mjs
