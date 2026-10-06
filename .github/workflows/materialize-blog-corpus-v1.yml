@@ -154,6 +154,11 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Download seed provenance
+        uses: actions/download-artifact@v4
+        with:
+          name: blogchart-top10-v1
+          path: tmp-blog-corpus/seed
       - uses: actions/download-artifact@v4
         with:
           pattern: corpus-*
@@ -187,7 +192,7 @@ jobs:
           console.log("GLOBAL_COVERAGE",JSON.stringify(report));
           NODE
       - name: Validate materialized corpus QA gate
-        run: node scripts/blog-corpus/validate-materialized-corpus.mjs tmp-blog-corpus/category-blog-presets-v1.json tmp-blog-corpus/coverage-v1.json
+        run: node scripts/blog-corpus/validate-materialized-corpus.mjs tmp-blog-corpus/category-blog-presets-v1.json tmp-blog-corpus/coverage-v1.json tmp-blog-corpus/seed/blogchart-top10-v1.json
       - uses: actions/upload-artifact@v4
         with:
           name: category-blog-dna-v1
@@ -195,6 +200,7 @@ jobs:
             tmp-blog-corpus/category-blog-dna-v1.json
             tmp-blog-corpus/category-blog-presets-v1.json
             tmp-blog-corpus/coverage-v1.json
+            tmp-blog-corpus/seed/blogchart-top10-v1.json
           retention-days: 90
       - name: Persist observed preset library
         if: github.ref == 'refs/heads/feature/blog-dna-adaptive-v1'
@@ -202,9 +208,10 @@ jobs:
           mkdir -p data/blog-corpus
           cp tmp-blog-corpus/category-blog-presets-v1.json data/blog-corpus/category-blog-presets-v1.json
           cp tmp-blog-corpus/coverage-v1.json data/blog-corpus/coverage-v1.json
+          cp tmp-blog-corpus/seed/blogchart-top10-v1.json data/blog-corpus/blogchart-top10-v1.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/blog-corpus/category-blog-presets-v1.json data/blog-corpus/coverage-v1.json
+          git add data/blog-corpus/category-blog-presets-v1.json data/blog-corpus/coverage-v1.json data/blog-corpus/blogchart-top10-v1.json
           if git diff --cached --quiet; then
             echo "No materialized corpus changes."
             exit 0
