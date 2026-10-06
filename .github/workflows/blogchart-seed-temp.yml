@@ -1,0 +1,30 @@
+name: BlogChart Seed Snapshot Temp
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - scripts/tmp-blogchart-seed.mjs
+      - .github/workflows/blogchart-seed-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/tmp-blogchart-seed.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blogchart-top10-seed
+          path: tmp-blogchart-seed/blogchart-top10.json
+          if-no-files-found: error
