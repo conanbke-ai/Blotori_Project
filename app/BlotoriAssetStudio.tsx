@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { STRUCTURE_DEFINITIONS, STYLE_DEFINITIONS } from "../lib/domain/content-config";
+import { getCategoryBlogDNAPreset, getCategoryBlogDNAPresets } from "../lib/domain/category-blog-dna";
 import type { BlogDNAApplyOptions, BlogDNAProfile, StructureId, StyleId, StyleIntensity } from "../lib/domain/types";
 
 type StyleSourceType = "preset" | "blog" | "post" | "pasted_text" | "manual";
@@ -42,6 +43,7 @@ type PackManifest = {
 };
 
 type Props = {
+  categoryId?: string;
   styleId: StyleId;
   styleIntensity: StyleIntensity;
   customStyle: string;
@@ -167,6 +169,7 @@ function formatBytes(size: number) {
 }
 
 export default function BlotoriAssetStudio({
+  categoryId,
   styleId,
   styleIntensity,
   customStyle,
@@ -184,6 +187,7 @@ export default function BlotoriAssetStudio({
   const [materials, setMaterials] = useState<MaterialRecord[]>([]);
   const [selectedMaterialIds, setSelectedMaterialIds] = useState<string[]>([]);
   const [selectedStyleId, setSelectedStyleId] = useState("");
+  const [selectedCategoryPresetId, setSelectedCategoryPresetId] = useState("");
   const [sourceType, setSourceType] = useState<StyleSourceType>("post");
   const [source, setSource] = useState("");
   const [styleName, setStyleName] = useState("");
@@ -210,7 +214,13 @@ export default function BlotoriAssetStudio({
   }, []);
 
   const selectedStyle = useMemo(() => styles.find((item) => item.id === selectedStyleId), [styles, selectedStyleId]);
-  const styleChoice = selectedStyleId ? `saved:${selectedStyleId}` : `builtin:${styleId}`;
+  const categoryPresets = useMemo(() => getCategoryBlogDNAPresets(categoryId), [categoryId]);
+  const selectedCategoryPreset = useMemo(() => getCategoryBlogDNAPreset(selectedCategoryPresetId), [selectedCategoryPresetId]);
+  const styleChoice = selectedStyleId
+    ? `saved:${selectedStyleId}`
+    : selectedCategoryPresetId
+      ? `category:${selectedCategoryPresetId}`
+      : `builtin:${styleId}`;
 
   useEffect(() => {
     const nativeFetch = window.fetch.bind(window);
@@ -220,6 +230,7 @@ export default function BlotoriAssetStudio({
       try {
         const payload = JSON.parse(init.body) as Record<string, unknown>;
         const profile = styles.find((item) => item.id === selectedStyleId);
+        const categoryPreset = getCategoryBlogDNAPreset(selectedCategoryPresetId);
         if (profile) {
           payload.styleId = "custom";
           payload.customStyle = `${profile.signature}\n\n원문 문장을 복제하지 말고 분석된 특성만 적용한다.`;
@@ -231,6 +242,14 @@ export default function BlotoriAssetStudio({
             payload.recentLayoutFingerprints = loadLayoutHistory(profile.id);
             payload.variationNonce = uid("variation");
           }
+        } else if (categoryPreset) {
+          payload.styleId = "custom";
+          payload.customStyle = `${categoryPreset.dna.signature}\n\n카테고리 기본 Blog DNA를 고정 템플릿처럼 복사하지 말고 현재 콘텐츠에 맞게 자연스럽게 적용한다.`;
+          payload.styleIntensity = styleIntensity;
+          payload.styleProfileName = categoryPreset.label;
+          payload.blogDNA = categoryPreset.dna;
+          payload.blogDNAApply = blogDNAApply;
+          payload.variationNonce = uid("category-variation");
         }
         const chosen = materials.filter((item) => selectedMaterialIds.includes(item.id));
         if (chosen.length) {
@@ -254,7 +273,7 @@ export default function BlotoriAssetStudio({
       }
     };
     return () => { window.fetch = nativeFetch; };
-  }, [blogDNAApply, materials, selectedMaterialIds, selectedStyleId, styleIntensity, styles]);
+  }, [blogDNAApply, materials, selectedCategoryPresetId, selectedMaterialIds, selectedStyleId, styleIntensity, styles]);
 
   async function addFiles(event: ChangeEvent<HTMLInputElement>) {
     const files = [...(event.target.files ?? [])];
@@ -315,12 +334,22 @@ export default function BlotoriAssetStudio({
 
   function handleStyleChoice(value: string) {
     if (value.startsWith("saved:")) {
+      setSelectedCategoryPresetId("");
       chooseSavedStyle(value.slice(6));
       onStyleIdChange("auto");
       onCustomStyleChange("");
       return;
     }
+    if (value.startsWith("category:")) {
+      chooseSavedStyle("");
+      setSelectedCategoryPresetId(value.slice(9));
+      setBlogDNAApply(DEFAULT_DNA_APPLY);
+      onStyleIdChange("auto");
+      onCustomStyleChange("");
+      return;
+    }
     chooseSavedStyle("");
+    setSelectedCategoryPresetId("");
     onStyleIdChange(value.replace(/^builtin:/, "") as StyleId);
   }
 
@@ -426,6 +455,7 @@ export default function BlotoriAssetStudio({
         <div className="writingSectionLabel"><span>이번 글에 적용할 스타일</span><small>저장한 Blog DNA 또는 블로토리 기본 문체를 선택해요.</small></div>
         <label className="field"><span>스타일 선택</span><select value={styleChoice} onChange={(event) => handleStyleChoice(event.target.value)}>
           <option value="builtin:auto">자동 추천</option>
+          {categoryPresets.length > 0 && <optgroup label="이 카테고리 기본 스타일">{categoryPresets.map((item) => <option key={item.id} value={`category:${item.id}`}>{item.label}</option>)}</optgroup>}
           {styles.length > 0 && <optgroup label="내 블로그 스타일">{styles.map((item) => <option key={item.id} value={`saved:${item.id}`}>{item.name}</option>)}</optgroup>}
           <optgroup label="블로토리 기본 문체">
             {recommendedStyleIds.length > 0 && recommendedStyleIds.map((id) => { const item = STYLE_DEFINITIONS.find((candidate) => candidate.id === id); return item ? <option key={`recommended-${id}`} value={`builtin:${id}`}>★ {item.label}</option> : null; })}
@@ -434,6 +464,13 @@ export default function BlotoriAssetStudio({
           <option value="builtin:custom">직접 설정</option>
         </select></label>
 
+        {selectedCategoryPreset && <div className="selectedStyleCard categoryPresetCard"><div><strong>{selectedCategoryPreset.label}</strong><span>블로토리 기본 · {selectedCategoryPreset.tags.join(" · ")}</span></div><p>{selectedCategoryPreset.description}</p><div className="dnaApplyPanel"><strong>이번 글에 적용</strong><div className="dnaToggleGrid">{([
+  ["voice", "문체"],
+  ["mood", "분위기"],
+  ["structure", "글 구성"],
+  ["imageRhythm", "사진 배치"],
+  ["visual", "꾸밈"],
+] as const).map(([key, label]) => <label key={key}><input type="checkbox" checked={blogDNAApply[key]} onChange={(event) => setBlogDNAApply((current) => ({ ...current, [key]: event.target.checked }))} /><span>{label}</span></label>)}</div><small>출시용 카테고리 대표 패턴을 현재 콘텐츠에 맞춰 변주합니다.</small></div></div>}
         {selectedStyle && <div className="selectedStyleCard"><div><strong>{selectedStyle.name}</strong><span>{sourceLabel[selectedStyle.sourceType]} · 저장 기본 강도 {selectedStyle.defaultIntensity}/5{selectedStyle.blogDNA ? ` · Blog DNA ${selectedStyle.blogDNA.confidence}` : " · 기존 문체 프로필"}</span></div><button type="button" className="assetMiniButton danger" onClick={() => removeStyle(selectedStyle.id)}>삭제</button><p>{selectedStyle.signature}</p>{selectedStyle.blogDNA && <div className="dnaApplyPanel"><strong>이번 글에 적용</strong><div className="dnaToggleGrid">{([
   ["voice", "문체"],
   ["mood", "분위기"],
