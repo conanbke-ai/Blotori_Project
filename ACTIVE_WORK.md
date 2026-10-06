@@ -21,6 +21,7 @@
 - 이름을 붙여 재사용하는 `내 블로그 스타일` + Blog DNA(문체/분위기/구성/사진 리듬/꾸밈) + Adaptive Variation
 - Playwright/Chromium 렌더 분석 + DOM/이미지 위치/전체 페이지 스크린샷 Visual DNA 증거
 - Category Blog DNA Library v1: 블로그차트 테마를 앱 카테고리로 재구성한 출시용 기본 스타일
+- BlogChart TOP10 전체 공개 포스팅 전수 분석: 31테마 × TOP10, whole-blog corpus → cluster → materialized Blog DNA
 - 문체·자료 `.blotori` 공유 팩 import/export
 - Composer V2 3-column workspace + canonical Blotori 얼굴/전체 캐릭터/생성 로딩 visual QA
 
@@ -96,6 +97,16 @@
 - [x] 각 확장 카테고리에 출시용 기본 Blog DNA 프리셋 연결
 - [x] 카테고리 선택 시 기본 Blog DNA를 Composer 스타일 목록에 노출
 - [x] Category Blog DNA TypeScript / platform QA / production build PASS
+- [x] BlogChart 31테마 × TOP10 = 310개 랭킹 슬롯 seed gate PASS
+- [x] Naver 전체 공개 포스팅 enumeration/분석 구현
+- [x] Tistory/Aladin 공개 포스팅 enumeration/분석 구현
+- [x] 제목/문단/어미/감탄/이모지/사진리듬/강조/정렬/지도/영상/해시태그/마무리 지표 수집
+- [x] whole-blog 분포 + coverage + representative posts + corpus digest 집계
+- [x] whole-blog cluster → 구조화 Blog DNA preset 자동 합성
+- [x] materialized preset JSON이 있으면 curated preset 대신 자동 우선 적용
+- [x] full-corpus preset integration TypeScript / platform QA / production build PASS
+- [x] Naver full-corpus pilot: roooad 543/543 analyzed, failed 0, successRate 1.0
+- [ ] 31테마 × TOP10 전체 본 런 materialization 완료 및 coverage-v1.json 확정
 - [x] 문체 프로필명은 생성 본문 프롬프트에서 분리하고 스타일 signature만 적용
 - [x] `.blotori` 문체·자료 공유 팩 import/export
 - [x] canonical Blotori 얼굴 아이콘 / 전체 캐릭터 / 생성 로딩 자산 정상 복구
