@@ -1,0 +1,33 @@
+name: Blog Corpus Seed Temp
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - scripts/blog-corpus/collect-blogchart-top10.mjs
+      - scripts/blog-corpus/probe-naver-postlist.mjs
+      - .github/workflows/blog-corpus-seed-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund
+      - name: Collect BlogChart themes
+        run: node scripts/blog-corpus/collect-blogchart-top10.mjs
+      - name: Probe Naver full post list
+        run: node scripts/blog-corpus/probe-naver-postlist.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blog-corpus-seed
+          path: tmp-blog-corpus/blogchart-top10-v1.json
