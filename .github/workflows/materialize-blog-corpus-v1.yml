@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: materialize-blog-corpus-v1-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   seed:
     runs-on: ubuntu-latest
@@ -100,8 +104,9 @@ jobs:
           --seed tmp-blog-corpus/blogchart-top10-v1.json
           --theme ${{ matrix.theme }}
           --output tmp-blog-corpus/theme/${{ matrix.theme }}/naver
-          --delay-ms 60
-          --concurrency 4
+          --delay-ms 70
+          --concurrency 3
+          --blog-concurrency 2
       - name: Exhaust non-Naver public posts
         run: >
           node scripts/blog-corpus/collect-generic-full-corpus.mjs
