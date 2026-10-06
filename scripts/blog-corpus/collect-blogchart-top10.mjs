@@ -27,23 +27,29 @@ for (const theme of themes) {
   await page.waitForTimeout(250);
   const rows = await page.evaluate(() => {
     const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
-    return [...document.querySelectorAll("tr")]
-      .map((tr) => {
-        const text = clean(tr.textContent);
-        const match = text.match(/^(\d{1,2})\s+(?:\d+\s+)?blog\.naver\.com\/([A-Za-z0-9_.-]+)\s+(.+?)\s+(?:(?:[가-힣A-Za-z]+\|?)+\s+)?([\d,]+)\s+([\d,]+)\s+([\d,]+)\s+MAX$/);
-        if (!match) return null;
-        const [, rank, blogId, tail] = match;
-        return {
-          rank: Number(rank),
-          blogId,
-          url: `https://blog.naver.com/${blogId}`,
-          rowText: text,
-          nameGuess: tail.slice(0, 120),
-        };
-      })
-      .filter(Boolean)
-      .filter((row) => row.rank >= 1 && row.rank <= 10)
-      .slice(0, 10);
+    const out = [];
+    for (const tr of document.querySelectorAll("tr")) {
+      const link = tr.querySelector('a[href*="blog.naver.com"]');
+      if (!link) continue;
+      const href = link.href || "";
+      const match = href.match(/blog\.naver\.com\/([A-Za-z0-9_.-]+)/i);
+      if (!match) continue;
+      const cells = [...tr.querySelectorAll("td")].map((td) => clean(td.textContent));
+      const rowText = clean(tr.textContent);
+      const rankText = cells.find((value) => /^\d{1,2}$/.test(value)) || rowText.match(/^\d{1,2}/)?.[0] || "";
+      const rank = Number(rankText);
+      if (!Number.isFinite(rank) || rank < 1 || rank > 10) continue;
+      const blogId = match[1];
+      const nameGuess = clean(link.textContent) || cells.find((value) => value && !/^\d/.test(value) && !value.includes("blog.naver.com")) || blogId;
+      out.push({
+        rank,
+        blogId,
+        url: `https://blog.naver.com/${blogId}`,
+        rowText,
+        nameGuess: nameGuess.slice(0, 120),
+      });
+    }
+    return out.sort((a,b)=>a.rank-b.rank).slice(0,10);
   });
   console.log("THEME_RESULT", theme.code, theme.label, rows.length);
   snapshots.push({ ...theme, url, blogs: rows });
