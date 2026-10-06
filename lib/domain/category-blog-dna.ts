@@ -1,3 +1,4 @@
+import materializedLibrary from "../../data/blog-corpus/category-blog-presets-v1.json";
 import type { BlogDNAProfile } from "./types";
 
 export interface CategoryBlogDNAPreset {
@@ -115,7 +116,7 @@ function makePreset(input: PresetInput): CategoryBlogDNAPreset {
   };
 }
 
-export const CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [
+const CURATED_CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [
   makePreset({
     id: "health-friendly-guide", categoryId: "health", label: "친절한 생활건강 가이드", description: "생활 속 상황에서 시작해 쉬운 설명과 실천 팁으로 이어지는 건강정보형", referenceThemes: ["건강/의학", "다이어트"], tags: ["친절", "생활팁", "쉬운설명"], voice: "부드러운 해요체로 전문 내용을 쉽게 풀고 단정적인 치료 보장은 피한다.", mood: "안심되고 차분한 교육 분위기", structure: "생활 속 고민 → 원인/배경 → 실천 포인트 → 주의점 → 요약", image: "자세·동작·생활상황 이미지를 설명 직후 배치", visual: "깨끗하고 차분하며 체크포인트가 잘 보이는 구성"
   }),
@@ -270,6 +271,30 @@ export const CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [
   }),
 
 ];
+
+type MaterializedLibrary = {
+  schemaVersion: number;
+  generatedAt: string | null;
+  source: string;
+  inputBlogs: number;
+  categories: Record<string, { presets?: CategoryBlogDNAPreset[] }>;
+};
+
+const observedLibrary = materializedLibrary as unknown as MaterializedLibrary;
+const observedPresets = Object.values(observedLibrary.categories ?? {}).flatMap((entry) => entry.presets ?? []);
+const observedCategories = new Set(observedPresets.map((preset) => preset.categoryId));
+
+export const CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [
+  ...CURATED_CATEGORY_BLOG_DNA_PRESETS.filter((preset) => !observedCategories.has(preset.categoryId)),
+  ...observedPresets,
+];
+
+export const CATEGORY_BLOG_DNA_LIBRARY_META = {
+  materialized: observedPresets.length > 0,
+  generatedAt: observedLibrary.generatedAt,
+  inputBlogs: observedLibrary.inputBlogs ?? 0,
+  source: observedLibrary.source,
+};
 
 export function getCategoryBlogDNAPresets(categoryId?: string) {
   if (!categoryId) return [];
