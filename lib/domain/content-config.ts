@@ -83,6 +83,20 @@ export const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
   learningGoal: { id: "learningGoal", label: "학습 목표", type: "text", placeholder: "예: 초보자가 개념을 이해하도록" },
   activity: { id: "activity", label: "취미·활동", type: "text", placeholder: "예: 러닝, 전시 관람, 게임" },
   experienceLevel: { id: "experienceLevel", label: "경험 수준", type: "text", placeholder: "예: 입문 2개월, 오래 즐긴 취미" },
+
+  brand: { id: "brand", label: "브랜드·대상", type: "text", placeholder: "예: 갤럭시, 자동차 모델, 화장품 브랜드" },
+  budget: { id: "budget", label: "예산·가격", type: "text", placeholder: "예: 20만원 이하, 월 10만원" },
+  skinType: { id: "skinType", label: "피부·스타일 조건", type: "text", placeholder: "예: 건성, 민감성, 미니멀룩" },
+  childAge: { id: "childAge", label: "아이 연령·상황", type: "text", placeholder: "예: 초등 3학년, 18개월" },
+  petType: { id: "petType", label: "반려동물", type: "text", placeholder: "예: 강아지, 고양이" },
+  propertyType: { id: "propertyType", label: "부동산 유형", type: "text", placeholder: "예: 아파트, 오피스텔, 상가" },
+  region: { id: "region", label: "지역", type: "text", placeholder: "예: 부천 중동, 서울 성수" },
+  financeTopic: { id: "financeTopic", label: "재테크 주제", type: "text", placeholder: "예: ETF, 연금, 절세" },
+  careerTopic: { id: "careerTopic", label: "취업·커리어 주제", type: "text", placeholder: "예: 신입 개발자, 면접, 이직" },
+  vehicle: { id: "vehicle", label: "차량·모델", type: "text", placeholder: "예: 아이오닉 6, 중형 SUV" },
+  gameTitle: { id: "gameTitle", label: "게임·콘텐츠명", type: "text", placeholder: "예: 게임명, 영화, 드라마, 애니" },
+  roomType: { id: "roomType", label: "공간·인테리어", type: "text", placeholder: "예: 원룸, 주방, 거실" },
+  campaignGoal: { id: "campaignGoal", label: "마케팅 목표", type: "text", placeholder: "예: 유입 증가, 전환, 브랜딩" },
   keywords: { id: "keywords", label: "꼭 넣을 키워드", type: "text", placeholder: "쉼표로 여러 개 입력 가능" },
 };
 
@@ -188,6 +202,126 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     presets: [
       { id: "experience-share", label: "경험 공유", description: "직접 해본 경험과 느낌을 중심으로 작성", fieldIds: ["activity", "experienceLevel", "people", "highlight"], recommendedStyleIds: ["casual-daily", "honest-review", "emotional-essay"], recommendedStructureIds: ["story", "review", "information"], suggestedImageRoles: ["HERO", "CONTEXT", "TIP"] },
       { id: "recommendation", label: "추천·입문 가이드", description: "처음 시작하는 독자에게 추천과 팁 제공", fieldIds: ["activity", "experienceLevel", "audience", "highlight"], recommendedStyleIds: ["friendly-info", "shareable-info", "easy-expert"], recommendedStructureIds: ["guide", "checklist", "information"], suggestedImageRoles: ["HERO", "EXPLAINER", "PROCESS", "TIP"] },
+    ],
+  },
+  {
+    id: "tech",
+    label: "IT·테크",
+    description: "IT 제품, 앱, 소프트웨어, 디지털 서비스 리뷰와 활용",
+    defaultFieldIds: ["productName", "usagePeriod", "targetUser"],
+    presets: [
+      { id: "it-product-review", label: "IT 제품 실사용 리뷰", description: "기기·주변기기의 실사용 경험과 장단점", fieldIds: ["productName", "usagePeriod", "pros", "cons", "targetUser"], recommendedStyleIds: ["honest-review", "friendly-info", "concise-record"], recommendedStructureIds: ["review", "comparison", "checklist"], suggestedImageRoles: ["HERO", "CONTEXT", "EXPLAINER", "TIP"] },
+      { id: "app-software-guide", label: "앱·소프트웨어 활용 가이드", description: "기능과 사용법을 단계적으로 정리", fieldIds: ["productName", "audience", "goal", "keywords"], recommendedStyleIds: ["easy-expert", "friendly-info", "shareable-info"], recommendedStructureIds: ["guide", "information", "faq"], suggestedImageRoles: ["HERO", "PROCESS", "EXPLAINER", "TIP"] },
+    ],
+  },
+  {
+    id: "beauty-fashion",
+    label: "뷰티·패션",
+    description: "화장품, 스킨케어, 패션, 스타일링 후기와 추천",
+    defaultFieldIds: ["brand", "skinType", "priceRange"],
+    presets: [
+      { id: "beauty-review", label: "뷰티 제품 후기", description: "사용감·발림·지속력 등 체감 중심 리뷰", fieldIds: ["brand", "productName", "skinType", "usagePeriod", "pros", "cons"], recommendedStyleIds: ["honest-review", "casual-daily", "friendly-info"], recommendedStructureIds: ["review", "comparison", "information"], suggestedImageRoles: ["HERO", "CONTEXT", "EXPLAINER", "TIP"] },
+      { id: "fashion-style", label: "패션·스타일링 기록", description: "코디, 착용감, 스타일 포인트 중심", fieldIds: ["brand", "productName", "situation", "mood", "priceRange"], recommendedStyleIds: ["casual-daily", "emotional-essay", "honest-review"], recommendedStructureIds: ["story", "review", "checklist"], suggestedImageRoles: ["HERO", "CONTEXT", "TIP"] },
+    ],
+  },
+  {
+    id: "parenting-family",
+    label: "육아·가족",
+    description: "육아 기록, 교육, 가족 생활, 결혼·가족 정보",
+    defaultFieldIds: ["childAge", "situation", "goal"],
+    presets: [
+      { id: "parenting-diary", label: "육아 일상 기록", description: "아이와의 하루와 변화 과정을 자연스럽게 기록", fieldIds: ["childAge", "event", "mood", "highlight"], recommendedStyleIds: ["casual-daily", "emotional-essay", "friendly-info"], recommendedStructureIds: ["story", "information"], suggestedImageRoles: ["HERO", "CONTEXT", "TIP"] },
+      { id: "parenting-info", label: "육아·가족 정보형", description: "지원제도·생활팁·준비사항을 정리", fieldIds: ["childAge", "audience", "situation", "goal"], recommendedStyleIds: ["friendly-info", "shareable-info", "easy-expert"], recommendedStructureIds: ["information", "checklist", "guide"], suggestedImageRoles: ["HERO", "EXPLAINER", "TIP"] },
+    ],
+  },
+  {
+    id: "pets",
+    label: "반려동물",
+    description: "반려동물 일상, 용품, 건강·생활 관리 정보",
+    defaultFieldIds: ["petType", "event", "goal"],
+    presets: [
+      { id: "pet-diary", label: "반려동물 일상 기록", description: "사진과 에피소드 중심의 반려생활 기록", fieldIds: ["petType", "event", "mood", "highlight"], recommendedStyleIds: ["casual-daily", "playful", "emotional-essay"], recommendedStructureIds: ["story", "review"], suggestedImageRoles: ["HERO", "CONTEXT", "TIP"] },
+      { id: "pet-guide", label: "반려생활 정보·용품 가이드", description: "용품 사용기와 생활 팁을 실용적으로 정리", fieldIds: ["petType", "productName", "usagePeriod", "pros", "cons"], recommendedStyleIds: ["friendly-info", "honest-review", "easy-expert"], recommendedStructureIds: ["review", "guide", "checklist"], suggestedImageRoles: ["HERO", "CONTEXT", "PROCESS", "TIP"] },
+    ],
+  },
+  {
+    id: "real-estate",
+    label: "부동산",
+    description: "임장, 지역 분석, 주거·상가 정보",
+    defaultFieldIds: ["region", "propertyType", "goal"],
+    presets: [
+      { id: "field-report", label: "임장·현장 기록", description: "직접 본 입지·주변환경·단지 체감을 기록", fieldIds: ["region", "propertyType", "situation", "highlight"], recommendedStyleIds: ["professional-column", "friendly-info", "concise-record"], recommendedStructureIds: ["story", "information", "checklist"], suggestedImageRoles: ["HERO", "CONTEXT", "EXPLAINER", "TIP"] },
+      { id: "area-analysis", label: "지역·입지 분석", description: "교통·생활권·가격·개발 이슈를 구조적으로 분석", fieldIds: ["region", "propertyType", "audience", "goal"], recommendedStyleIds: ["professional-column", "easy-expert", "shareable-info"], recommendedStructureIds: ["information", "comparison", "checklist"], suggestedImageRoles: ["HERO", "EXPLAINER", "TIP"] },
+    ],
+  },
+  {
+    id: "finance",
+    label: "재테크·경제",
+    description: "투자, 절세, 금융, 경제정보",
+    defaultFieldIds: ["financeTopic", "audience", "goal"],
+    presets: [
+      { id: "finance-explainer", label: "재테크 개념 설명", description: "복잡한 금융 개념을 쉽게 풀어 설명", fieldIds: ["financeTopic", "audience", "difficulty", "goal"], recommendedStyleIds: ["easy-expert", "professional-column", "shareable-info"], recommendedStructureIds: ["information", "faq", "comparison"], suggestedImageRoles: ["HERO", "EXPLAINER", "TIP", "CAUTION"] },
+      { id: "market-note", label: "경제·시장 정리", description: "이슈와 숫자를 맥락 중심으로 정리", fieldIds: ["financeTopic", "keywords", "audience", "goal"], recommendedStyleIds: ["professional-column", "concise-record", "easy-expert"], recommendedStructureIds: ["information", "comparison"], suggestedImageRoles: ["HERO", "EXPLAINER", "TIP"] },
+    ],
+  },
+  {
+    id: "career",
+    label: "취업·커리어",
+    description: "취업 준비, 자격증, 직무, 이직, 업무 노하우",
+    defaultFieldIds: ["careerTopic", "audience", "goal"],
+    presets: [
+      { id: "job-prep-guide", label: "취업 준비 가이드", description: "시험·면접·서류·준비과정을 단계적으로 정리", fieldIds: ["careerTopic", "audience", "difficulty", "goal"], recommendedStyleIds: ["friendly-info", "shareable-info", "easy-expert"], recommendedStructureIds: ["guide", "checklist", "faq"], suggestedImageRoles: ["HERO", "PROCESS", "TIP"] },
+      { id: "career-experience", label: "직무·이직 경험담", description: "실제 경험과 배운 점 중심의 커리어 기록", fieldIds: ["careerTopic", "experienceLevel", "mood", "highlight"], recommendedStyleIds: ["honest-review", "casual-daily", "professional-column"], recommendedStructureIds: ["story", "review", "information"], suggestedImageRoles: ["HERO", "CONTEXT", "TIP"] },
+    ],
+  },
+  {
+    id: "auto",
+    label: "자동차",
+    description: "자동차 리뷰, 시승, 유지관리, 비교",
+    defaultFieldIds: ["vehicle", "usagePeriod", "targetUser"],
+    presets: [
+      { id: "car-review", label: "자동차 시승·실사용 리뷰", description: "주행감·공간·편의기능·단점을 실제 체감 중심으로 정리", fieldIds: ["vehicle", "usagePeriod", "pros", "cons", "targetUser"], recommendedStyleIds: ["honest-review", "professional-column", "friendly-info"], recommendedStructureIds: ["review", "comparison", "checklist"], suggestedImageRoles: ["HERO", "CONTEXT", "EXPLAINER", "TIP"] },
+      { id: "car-info", label: "차량 정보·비교형", description: "스펙과 선택 기준을 구조적으로 비교", fieldIds: ["vehicle", "budget", "targetUser", "keywords"], recommendedStyleIds: ["easy-expert", "professional-column", "shareable-info"], recommendedStructureIds: ["comparison", "information", "faq"], suggestedImageRoles: ["HERO", "EXPLAINER", "TIP"] },
+    ],
+  },
+  {
+    id: "gaming-entertainment",
+    label: "게임·엔터테인먼트",
+    description: "게임, 영화, 드라마, 애니, 방송, 연예 콘텐츠",
+    defaultFieldIds: ["gameTitle", "mood", "highlight"],
+    presets: [
+      { id: "game-review", label: "게임 플레이 후기", description: "플레이 경험, 재미, 장단점을 중심으로 리뷰", fieldIds: ["gameTitle", "usagePeriod", "pros", "cons", "targetUser"], recommendedStyleIds: ["casual-daily", "honest-review", "playful"], recommendedStructureIds: ["review", "story", "comparison"], suggestedImageRoles: ["HERO", "CONTEXT", "EXPLAINER"] },
+      { id: "media-review", label: "영화·드라마·애니 감상", description: "작품 정보와 감상을 스포일러 강도에 맞춰 구성", fieldIds: ["gameTitle", "mood", "highlight", "audience"], recommendedStyleIds: ["emotional-essay", "honest-review", "casual-daily"], recommendedStructureIds: ["review", "story", "information"], suggestedImageRoles: ["HERO", "CONTEXT", "TIP"] },
+    ],
+  },
+  {
+    id: "living-interior",
+    label: "리빙·인테리어",
+    description: "집꾸미기, 공간 개선, 살림, 인테리어 정보",
+    defaultFieldIds: ["roomType", "budget", "goal"],
+    presets: [
+      { id: "home-makeover", label: "공간 변화·집꾸미기 기록", description: "전후 사진과 선택 이유를 중심으로 공간 변화를 기록", fieldIds: ["roomType", "budget", "mood", "highlight"], recommendedStyleIds: ["casual-daily", "honest-review", "friendly-info"], recommendedStructureIds: ["story", "review", "guide"], suggestedImageRoles: ["HERO", "CONTEXT", "PROCESS", "TIP"] },
+      { id: "interior-guide", label: "인테리어 정보·가이드", description: "자재·배치·수납·비용 정보를 실용적으로 정리", fieldIds: ["roomType", "budget", "audience", "goal"], recommendedStyleIds: ["friendly-info", "shareable-info", "easy-expert"], recommendedStructureIds: ["guide", "checklist", "comparison"], suggestedImageRoles: ["HERO", "EXPLAINER", "PROCESS", "TIP"] },
+    ],
+  },
+  {
+    id: "marketing-business",
+    label: "마케팅·비즈니스",
+    description: "마케팅, 브랜딩, 콘텐츠 운영, 실무 노하우",
+    defaultFieldIds: ["campaignGoal", "audience", "goal"],
+    presets: [
+      { id: "marketing-case", label: "마케팅 사례 분석", description: "문제·전략·실행·성과·배움을 사례 중심으로 정리", fieldIds: ["brand", "campaignGoal", "audience", "highlight"], recommendedStyleIds: ["professional-column", "easy-expert", "shareable-info"], recommendedStructureIds: ["information", "comparison", "story"], suggestedImageRoles: ["HERO", "EXPLAINER", "TIP"] },
+      { id: "business-howto", label: "실무 노하우 가이드", description: "업무 절차와 체크포인트를 실용적으로 정리", fieldIds: ["campaignGoal", "audience", "difficulty", "goal"], recommendedStyleIds: ["friendly-info", "shareable-info", "easy-expert"], recommendedStructureIds: ["guide", "checklist", "faq"], suggestedImageRoles: ["HERO", "PROCESS", "EXPLAINER", "TIP"] },
+    ],
+  },
+  {
+    id: "outdoor-sports",
+    label: "스포츠·아웃도어",
+    description: "스포츠, 등산, 캠핑, 낚시 등 야외 활동",
+    defaultFieldIds: ["activity", "experienceLevel", "highlight"],
+    presets: [
+      { id: "outdoor-diary", label: "아웃도어 경험 기록", description: "코스·장비·현장감과 체감을 사진 중심으로 기록", fieldIds: ["activity", "experienceLevel", "destination", "highlight"], recommendedStyleIds: ["casual-daily", "honest-review", "friendly-info"], recommendedStructureIds: ["story", "review", "guide"], suggestedImageRoles: ["HERO", "CONTEXT", "PROCESS", "TIP"] },
+      { id: "outdoor-guide", label: "코스·장비 입문 가이드", description: "초보자를 위한 준비물·코스·주의사항 정리", fieldIds: ["activity", "experienceLevel", "audience", "goal"], recommendedStyleIds: ["friendly-info", "shareable-info", "easy-expert"], recommendedStructureIds: ["guide", "checklist", "information"], suggestedImageRoles: ["HERO", "EXPLAINER", "PROCESS", "CAUTION"] },
     ],
   },
   {
