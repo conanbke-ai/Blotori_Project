@@ -464,13 +464,15 @@ export default function BlotoriAssetStudio({
           <option value="builtin:custom">직접 설정</option>
         </select></label>
 
-        {selectedCategoryPreset && <div className="selectedStyleCard categoryPresetCard"><div><strong>{selectedCategoryPreset.label}</strong><span>블로토리 기본 · {selectedCategoryPreset.tags.join(" · ")}</span></div><p>{selectedCategoryPreset.description}</p><div className="dnaApplyPanel"><strong>이번 글에 적용</strong><div className="dnaToggleGrid">{([
+        {selectedCategoryPreset && <div className="selectedStyleCard categoryPresetCard"><div><strong>{selectedCategoryPreset.label}</strong><span>{selectedCategoryPreset.sourceMeta.kind === "blogchart-top10-full-corpus"
+  ? `실측 TOP10 전수분석 · ${selectedCategoryPreset.sourceMeta.blogCount}개 블로그 · ${selectedCategoryPreset.sourceMeta.analyzedPosts.toLocaleString()}개 포스팅`
+  : "출시용 curated 기본 스타일"} · {selectedCategoryPreset.tags.join(" · ")}</span></div><p>{selectedCategoryPreset.description}</p>{selectedCategoryPreset.sourceMeta.kind === "blogchart-top10-full-corpus" && <div className="categoryEvidenceBadge"><b>전수분석 근거</b><span>성공률 {Math.round(selectedCategoryPreset.sourceMeta.successRate * 1000) / 10}%</span><span>실패 {selectedCategoryPreset.sourceMeta.failedPosts.toLocaleString()}건</span></div>}<div className="dnaApplyPanel"><strong>이번 글에 적용</strong><div className="dnaToggleGrid">{([
   ["voice", "문체"],
   ["mood", "분위기"],
   ["structure", "글 구성"],
   ["imageRhythm", "사진 배치"],
   ["visual", "꾸밈"],
-] as const).map(([key, label]) => <label key={key}><input type="checkbox" checked={blogDNAApply[key]} onChange={(event) => setBlogDNAApply((current) => ({ ...current, [key]: event.target.checked }))} /><span>{label}</span></label>)}</div><small>출시용 카테고리 대표 패턴을 현재 콘텐츠에 맞춰 변주합니다.</small></div></div>}
+] as const).map(([key, label]) => <label key={key}><input type="checkbox" checked={blogDNAApply[key]} onChange={(event) => setBlogDNAApply((current) => ({ ...current, [key]: event.target.checked }))} /><span>{label}</span></label>)}</div><small>카테고리 대표 패턴을 현재 콘텐츠에 맞춰 변주합니다. 실측 데이터가 있으면 전수분석 프리셋을 우선 사용합니다.</small></div></div>}
         {selectedStyle && <div className="selectedStyleCard"><div><strong>{selectedStyle.name}</strong><span>{sourceLabel[selectedStyle.sourceType]} · 저장 기본 강도 {selectedStyle.defaultIntensity}/5{selectedStyle.blogDNA ? ` · Blog DNA ${selectedStyle.blogDNA.confidence}` : " · 기존 문체 프로필"}</span></div><button type="button" className="assetMiniButton danger" onClick={() => removeStyle(selectedStyle.id)}>삭제</button><p>{selectedStyle.signature}</p>{selectedStyle.blogDNA && <div className="dnaApplyPanel"><strong>이번 글에 적용</strong><div className="dnaToggleGrid">{([
   ["voice", "문체"],
   ["mood", "분위기"],
