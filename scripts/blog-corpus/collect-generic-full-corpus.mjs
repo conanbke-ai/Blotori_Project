@@ -11,7 +11,7 @@ const theme=String(arg("theme",""));
 const outputDir=String(arg("output","tmp-blog-corpus/generic"));
 const delayMs=Number(arg("delay-ms","120"));
 const maxPostsRaw=arg("max-posts");
-const maxPosts=maxPostsRaw?Number(maxPostsRaw):Infinity;
+const maxPosts=maxPostsRaw?Number(maxPostsRaw):Infinity;\nconst concurrency=Math.max(1,Math.min(6,Number(arg("concurrency","3"))));
 if(!seedPath) throw new Error("--seed is required");
 
 const seed=JSON.parse(fs.readFileSync(seedPath,"utf8"));
@@ -21,7 +21,7 @@ fs.mkdirSync(outputDir,{recursive:true});
 const summaries=[];
 for(const [i,target] of targets.entries()){
   console.log("GENERIC_START",i+1,targets.length,target.theme,target.rank,target.platform,target.url);
-  const aggregate=await collectGenericBlogCorpus(target,{delayMs,maxPosts});
+  const aggregate=await collectGenericBlogCorpus(target,{delayMs,maxPosts,concurrency});
   aggregate.rank=target.rank;
   aggregate.theme=target.theme;
   const safeHost=new URL(target.url).hostname.replace(/[^A-Za-z0-9.-]/g,"_");
