@@ -89,7 +89,8 @@ function classifyEnding(sentence){
 function componentSequence($,root){
   const seq=[];
   root.find(".se-component").each((_,el)=>{
-    const cls=$(el).attr("class")||"";
+    const node=$(el);
+    const cls=node.attr("class")||"";
     let type="other";
     if(/image/i.test(cls)) type="image";
     else if(/text/i.test(cls)) type="text";
@@ -97,13 +98,28 @@ function componentSequence($,root){
     else if(/quote/i.test(cls)) type="quote";
     else if(/horizontal|line/i.test(cls)) type="divider";
     else if(/video/i.test(cls)) type="video";
-    seq.push(type);
+    seq.push({type,textChars:type==="text"?clean(node.text()).length:0});
   });
-  let maxImageRun=0,run=0,imageComponents=0;
-  for(const t of seq){
-    if(t==="image"){run++;imageComponents++;maxImageRun=Math.max(maxImageRun,run);} else run=0;
+  let maxImageRun=0,run=0,imageComponents=0,imageRunCount=0,imageRunTotal=0;
+  let textImageTransitions=0,prev=null,textBeforeFirstImage=0,seenImage=false;
+  const textGaps=[];
+  let gapTextComponents=0;
+  for(const item of seq){
+    const t=item.type;
+    if(!seenImage && t==="text") textBeforeFirstImage++;
+    if(t==="image"){
+      if(!run){imageRunCount++; if(seenImage) textGaps.push(gapTextComponents); gapTextComponents=0;}
+      run++; imageComponents++; imageRunTotal++; maxImageRun=Math.max(maxImageRun,run); seenImage=true;
+    }else{
+      run=0;
+      if(seenImage && t==="text") gapTextComponents++;
+    }
+    if(prev && ((prev==="image"&&t==="text")||(prev==="text"&&t==="image"))) textImageTransitions++;
+    if(t==="image"||t==="text") prev=t;
   }
-  return {sequenceLength:seq.length,imageComponents,maxImageRun};
+  const avgImageRunLength=imageRunCount?Math.round(imageRunTotal/imageRunCount*100)/100:0;
+  const avgTextComponentsBetweenImageRuns=textGaps.length?Math.round(textGaps.reduce((a,b)=>a+b,0)/textGaps.length*100)/100:0;
+  return {sequenceLength:seq.length,imageComponents,maxImageRun,imageRunCount,avgImageRunLength,textImageTransitions,textBeforeFirstImage,avgTextComponentsBetweenImageRuns};
 }
 
 function pickRoot($){
@@ -154,6 +170,7 @@ export function parseNaverPostMetrics(html,meta={}){
     logNo:String(meta.logNo||""),
     date:String(meta.date||""),
     rootSelector:selector,
+    titleLength:Number(meta.titleLength||0),
     textChars:text.length,
     blockCount:blocks.length,
     paragraphCount:blocks.length,
@@ -174,6 +191,16 @@ export function parseNaverPostMetrics(html,meta={}){
     componentSequenceLength:seq.sequenceLength,
     imageComponentCount:seq.imageComponents,
     maxConsecutiveImageComponents:seq.maxImageRun,
+    imageRunCount:seq.imageRunCount,
+    avgImageRunLength:seq.avgImageRunLength,
+    textImageTransitions:seq.textImageTransitions,
+    textComponentsBeforeFirstImage:seq.textBeforeFirstImage,
+    avgTextComponentsBetweenImageRuns:seq.avgTextComponentsBetweenImageRuns,
+    hashtagCount:countMatches(text,/(?:^|\s)#[0-9A-Za-z가-힣_]+/gu),
+    mapCount:root.find('.se-map,.se-component[class*="map"]').length,
+    videoCount:root.find('video,.se-video,.se-component[class*="video"]').length,
+    closingParagraphChars:blocks.length?blocks.at(-1).length:0,
+    closingHasHashtag:blocks.length&&/(?:^|\s)#[0-9A-Za-z가-힣_]+/u.test(blocks.at(-1))?1:0,
     endings,
     punctuation:{
       question:countMatches(text,/\?/g),
@@ -286,6 +313,17 @@ export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
       strongCount:stats(analyzed,"strongCount"),
       centeredBlockCount:stats(analyzed,"centeredBlockCount"),
       maxConsecutiveImageComponents:stats(analyzed,"maxConsecutiveImageComponents"),
+      imageRunCount:stats(analyzed,"imageRunCount"),
+      avgImageRunLength:stats(analyzed,"avgImageRunLength"),
+      textImageTransitions:stats(analyzed,"textImageTransitions"),
+      textComponentsBeforeFirstImage:stats(analyzed,"textComponentsBeforeFirstImage"),
+      avgTextComponentsBetweenImageRuns:stats(analyzed,"avgTextComponentsBetweenImageRuns"),
+      hashtagCount:stats(analyzed,"hashtagCount"),
+      titleLength:stats(analyzed,"titleLength"),
+      closingParagraphChars:stats(analyzed,"closingParagraphChars"),
+      closingHasHashtag:stats(analyzed,"closingHasHashtag"),
+      mapCount:stats(analyzed,"mapCount"),
+      videoCount:stats(analyzed,"videoCount"),
       galleryLike:stats(analyzed,"galleryLike"),
     },
     voice:{endings,punctuation},
@@ -297,6 +335,9 @@ export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
       lists:analyzed.reduce((a,r)=>a+r.listItemCount,0),
       quotes:analyzed.reduce((a,r)=>a+r.quoteCount,0),
       links:analyzed.reduce((a,r)=>a+r.linkCount,0),
+      maps:analyzed.reduce((a,r)=>a+r.mapCount,0),
+      videos:analyzed.reduce((a,r)=>a+r.videoCount,0),
+      hashtags:analyzed.reduce((a,r)=>a+r.hashtagCount,0),
     },
     failures:failures.slice(0,100),
   };
