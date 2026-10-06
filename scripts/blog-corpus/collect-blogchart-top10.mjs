@@ -29,22 +29,59 @@ for (const theme of themes) {
     const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
     const out = [];
     for (const tr of document.querySelectorAll("tr")) {
-      const link = tr.querySelector('a[href*="blog.naver.com"]');
-      if (!link) continue;
-      const href = link.href || "";
-      const match = href.match(/blog\.naver\.com\/([A-Za-z0-9_.-]+)/i);
-      if (!match) continue;
       const cells = [...tr.querySelectorAll("td")].map((td) => clean(td.textContent));
       const rowText = clean(tr.textContent);
       const rankText = cells.find((value) => /^\d{1,2}$/.test(value)) || rowText.match(/^\d{1,2}/)?.[0] || "";
       const rank = Number(rankText);
       if (!Number.isFinite(rank) || rank < 1 || rank > 10) continue;
-      const blogId = match[1];
-      const nameGuess = clean(link.textContent) || cells.find((value) => value && !/^\d/.test(value) && !value.includes("blog.naver.com")) || blogId;
+
+      const anchors = [...tr.querySelectorAll("a[href]")].map((a) => ({
+        href: a.href || "",
+        text: clean(a.textContent),
+      }));
+      const external = anchors.find((a) => {
+        try {
+          const u = new URL(a.href);
+          return /^https?:$/.test(u.protocol) && !/^(www\.)?blogchart\.co\.kr$/i.test(u.hostname);
+        } catch {
+          return false;
+        }
+      });
+      const urlText = cells.find((value) => /(?:https?:\/\/)?(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}/.test(value))
+        || rowText.match(/(?:https?:\/\/)?(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?:\/[^\s]*)?/)?.[0]
+        || "";
+      let url = external?.href || urlText;
+      if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+      if (!url) continue;
+
+      let hostname = "";
+      let platform = "other";
+      let blogId = null;
+      try {
+        const u = new URL(url);
+        hostname = u.hostname.replace(/^www\./, "");
+        if (/blog\.naver\.com$/i.test(hostname)) {
+          platform = "naver";
+          blogId = u.pathname.split("/").filter(Boolean)[0] || null;
+          if (blogId) url = `https://blog.naver.com/${blogId}`;
+        } else if (/tistory\.com$/i.test(hostname)) {
+          platform = "tistory";
+        } else if (/blog\.daum\.net$/i.test(hostname)) {
+          platform = "daum";
+        } else if (/brunch\.co\.kr$/i.test(hostname) || /brunch\.co\.kr$/i.test(hostname)) {
+          platform = "brunch";
+        }
+      } catch {}
+
+      const nameGuess = external?.text
+        || cells.find((value) => value && !/^\d/.test(value) && value !== urlText)
+        || hostname;
       out.push({
         rank,
+        platform,
         blogId,
-        url: `https://blog.naver.com/${blogId}`,
+        hostname,
+        url,
         rowText,
         nameGuess: nameGuess.slice(0, 120),
       });
