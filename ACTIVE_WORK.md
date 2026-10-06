@@ -20,6 +20,7 @@
 - 사용자 참고자료 업로드 + 브라우저 내 자료함 + 생성 요청 직접 첨부
 - 이름을 붙여 재사용하는 `내 블로그 스타일` + Blog DNA(문체/분위기/구성/사진 리듬/꾸밈) + Adaptive Variation
 - Playwright/Chromium 렌더 분석 + DOM/이미지 위치/전체 페이지 스크린샷 Visual DNA 증거
+- Category Blog DNA Library v1: 블로그차트 테마를 앱 카테고리로 재구성한 출시용 기본 스타일
 - 문체·자료 `.blotori` 공유 팩 import/export
 - Composer V2 3-column workspace + canonical Blotori 얼굴/전체 캐릭터/생성 로딩 visual QA
 
@@ -90,6 +91,11 @@
 - [x] localhost/사설망/링크로컬/특수 IP 차단 SSRF guard
 - [x] 렌더링 실패 시 web search fallback + evidence/confidence UI 표시
 - [x] Chromium smoke / TypeScript / platform QA / production build PASS
+- [x] 앱 카테고리 7개 → 19개로 확장
+- [x] 신규 카테고리: IT·테크 / 뷰티·패션 / 육아·가족 / 반려동물 / 부동산 / 재테크·경제 / 취업·커리어 / 자동차 / 게임·엔터테인먼트 / 리빙·인테리어 / 마케팅·비즈니스 / 스포츠·아웃도어
+- [x] 각 확장 카테고리에 출시용 기본 Blog DNA 프리셋 연결
+- [x] 카테고리 선택 시 기본 Blog DNA를 Composer 스타일 목록에 노출
+- [x] Category Blog DNA TypeScript / platform QA / production build PASS
 - [x] 문체 프로필명은 생성 본문 프롬프트에서 분리하고 스타일 signature만 적용
 - [x] `.blotori` 문체·자료 공유 팩 import/export
 - [x] canonical Blotori 얼굴 아이콘 / 전체 캐릭터 / 생성 로딩 자산 정상 복구
