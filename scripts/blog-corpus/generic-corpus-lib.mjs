@@ -86,7 +86,7 @@ export async function fetchGenericPostMetrics(post,{delayMs=120}={}){
   return parseBlogPostMetrics(html,{logNo:post.logNo,date:post.date});
 }
 
-export async function collectGenericBlogCorpus(target,{delayMs=120,maxPosts=Infinity}={}){
+export async function collectGenericBlogCorpus(target,{delayMs=120,maxPosts=Infinity,concurrency=3}={}){
   const {url,platform}=target;
   let listed=[];
   const failures=[];
@@ -97,14 +97,22 @@ export async function collectGenericBlogCorpus(target,{delayMs=120,maxPosts=Infi
   }catch(e){failures.push({stage:"list",message:String(e)});}
   const selected=listed.slice(0,Number.isFinite(maxPosts)?maxPosts:listed.length);
   const analyzed=[];
-  for(const [i,post] of selected.entries()){
-    try{
-      const metric=await fetchGenericPostMetrics(post,{delayMs});
-      if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
-      analyzed.push(metric);
-    }catch(e){failures.push({logNo:post.logNo,stage:"post",message:String(e).slice(0,300)});}
-    if((i+1)%50===0||i===selected.length-1) console.log("GENERIC_PROGRESS",url,i+1,selected.length,"ok",analyzed.length,"fail",failures.length);
+  let cursor=0,completed=0;
+  async function worker(){
+    while(true){
+      const i=cursor++;
+      if(i>=selected.length) return;
+      const post=selected[i];
+      try{
+        const metric=await fetchGenericPostMetrics(post,{delayMs});
+        if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
+        analyzed.push(metric);
+      }catch(e){failures.push({logNo:post.logNo,stage:"post",message:String(e).slice(0,300)});}
+      completed++;
+      if(completed%50===0||completed===selected.length) console.log("GENERIC_PROGRESS",url,completed,selected.length,"ok",analyzed.length,"fail",failures.length);
+    }
   }
+  await Promise.all(Array.from({length:Math.min(Math.max(1,concurrency),Math.max(1,selected.length))},()=>worker()));
   const key=new URL(url).hostname+new URL(url).pathname.replace(/\W+/g,"_");
   const aggregate=aggregateNaverBlogCorpus(key,listed,analyzed,failures);
   aggregate.platform=platform;
