@@ -106,6 +106,9 @@
 - [x] materialized preset JSON이 있으면 curated preset 대신 자동 우선 적용
 - [x] full-corpus preset integration TypeScript / platform QA / production build PASS
 - [x] Naver full-corpus pilot: roooad 543/543 analyzed, failed 0, successRate 1.0
+- [x] materialized corpus QA gate: 카테고리 수/사이트 수/분석률/sourceMeta/DNA 필수 차원 검증
+- [x] 실측 프리셋 UI에 블로그 수/포스팅 수/성공률 evidence 표시
+- [x] materialized JSON 존재 시 curated fallback보다 실측 프리셋 우선 적용
 - [ ] 31테마 × TOP10 전체 본 런 materialization 완료 및 coverage-v1.json 확정
 - [x] 문체 프로필명은 생성 본문 프롬프트에서 분리하고 스타일 signature만 적용
 - [x] `.blotori` 문체·자료 공유 팩 import/export
