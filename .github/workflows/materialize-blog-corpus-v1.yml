@@ -1,0 +1,176 @@
+name: Materialize Blog Corpus V1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - .github/workflows/materialize-blog-corpus-v1.yml
+
+permissions:
+  contents: read
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund
+      - name: Snapshot BlogChart 31 themes x TOP10
+        run: node scripts/blog-corpus/collect-blogchart-top10.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blogchart-top10-v1
+          path: tmp-blog-corpus/blogchart-top10-v1.json
+          retention-days: 90
+
+  corpus:
+    needs: seed
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        theme:
+          - it-review
+          - health-medical
+          - games
+          - wedding
+          - domestic-travel
+          - fishing
+          - books
+          - marketing
+          - real-estate
+          - beauty
+          - sports
+          - pets
+          - parenting
+          - food
+          - interior
+          - car-review
+          - finance
+          - jobs
+          - camping
+          - fashion
+          - overseas-travel
+          - celebrities
+          - design
+          - hiking
+          - music
+          - comics-anime
+          - entertainment
+          - education
+          - photography
+          - diet
+          - movies
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - uses: actions/download-artifact@v4
+        with:
+          name: blogchart-top10-v1
+          path: tmp-blog-corpus
+      - name: Exhaust every public Naver post
+        run: >
+          node scripts/blog-corpus/collect-naver-full-corpus.mjs
+          --seed tmp-blog-corpus/blogchart-top10-v1.json
+          --theme ${{ matrix.theme }}
+          --output tmp-blog-corpus/theme/${{ matrix.theme }}/naver
+          --delay-ms 60
+          --concurrency 4
+      - name: Exhaust non-Naver public posts
+        run: >
+          node scripts/blog-corpus/collect-generic-full-corpus.mjs
+          --seed tmp-blog-corpus/blogchart-top10-v1.json
+          --theme ${{ matrix.theme }}
+          --output tmp-blog-corpus/theme/${{ matrix.theme }}/generic
+          --delay-ms 80
+          --concurrency 3
+      - name: Write theme coverage
+        run: |
+          node - <<'NODE'
+          const fs=require("fs"), path=require("path");
+          const root="tmp-blog-corpus/theme/${{ matrix.theme }}";
+          const summaries=[];
+          for(const kind of ["naver","generic"]){
+            const p=path.join(root,kind,"summary.json");
+            if(fs.existsSync(p)) summaries.push(...JSON.parse(fs.readFileSync(p,"utf8")).targets);
+          }
+          const coverage={
+            theme:"${{ matrix.theme }}",
+            sites:summaries.length,
+            totalListed:summaries.reduce((a,b)=>a+(b.totalListed||0),0),
+            analyzed:summaries.reduce((a,b)=>a+(b.analyzed||0),0),
+            failed:summaries.reduce((a,b)=>a+(b.failed||0),0),
+            fullCoverageSites:summaries.filter(x=>x.fullCoverage).length,
+            blockedSites:summaries.filter(x=>!x.fullCoverage&&(x.totalListed||0)===0).length,
+            targets:summaries
+          };
+          fs.mkdirSync(root,{recursive:true});
+          fs.writeFileSync(path.join(root,"coverage.json"),JSON.stringify(coverage,null,2));
+          console.log("THEME_COVERAGE",JSON.stringify(coverage));
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: corpus-${{ matrix.theme }}
+          path: tmp-blog-corpus/theme/${{ matrix.theme }}/
+          if-no-files-found: warn
+          retention-days: 90
+
+  cluster:
+    needs: corpus
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: corpus-*
+          path: tmp-blog-corpus/all
+          merge-multiple: true
+      - name: Cluster whole-blog metrics into category archetypes
+        run: node scripts/blog-corpus/cluster-blog-dna.mjs tmp-blog-corpus/all tmp-blog-corpus/category-blog-dna-v1.json
+      - name: Aggregate global coverage
+        run: |
+          node - <<'NODE'
+          const fs=require("fs"),path=require("path");
+          const root="tmp-blog-corpus/all", files=[];
+          function walk(d){if(!fs.existsSync(d))return;for(const n of fs.readdirSync(d)){const p=path.join(d,n),s=fs.statSync(p);if(s.isDirectory())walk(p);else if(n==="coverage.json")files.push(p);}}
+          walk(root);
+          const rows=files.map(p=>JSON.parse(fs.readFileSync(p,"utf8")));
+          const report={
+            schemaVersion:1,
+            generatedAt:new Date().toISOString(),
+            themes:rows.length,
+            sites:rows.reduce((a,b)=>a+b.sites,0),
+            totalListed:rows.reduce((a,b)=>a+b.totalListed,0),
+            analyzed:rows.reduce((a,b)=>a+b.analyzed,0),
+            failed:rows.reduce((a,b)=>a+b.failed,0),
+            fullCoverageSites:rows.reduce((a,b)=>a+b.fullCoverageSites,0),
+            blockedSites:rows.reduce((a,b)=>a+b.blockedSites,0),
+            rows
+          };
+          fs.writeFileSync("tmp-blog-corpus/coverage-v1.json",JSON.stringify(report,null,2));
+          console.log("GLOBAL_COVERAGE",JSON.stringify(report));
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: category-blog-dna-v1
+          path: |
+            tmp-blog-corpus/category-blog-dna-v1.json
+            tmp-blog-corpus/coverage-v1.json
+          retention-days: 90
