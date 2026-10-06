@@ -11,7 +11,8 @@ const theme=String(arg("theme",""));
 const outputDir=String(arg("output","tmp-blog-corpus/generic"));
 const delayMs=Number(arg("delay-ms","120"));
 const maxPostsRaw=arg("max-posts");
-const maxPosts=maxPostsRaw?Number(maxPostsRaw):Infinity;\nconst concurrency=Math.max(1,Math.min(6,Number(arg("concurrency","3"))));
+const maxPosts=maxPostsRaw?Number(maxPostsRaw):Infinity;
+const concurrency=Math.max(1,Math.min(6,Number(arg("concurrency","3"))));
 if(!seedPath) throw new Error("--seed is required");
 
 const seed=JSON.parse(fs.readFileSync(seedPath,"utf8"));
