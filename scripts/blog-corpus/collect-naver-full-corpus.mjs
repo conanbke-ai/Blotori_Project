@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { listAllNaverPosts, fetchNaverPostMetrics, aggregateNaverBlogCorpus } from "./naver-corpus-lib.mjs";
+import { listAllNaverPosts, fetchNaverPostMetrics, fetchNaverPostListPageMetrics, aggregateNaverBlogCorpus } from "./naver-corpus-lib.mjs";
 
 function arg(name,fallback=null){
   const index=process.argv.indexOf(`--${name}`);
@@ -41,28 +41,66 @@ for(const [targetIndex,target] of targets.entries()){
   }
   const selected=listed.slice(0,Number.isFinite(maxPosts)?maxPosts:listed.length);
   console.log("BLOG_LISTED",target.blogId,listed.length,"SELECTED",selected.length);
-  let cursor=0,completed=0;
-  async function worker(){
-    while(true){
-      const i=cursor++;
-      if(i>=selected.length) return;
-      const post=selected[i];
-      if(post.blocked||post.notOpen) {
-        failures.push({logNo:post.logNo,stage:"skip",message:"blocked_or_not_open"});
-      } else {
+  const useBatch=arg("batch","true")!=="false" && selected.length===listed.length;
+  if(useBatch){
+    const groups=[];
+    for(let i=0;i<selected.length;i+=3) groups.push({pageNo:Math.floor(i/3)+1,posts:selected.slice(i,i+3)});
+    let cursor=0,completed=0;
+    async function batchWorker(){
+      while(true){
+        const gi=cursor++;
+        if(gi>=groups.length) return;
+        const group=groups[gi];
         try{
-          const metric=await fetchNaverPostMetrics(target.blogId,post,{delayMs});
-          if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
-          analyzed.push(metric);
-        }catch(error){
-          failures.push({logNo:post.logNo,stage:"post",message:String(error).slice(0,300)});
+          const metrics=await fetchNaverPostListPageMetrics(target.blogId,group.posts,group.pageNo,{delayMs});
+          for(const metric of metrics){
+            if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
+            analyzed.push(metric);
+          }
+        }catch(batchError){
+          for(const post of group.posts){
+            if(post.blocked||post.notOpen){
+              failures.push({logNo:post.logNo,stage:"skip",message:"blocked_or_not_open"});
+              continue;
+            }
+            try{
+              const metric=await fetchNaverPostMetrics(target.blogId,post,{delayMs});
+              if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
+              analyzed.push(metric);
+            }catch(error){
+              failures.push({logNo:post.logNo,stage:"post",message:String(error).slice(0,300),batchFallback:String(batchError).slice(0,180)});
+            }
+          }
         }
+        completed+=group.posts.length;
+        if(completed%60<3||completed===selected.length) console.log("BLOG_PROGRESS",target.blogId,completed,selected.length,"ok",analyzed.length,"fail",failures.length);
       }
-      completed++;
-      if(completed%50===0||completed===selected.length) console.log("BLOG_PROGRESS",target.blogId,completed,selected.length,"ok",analyzed.length,"fail",failures.length);
     }
+    await Promise.all(Array.from({length:Math.min(concurrency,Math.max(1,groups.length))},()=>batchWorker()));
+  } else {
+    let cursor=0,completed=0;
+    async function worker(){
+      while(true){
+        const i=cursor++;
+        if(i>=selected.length) return;
+        const post=selected[i];
+        if(post.blocked||post.notOpen) {
+          failures.push({logNo:post.logNo,stage:"skip",message:"blocked_or_not_open"});
+        } else {
+          try{
+            const metric=await fetchNaverPostMetrics(target.blogId,post,{delayMs});
+            if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
+            analyzed.push(metric);
+          }catch(error){
+            failures.push({logNo:post.logNo,stage:"post",message:String(error).slice(0,300)});
+          }
+        }
+        completed++;
+        if(completed%50===0||completed===selected.length) console.log("BLOG_PROGRESS",target.blogId,completed,selected.length,"ok",analyzed.length,"fail",failures.length);
+      }
+    }
+    await Promise.all(Array.from({length:Math.min(concurrency,Math.max(1,selected.length))},()=>worker()));
   }
-  await Promise.all(Array.from({length:Math.min(concurrency,Math.max(1,selected.length))},()=>worker()));
   const aggregate=aggregateNaverBlogCorpus(target.blogId,listed,analyzed,failures);
   aggregate.rank=target.rank;
   aggregate.theme=target.theme;
