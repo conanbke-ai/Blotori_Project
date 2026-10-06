@@ -210,6 +210,17 @@ function sumNested(rows,group,key){
   return rows.reduce((a,r)=>a+num(r[group]?.[key]),0);
 }
 
+function representativePosts(rows,count=3){
+  if(!rows.length) return [];
+  const keys=["textChars","avgSentenceChars","avgParagraphChars","imageCount","imagesPer1000Chars","shortParagraphRate","headingCount","maxConsecutiveImageComponents"];
+  const med=Object.fromEntries(keys.map(k=>[k,quantile(rows.map(r=>r[k]),.5)]));
+  const scale=Object.fromEntries(keys.map(k=>[k,Math.max(1,quantile(rows.map(r=>r[k]),.75)-quantile(rows.map(r=>r[k]),.25))]));
+  return [...rows].map(r=>{
+    const distance=keys.reduce((a,k)=>a+Math.abs(num(r[k])-med[k])/scale[k],0);
+    return {logNo:r.logNo,date:r.date,distance:Math.round(distance*1000)/1000};
+  }).sort((a,b)=>a.distance-b.distance).slice(0,count);
+}
+
 export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
   const digest=crypto.createHash("sha256");
   for(const r of analyzed){
@@ -259,6 +270,7 @@ export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
       galleryLike:stats(analyzed,"galleryLike"),
     },
     voice:{endings,punctuation},
+    representativePosts:representativePosts(analyzed,3),
     structuralTotals:{
       images:analyzed.reduce((a,r)=>a+r.imageCount,0),
       headings:analyzed.reduce((a,r)=>a+r.headingCount,0),
