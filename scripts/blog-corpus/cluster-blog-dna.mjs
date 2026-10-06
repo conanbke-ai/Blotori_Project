@@ -34,6 +34,17 @@ const FEATURES=[
   ["strongCount","distributions.strongCount.median"],
   ["centeredBlockCount","distributions.centeredBlockCount.median"],
   ["imageRun","distributions.maxConsecutiveImageComponents.median"],
+  ["imageRunCount","distributions.imageRunCount.median"],
+  ["avgImageRunLength","distributions.avgImageRunLength.median"],
+  ["textImageTransitions","distributions.textImageTransitions.median"],
+  ["textBeforeFirstImage","distributions.textComponentsBeforeFirstImage.median"],
+  ["textBetweenImageRuns","distributions.avgTextComponentsBetweenImageRuns.median"],
+  ["hashtagCount","distributions.hashtagCount.median"],
+  ["titleLength","distributions.titleLength.median"],
+  ["closingParagraphChars","distributions.closingParagraphChars.median"],
+  ["closingHasHashtag","distributions.closingHasHashtag.median"],
+  ["mapCount","distributions.mapCount.median"],
+  ["videoCount","distributions.videoCount.median"],
   ["formalRate","voice.endings.formal.rate"],
   ["haeyoRate","voice.endings.haeyo.rate"],
   ["jyoRate","voice.endings.jyo.rate"],
@@ -86,9 +97,13 @@ function inferLabel(raw){
   const image=raw.imageCount||0, para=raw.avgParagraphChars||0, sent=raw.avgSentenceChars||0;
   const info=raw.headingCount||0, formal=raw.formalRate||0, haeyo=raw.haeyoRate||0;
   const emo=(raw.exclamation||0)+(raw.laugh||0)+(raw.emoji||0);
-  if(image>=12&&para<=90) return "사진 중심 짧은 호흡형";
+  const transitions=raw.textImageTransitions||0, hashtags=raw.hashtagCount||0;
+  const run=raw.avgImageRunLength||0;
+  if(image>=12&&para<=90&&transitions>=5) return "사진-짧은코멘트 교차형";
+  if(image>=12&&run>=2) return "사진 묶음 중심 비주얼형";
   if(info>=4&&formal>haeyo) return "구조화 전문 정보형";
   if(info>=3) return "소제목 중심 정보형";
+  if(hashtags>=8&&haeyo>=formal) return "검색키워드 강화 후기형";
   if(emo>=2&&haeyo>=formal) return "친근한 경험·리액션형";
   if(sent>=45||para>=180) return "긴 호흡 설명·칼럼형";
   return "균형형 블로그 서술";
