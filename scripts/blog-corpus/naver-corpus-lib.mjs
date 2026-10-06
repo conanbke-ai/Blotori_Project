@@ -193,6 +193,25 @@ export async function fetchNaverPostMetrics(blogId,post,{delayMs=120}={}){
   return parseNaverPostMetrics(html,post);
 }
 
+export async function fetchNaverPostListPageMetrics(blogId,pagePosts,pageNo,{delayMs=120}={}){
+  const url=`https://blog.naver.com/PostList.naver?blogId=${encodeURIComponent(blogId)}&categoryNo=0&currentPage=${pageNo}`;
+  const html=await fetchText(url,{referer:`https://blog.naver.com/${blogId}`});
+  const pageLogs=[...html.matchAll(/logNo[=:"'&]+(\d{8,})/g)].map(m=>m[1]);
+  const uniqueLogs=[...new Set(pageLogs)].slice(0,pagePosts.length);
+  const expected=pagePosts.map(p=>String(p.logNo));
+  if(uniqueLogs.length!==expected.length||uniqueLogs.some((id,i)=>id!==expected[i])){
+    throw new Error(`BATCH_LOG_MISMATCH page=${pageNo} expected=${expected.join(",")} actual=${uniqueLogs.join(",")}`);
+  }
+  const $=cheerio.load(html);
+  const roots=$(".se-main-container").toArray();
+  if(roots.length<pagePosts.length){
+    throw new Error(`BATCH_ROOT_MISMATCH page=${pageNo} expected=${pagePosts.length} actual=${roots.length}`);
+  }
+  const metrics=pagePosts.map((post,i)=>parseNaverPostMetrics($.html(roots[i]),post));
+  if(delayMs) await sleep(delayMs);
+  return metrics;
+}
+
 const num=(x)=>Number.isFinite(Number(x))?Number(x):0;
 function quantile(values,q){
   const v=values.map(num).filter(Number.isFinite).sort((a,b)=>a-b);
