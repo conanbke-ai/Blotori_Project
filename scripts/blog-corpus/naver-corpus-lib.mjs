@@ -29,14 +29,15 @@ export async function listAllNaverPosts(blogId,{delayMs=120,maxPages=10000}={}){
     const raw=await fetchText(url,{referer:`https://blog.naver.com/${blogId}`});
     let parsed;
     try{
-      const normalized=raw.replace(/^\uFEFF/,"").trim();
+      const normalized=raw.replace(/^\uFEFF/,"").trim().replace(/\\'/g,"'");
       parsed=JSON.parse(normalized);
     }catch{
       const start=raw.indexOf("{"),end=raw.lastIndexOf("}");
-      try{parsed=JSON.parse(raw.slice(start,end+1));}
+      try{parsed=JSON.parse(raw.slice(start,end+1).replace(/\\'/g,"'"));}
       catch{throw new Error(`POST_LIST_INVALID_JSON page=${page} prefix=${JSON.stringify(raw.slice(0,80))}`);}
     }
     const list=Array.isArray(parsed.postList)?parsed.postList:[];
+    const totalCount=Number(parsed.totalCount||0);
     if(!list.length) break;
     let fresh=0;
     for(const item of list){
@@ -55,7 +56,7 @@ export async function listAllNaverPosts(blogId,{delayMs=120,maxPages=10000}={}){
         notOpen:Boolean(Number(item.isPostNotOpen||0)),
       });
     }
-    if(fresh===0||list.length<countPerPage) break;
+    if(fresh===0||list.length<countPerPage||(totalCount>0&&posts.length>=totalCount)) break;
     if(delayMs) await sleep(delayMs);
   }
   return posts;
