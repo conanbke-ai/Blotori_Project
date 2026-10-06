@@ -28,7 +28,14 @@ export async function listAllNaverPosts(blogId,{delayMs=120,maxPages=10000}={}){
     const url=`https://blog.naver.com/PostTitleListAsync.naver?blogId=${encodeURIComponent(blogId)}&viewdate=&currentPage=${page}&categoryNo=0&parentCategoryNo=&countPerPage=${countPerPage}`;
     const raw=await fetchText(url,{referer:`https://blog.naver.com/${blogId}`});
     let parsed;
-    try{parsed=JSON.parse(raw);}catch{throw new Error(`POST_LIST_INVALID_JSON page=${page}`);}
+    try{
+      const normalized=raw.replace(/^\uFEFF/,"").trim();
+      parsed=JSON.parse(normalized);
+    }catch{
+      const start=raw.indexOf("{"),end=raw.lastIndexOf("}");
+      try{parsed=JSON.parse(raw.slice(start,end+1));}
+      catch{throw new Error(`POST_LIST_INVALID_JSON page=${page} prefix=${JSON.stringify(raw.slice(0,80))}`);}
+    }
     const list=Array.isArray(parsed.postList)?parsed.postList:[];
     if(!list.length) break;
     let fresh=0;
