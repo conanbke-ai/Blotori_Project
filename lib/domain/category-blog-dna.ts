@@ -1,4 +1,5 @@
-import materializedLibrary from "../../data/blog-corpus/category-blog-presets-v1.json";
+import materializedLibraryV1 from "../../data/blog-corpus/category-blog-presets-v1.json";
+import materializedLibraryV2 from "../../data/blog-corpus/category-blog-presets-v2.json";
 import type { BlogDNAProfile } from "./types";
 
 export interface CategoryBlogDNAPreset {
@@ -306,8 +307,12 @@ type MaterializedLibrary = {
   categories: Record<string, { presets?: CategoryBlogDNAPreset[] }>;
 };
 
-const observedLibrary = materializedLibrary as unknown as MaterializedLibrary;
-const observedPresets = Object.values(observedLibrary.categories ?? {}).flatMap((entry) => entry.presets ?? []);
+const observedLibraryV1 = materializedLibraryV1 as unknown as MaterializedLibrary;
+const observedLibraryV2 = materializedLibraryV2 as unknown as MaterializedLibrary;
+const observedPresetsV2 = Object.values(observedLibraryV2.categories ?? {}).flatMap((entry) => entry.presets ?? []);
+const observedPresetsV1 = Object.values(observedLibraryV1.categories ?? {}).flatMap((entry) => entry.presets ?? []);
+const observedLibrary = observedPresetsV2.length > 0 ? observedLibraryV2 : observedLibraryV1;
+const observedPresets = observedPresetsV2.length > 0 ? observedPresetsV2 : observedPresetsV1;
 const observedCategories = new Set(observedPresets.map((preset) => preset.categoryId));
 
 export const CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [
@@ -320,6 +325,8 @@ export const CATEGORY_BLOG_DNA_LIBRARY_META = {
   generatedAt: observedLibrary.generatedAt,
   inputBlogs: observedLibrary.inputBlogs ?? 0,
   source: observedLibrary.source,
+  schemaVersion: observedLibrary.schemaVersion,
+  biasCorrected: observedPresetsV2.length > 0,
 };
 
 export function getCategoryBlogDNAPresets(categoryId?: string) {
