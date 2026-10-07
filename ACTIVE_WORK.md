@@ -109,6 +109,12 @@
 - [x] materialized corpus QA gate: 카테고리 수/사이트 수/분석률/sourceMeta/DNA 필수 차원 검증
 - [x] 실측 프리셋 UI에 블로그 수/포스팅 수/성공률 evidence 표시
 - [x] materialized JSON 존재 시 curated fallback보다 실측 프리셋 우선 적용
+- [x] cross-run artifact merge로 305/310 랭킹 블로그 확보
+- [x] 누락 recovery: IT 8~10 / 건강 9 / 반려동물 10 / 육아 10 / 인테리어 9~10 / 방송연예 10 복구
+- [x] 기존 coverage.json 동일 파일명 merge 충돌 원인 확인 및 exact theme+rank 재구성 방식으로 수정
+- [x] full materialization workflow를 workflow_dispatch 전용 + non-cancelling + 360분 timeout + artifact 디렉터리 보존으로 안정화
+- [x] final-six rank 단위 독립 recovery workflow 추가
+- [ ] 현재 확보 305/310, 남은 음식 8~10 / 교육 5·10 recovery 완료
 - [ ] 31테마 × TOP10 전체 본 런 materialization 완료 및 coverage-v1.json 확정
 - [x] 문체 프로필명은 생성 본문 프롬프트에서 분리하고 스타일 signature만 적용
 - [x] `.blotori` 문체·자료 공유 팩 import/export
