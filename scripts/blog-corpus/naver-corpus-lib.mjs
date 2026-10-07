@@ -281,6 +281,7 @@ export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
   const visualRows=observedRows.filter(r=>r?.eligibility?.visual ?? ((r.imageCount||0)>0||(r.mapCount||0)>0||(r.videoCount||0)>0));
   const mixedRows=observedRows.filter(r=>(r?.eligibility?.text ?? r.textChars>=20)&&(r?.eligibility?.visual ?? ((r.imageCount||0)>0||(r.mapCount||0)>0||(r.videoCount||0)>0)));
   const minimalRows=observedRows.filter(r=>!(r?.eligibility?.text ?? r.textChars>=20)&&!(r?.eligibility?.visual ?? ((r.imageCount||0)>0||(r.mapCount||0)>0||(r.videoCount||0)>0)));
+  const unobservableRows=analyzed.filter(r=>r?.eligibility?.observable===false);
 
   const digest=crypto.createHash("sha256");
   for(const r of observedRows){
@@ -319,6 +320,8 @@ export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
       visualEligible:visualRows.length,
       mixedEligible:mixedRows.length,
       minimalObservable:minimalRows.length,
+      unobservable:unobservableRows.length,
+      parsed:analyzed.length,
       failed:trueFailed,
       trueFailed,
       successRate:rate(observedRows.length),
@@ -369,6 +372,7 @@ export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
       visualOnly:visualRows.filter(r=>!(r?.eligibility?.text ?? r.textChars>=20)).length,
       textOnly:textRows.filter(r=>!(r?.eligibility?.visual ?? ((r.imageCount||0)>0||(r.mapCount||0)>0||(r.videoCount||0)>0))).length,
       minimalObservable:minimalRows.length,
+      unobservable:unobservableRows.length,
       visualOnlyRate:rate(visualRows.filter(r=>!(r?.eligibility?.text ?? r.textChars>=20)).length),
     },
     representativePosts:representativePosts(textRows,3),
