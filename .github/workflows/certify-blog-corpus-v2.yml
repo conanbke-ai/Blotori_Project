@@ -5,6 +5,11 @@ on:
     workflows: ["Materialize Blog Corpus V2 Bias Corrected"]
     types: [completed]
   workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Completed Materialize Blog Corpus V2 workflow run ID"
+        required: true
+        type: string
 
 permissions:
   actions: read
@@ -26,8 +31,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_run" ]; then
             echo "run_id=${{ github.event.workflow_run.id }}" >> "$GITHUB_OUTPUT"
           else
-            echo "workflow_dispatch requires workflow_run trigger for artifact certification"
-            exit 1
+            echo "run_id=${{ inputs.source_run_id }}" >> "$GITHUB_OUTPUT"
           fi
       - name: Download seed from source run
         uses: actions/download-artifact@v4
