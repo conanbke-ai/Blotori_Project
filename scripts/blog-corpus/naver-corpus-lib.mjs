@@ -165,12 +165,20 @@ export function parseNaverPostMetrics(html,meta={}){
   const quoteCount=root.find("blockquote,.se-quote").length;
   const linkCount=root.find("a[href]").length;
   const galleryLike=root.find('.se-imageGroup,.se-component[class*="imageGroup"],.se-module-image-group').length;
+  const mapCount=root.find('.se-map,.se-component[class*="map"]').length;
+  const videoCount=root.find('video,.se-video,.se-component[class*="video"]').length;
+  const textEligible=text.length>=20;
+  const visualEligible=imageCount>0||seq.imageComponents>0||galleryLike>0||mapCount>0||videoCount>0;
+  const observable=text.length>0||visualEligible||seq.sequenceLength>0;
+  const contentClass=textEligible&&visualEligible?"mixed":textEligible?"text":visualEligible?"visual":"minimal";
 
   return {
     logNo:String(meta.logNo||""),
     date:String(meta.date||""),
     rootSelector:selector,
     titleLength:Number(meta.titleLength||0),
+    eligibility:{text:textEligible,visual:visualEligible,observable},
+    contentClass,
     textChars:text.length,
     blockCount:blocks.length,
     paragraphCount:blocks.length,
@@ -197,8 +205,8 @@ export function parseNaverPostMetrics(html,meta={}){
     textComponentsBeforeFirstImage:seq.textBeforeFirstImage,
     avgTextComponentsBetweenImageRuns:seq.avgTextComponentsBetweenImageRuns,
     hashtagCount:countMatches(text,/(?:^|\s)#[0-9A-Za-z가-힣_]+/gu),
-    mapCount:root.find('.se-map,.se-component[class*="map"]').length,
-    videoCount:root.find('video,.se-video,.se-component[class*="video"]').length,
+    mapCount,
+    videoCount,
     closingParagraphChars:blocks.length?blocks.at(-1).length:0,
     closingHasHashtag:blocks.length&&/(?:^|\s)#[0-9A-Za-z가-힣_]+/u.test(blocks.at(-1))?1:0,
     endings,
@@ -268,76 +276,114 @@ function representativePosts(rows,count=3){
 }
 
 export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
+  const observedRows=analyzed.filter(r=>r?.eligibility?.observable!==false);
+  const textRows=observedRows.filter(r=>r?.eligibility?.text ?? r.textChars>=20);
+  const visualRows=observedRows.filter(r=>r?.eligibility?.visual ?? ((r.imageCount||0)>0||(r.mapCount||0)>0||(r.videoCount||0)>0));
+  const mixedRows=observedRows.filter(r=>(r?.eligibility?.text ?? r.textChars>=20)&&(r?.eligibility?.visual ?? ((r.imageCount||0)>0||(r.mapCount||0)>0||(r.videoCount||0)>0)));
+  const minimalRows=observedRows.filter(r=>!(r?.eligibility?.text ?? r.textChars>=20)&&!(r?.eligibility?.visual ?? ((r.imageCount||0)>0||(r.mapCount||0)>0||(r.videoCount||0)>0)));
+
   const digest=crypto.createHash("sha256");
-  for(const r of analyzed){
-    digest.update([r.logNo,r.textChars,r.paragraphCount,r.sentenceCount,r.imageCount,r.avgSentenceChars,r.avgParagraphChars].join(":")+"\n");
+  for(const r of observedRows){
+    digest.update([r.logNo,r.textChars,r.paragraphCount,r.sentenceCount,r.imageCount,r.avgSentenceChars,r.avgParagraphChars,r.contentClass||""].join(":")+"\n");
   }
-  const totalSentences=analyzed.reduce((a,r)=>a+r.sentenceCount,0)||1;
+
+  const totalSentences=textRows.reduce((a,r)=>a+r.sentenceCount,0)||1;
   const endings={};
   for(const k of ["formal","haeyo","jyo","plain","noun","other"]){
-    const n=analyzed.reduce((a,r)=>a+num(r.endings?.[k]),0);
-    endings[k]={count:n,rate:Math.round(n/totalSentences*10000)/10000};
+    const count=textRows.reduce((a,r)=>a+num(r.endings?.[k]),0);
+    endings[k]={count,rate:Math.round(count/totalSentences*10000)/10000};
   }
   const punctuation={};
   for(const k of ["question","exclamation","ellipsis","laugh","cry","emoji"]){
-    const n=sumNested(analyzed,"punctuation",k);
-    const chars=analyzed.reduce((a,r)=>a+r.textChars,0)||1;
-    punctuation[k]={count:n,per1000Chars:Math.round(n/chars*1000000)/1000};
+    const count=sumNested(textRows,"punctuation",k);
+    const chars=textRows.reduce((a,r)=>a+r.textChars,0)||1;
+    punctuation[k]={count,per1000Chars:Math.round(count/chars*1000000)/1000};
   }
+
   const dates=listed.map(p=>p.date).filter(Boolean).sort();
+  const totalListed=listed.length;
+  const trueFailed=failures.length;
+  const rate=(count)=>totalListed?Math.round(count/totalListed*10000)/10000:0;
+
   return {
-    schemaVersion:1,
+    schemaVersion:2,
     platform:"naver",
     blogId,
     sourceUrl:`https://blog.naver.com/${blogId}`,
     generatedAt:new Date().toISOString(),
     coverage:{
-      totalListed:listed.length,
-      analyzed:analyzed.length,
-      failed:failures.length,
-      successRate:listed.length?Math.round(analyzed.length/listed.length*10000)/10000:0,
+      totalListed,
+      analyzed:observedRows.length,
+      observed:observedRows.length,
+      textEligible:textRows.length,
+      visualEligible:visualRows.length,
+      mixedEligible:mixedRows.length,
+      minimalObservable:minimalRows.length,
+      failed:trueFailed,
+      trueFailed,
+      successRate:rate(observedRows.length),
+      observedRate:rate(observedRows.length),
+      textCoverageRate:rate(textRows.length),
+      visualCoverageRate:rate(visualRows.length),
+      visualOnlyRate:rate(visualRows.filter(r=>!(r?.eligibility?.text ?? r.textChars>=20)).length),
+      textOnlyRate:rate(textRows.filter(r=>!(r?.eligibility?.visual ?? ((r.imageCount||0)>0||(r.mapCount||0)>0||(r.videoCount||0)>0))).length),
       firstDate:dates[0]||null,
       lastDate:dates.at(-1)||null,
       corpusDigest:digest.digest("hex"),
     },
     distributions:{
-      textChars:stats(analyzed,"textChars"),
-      paragraphCount:stats(analyzed,"paragraphCount"),
-      sentenceCount:stats(analyzed,"sentenceCount"),
-      avgSentenceChars:stats(analyzed,"avgSentenceChars"),
-      avgParagraphChars:stats(analyzed,"avgParagraphChars"),
-      shortParagraphRate:stats(analyzed,"shortParagraphRate"),
-      imageCount:stats(analyzed,"imageCount"),
-      imagesPer1000Chars:stats(analyzed,"imagesPer1000Chars"),
-      headingCount:stats(analyzed,"headingCount"),
-      strongCount:stats(analyzed,"strongCount"),
-      centeredBlockCount:stats(analyzed,"centeredBlockCount"),
-      maxConsecutiveImageComponents:stats(analyzed,"maxConsecutiveImageComponents"),
-      imageRunCount:stats(analyzed,"imageRunCount"),
-      avgImageRunLength:stats(analyzed,"avgImageRunLength"),
-      textImageTransitions:stats(analyzed,"textImageTransitions"),
-      textComponentsBeforeFirstImage:stats(analyzed,"textComponentsBeforeFirstImage"),
-      avgTextComponentsBetweenImageRuns:stats(analyzed,"avgTextComponentsBetweenImageRuns"),
-      hashtagCount:stats(analyzed,"hashtagCount"),
-      titleLength:stats(analyzed,"titleLength"),
-      closingParagraphChars:stats(analyzed,"closingParagraphChars"),
-      closingHasHashtag:stats(analyzed,"closingHasHashtag"),
-      mapCount:stats(analyzed,"mapCount"),
-      videoCount:stats(analyzed,"videoCount"),
-      galleryLike:stats(analyzed,"galleryLike"),
+      // Text/voice statistics intentionally use only text-eligible posts.
+      textChars:stats(textRows,"textChars"),
+      paragraphCount:stats(textRows,"paragraphCount"),
+      sentenceCount:stats(textRows,"sentenceCount"),
+      avgSentenceChars:stats(textRows,"avgSentenceChars"),
+      avgParagraphChars:stats(textRows,"avgParagraphChars"),
+      shortParagraphRate:stats(textRows,"shortParagraphRate"),
+      imagesPer1000Chars:stats(textRows,"imagesPer1000Chars"),
+      headingCount:stats(textRows,"headingCount"),
+      strongCount:stats(textRows,"strongCount"),
+      hashtagCount:stats(textRows,"hashtagCount"),
+      titleLength:stats(observedRows,"titleLength"),
+      closingParagraphChars:stats(textRows,"closingParagraphChars"),
+      closingHasHashtag:stats(textRows,"closingHasHashtag"),
+
+      // Visual/layout statistics intentionally include visual-only posts.
+      imageCount:stats(visualRows,"imageCount"),
+      centeredBlockCount:stats(visualRows,"centeredBlockCount"),
+      maxConsecutiveImageComponents:stats(visualRows,"maxConsecutiveImageComponents"),
+      imageRunCount:stats(visualRows,"imageRunCount"),
+      avgImageRunLength:stats(visualRows,"avgImageRunLength"),
+      textImageTransitions:stats(visualRows,"textImageTransitions"),
+      textComponentsBeforeFirstImage:stats(visualRows,"textComponentsBeforeFirstImage"),
+      avgTextComponentsBetweenImageRuns:stats(visualRows,"avgTextComponentsBetweenImageRuns"),
+      mapCount:stats(visualRows,"mapCount"),
+      videoCount:stats(visualRows,"videoCount"),
+      galleryLike:stats(visualRows,"galleryLike"),
     },
     voice:{endings,punctuation},
-    representativePosts:representativePosts(analyzed,3),
+    contentMix:{
+      totalObserved:observedRows.length,
+      textEligible:textRows.length,
+      visualEligible:visualRows.length,
+      mixed:mixedRows.length,
+      visualOnly:visualRows.filter(r=>!(r?.eligibility?.text ?? r.textChars>=20)).length,
+      textOnly:textRows.filter(r=>!(r?.eligibility?.visual ?? ((r.imageCount||0)>0||(r.mapCount||0)>0||(r.videoCount||0)>0))).length,
+      minimalObservable:minimalRows.length,
+      visualOnlyRate:rate(visualRows.filter(r=>!(r?.eligibility?.text ?? r.textChars>=20)).length),
+    },
+    representativePosts:representativePosts(textRows,3),
+    representativeTextPosts:representativePosts(textRows,3),
+    representativeVisualPosts:representativePosts(visualRows,3),
     structuralTotals:{
-      images:analyzed.reduce((a,r)=>a+r.imageCount,0),
-      headings:analyzed.reduce((a,r)=>a+r.headingCount,0),
-      strong:analyzed.reduce((a,r)=>a+r.strongCount,0),
-      lists:analyzed.reduce((a,r)=>a+r.listItemCount,0),
-      quotes:analyzed.reduce((a,r)=>a+r.quoteCount,0),
-      links:analyzed.reduce((a,r)=>a+r.linkCount,0),
-      maps:analyzed.reduce((a,r)=>a+r.mapCount,0),
-      videos:analyzed.reduce((a,r)=>a+r.videoCount,0),
-      hashtags:analyzed.reduce((a,r)=>a+r.hashtagCount,0),
+      images:visualRows.reduce((a,r)=>a+r.imageCount,0),
+      headings:textRows.reduce((a,r)=>a+r.headingCount,0),
+      strong:textRows.reduce((a,r)=>a+r.strongCount,0),
+      lists:textRows.reduce((a,r)=>a+r.listItemCount,0),
+      quotes:textRows.reduce((a,r)=>a+r.quoteCount,0),
+      links:textRows.reduce((a,r)=>a+r.linkCount,0),
+      maps:visualRows.reduce((a,r)=>a+r.mapCount,0),
+      videos:visualRows.reduce((a,r)=>a+r.videoCount,0),
+      hashtags:textRows.reduce((a,r)=>a+r.hashtagCount,0),
     },
     failures:failures.slice(0,100),
   };
