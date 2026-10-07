@@ -164,29 +164,8 @@ jobs:
         run: node scripts/blog-corpus/cluster-blog-dna.mjs tmp-blog-corpus/all tmp-blog-corpus/category-blog-dna-v1.json
       - name: Synthesize structured Blog DNA preset library
         run: node scripts/blog-corpus/synthesize-category-presets.mjs tmp-blog-corpus/category-blog-dna-v1.json tmp-blog-corpus/category-blog-presets-v1.json
-      - name: Aggregate global coverage
-        run: |
-          node - <<'NODE'
-          const fs=require("fs"),path=require("path");
-          const root="tmp-blog-corpus/all", files=[];
-          function walk(d){if(!fs.existsSync(d))return;for(const n of fs.readdirSync(d)){const p=path.join(d,n),s=fs.statSync(p);if(s.isDirectory())walk(p);else if(n==="coverage.json")files.push(p);}}
-          walk(root);
-          const rows=files.map(p=>JSON.parse(fs.readFileSync(p,"utf8")));
-          const report={
-            schemaVersion:1,
-            generatedAt:new Date().toISOString(),
-            themes:rows.length,
-            sites:rows.reduce((a,b)=>a+b.sites,0),
-            totalListed:rows.reduce((a,b)=>a+b.totalListed,0),
-            analyzed:rows.reduce((a,b)=>a+b.analyzed,0),
-            failed:rows.reduce((a,b)=>a+b.failed,0),
-            fullCoverageSites:rows.reduce((a,b)=>a+b.fullCoverageSites,0),
-            blockedSites:rows.reduce((a,b)=>a+b.blockedSites,0),
-            rows
-          };
-          fs.writeFileSync("tmp-blog-corpus/coverage-v1.json",JSON.stringify(report,null,2));
-          console.log("GLOBAL_COVERAGE",JSON.stringify(report));
-          NODE
+      - name: Rebuild exact 31x10 global coverage
+        run: node scripts/blog-corpus/rebuild-global-coverage.mjs tmp-blog-corpus/all tmp-blog-corpus/seed/blogchart-top10-v1.json tmp-blog-corpus/coverage-v1.json
       - name: Validate materialized corpus QA gate
         run: node scripts/blog-corpus/validate-materialized-corpus.mjs tmp-blog-corpus/category-blog-presets-v1.json tmp-blog-corpus/coverage-v1.json tmp-blog-corpus/seed/blogchart-top10-v1.json
       - uses: actions/upload-artifact@v4
