@@ -304,16 +304,22 @@ type MaterializedLibrary = {
   schemaVersion: number;
   generatedAt: string | null;
   source: string;
+  deduplicatedSources?: boolean;
+  deduplicationKey?: string;
   inputBlogs: number;
   categories: Record<string, { presets?: CategoryBlogDNAPreset[] }>;
 };
 
 const observedLibraryV1 = materializedLibraryV1 as unknown as MaterializedLibrary;
 const observedLibraryV2 = materializedLibraryV2 as unknown as MaterializedLibrary;
-const observedPresetsV2 = Object.values(observedLibraryV2.categories ?? {}).flatMap((entry) => entry.presets ?? []);
+const rawObservedPresetsV2 = Object.values(observedLibraryV2.categories ?? {}).flatMap((entry) => entry.presets ?? []);
+const v2Certified = observedLibraryV2.schemaVersion >= 2
+  && observedLibraryV2.deduplicatedSources === true
+  && rawObservedPresetsV2.length > 0;
+const observedPresetsV2 = v2Certified ? rawObservedPresetsV2 : [];
 const observedPresetsV1 = Object.values(observedLibraryV1.categories ?? {}).flatMap((entry) => entry.presets ?? []);
-const observedLibrary = observedPresetsV2.length > 0 ? observedLibraryV2 : observedLibraryV1;
-const observedPresets = observedPresetsV2.length > 0 ? observedPresetsV2 : observedPresetsV1;
+const observedLibrary = v2Certified ? observedLibraryV2 : observedLibraryV1;
+const observedPresets = v2Certified ? observedPresetsV2 : observedPresetsV1;
 const observedCategories = new Set(observedPresets.map((preset) => preset.categoryId));
 
 export const CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [
@@ -327,7 +333,8 @@ export const CATEGORY_BLOG_DNA_LIBRARY_META = {
   inputBlogs: observedLibrary.inputBlogs ?? 0,
   source: observedLibrary.source,
   schemaVersion: observedLibrary.schemaVersion,
-  biasCorrected: observedPresetsV2.length > 0,
+  biasCorrected: v2Certified,
+  sourceDeduplicated: v2Certified && observedLibraryV2.deduplicatedSources === true,
 };
 
 export function getCategoryBlogDNAPresets(categoryId?: string) {
