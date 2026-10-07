@@ -26,6 +26,8 @@ jobs:
           cache: npm
           cache-dependency-path: package.json
       - run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Install Chromium for BlogChart seed capture
+        run: npx playwright install chromium
       - name: Snapshot BlogChart 31 themes x TOP10
         run: node scripts/blog-corpus/collect-blogchart-top10.mjs
       - name: Validate 31 x TOP10 seed
