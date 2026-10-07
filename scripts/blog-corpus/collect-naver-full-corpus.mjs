@@ -9,6 +9,8 @@ function arg(name,fallback=null){
 const blogId=arg("blog");
 const seedPath=arg("seed");
 const theme=arg("theme");
+const rankFilterRaw=arg("rank");
+const rankFilter=rankFilterRaw?Number(rankFilterRaw):null;
 const outputDir=String(arg("output","tmp-blog-corpus/naver"));
 const delayMs=Number(arg("delay-ms","120"));
 const maxPostsRaw=arg("max-posts");
@@ -25,6 +27,7 @@ if(blogId){
   const seed=JSON.parse(fs.readFileSync(String(seedPath),"utf8"));
   const themes=theme ? seed.themes.filter((t)=>t.code===theme) : seed.themes;
   targets=themes.flatMap((t)=>t.blogs
+    .filter((b)=>rankFilter==null||Number(b.rank)===rankFilter)
     .filter((b)=>b.platform==="naver"&&b.blogId)
     .map((b)=>({blogId:b.blogId,rank:b.rank,theme:t.code,url:b.url})));
 }
