@@ -29,6 +29,7 @@ export interface CategoryBlogDNAPreset {
         visualOnlyRate?: number;
         members: Array<{
           theme: string;
+          matchedThemes?: string[];
           rank: number | null;
           platform: string;
           sourceUrl: string;
