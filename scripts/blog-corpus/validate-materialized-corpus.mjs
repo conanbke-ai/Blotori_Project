@@ -65,6 +65,8 @@ if(coverage.totalListed<1||coverage.analyzed<1) fail("empty coverage");
 const globalRate=coverage.totalListed?coverage.analyzed/coverage.totalListed:0;
 if(globalRate<0.75) fail("global analyzed/listed rate too low: "+globalRate.toFixed(4));
 if(library.schemaVersion===2){
+  if(library.deduplicatedSources!==true) fail("v2 preset library must certify deduplicatedSources=true");
+  if(!library.deduplicationKey) fail("v2 preset library missing deduplicationKey");
   const trueFailureRate=coverage.totalListed?coverage.failed/coverage.totalListed:0;
   if(trueFailureRate>0.02) fail("true failure rate too high for bias-corrected corpus: "+trueFailureRate.toFixed(4));
   if(!Number.isFinite(Number(coverage.textEligible))) fail("textEligible missing from coverage v2");
