@@ -38,11 +38,20 @@ for(const t of seed.themes||[]){
     const o=records.get(key);
     targets.push(o?{
       theme:t.code,rank:b.rank,platform:o.platform||b.platform,url:o.sourceUrl||b.url,
-      totalListed:o.coverage.totalListed||0,analyzed:o.coverage.analyzed||0,failed:o.coverage.failed||0,
+      totalListed:o.coverage.totalListed||0,
+      analyzed:o.coverage.analyzed||0,
+      observed:o.coverage.observed??o.coverage.analyzed??0,
+      textEligible:o.coverage.textEligible??o.coverage.analyzed??0,
+      visualEligible:o.coverage.visualEligible??o.coverage.analyzed??0,
+      visualOnly:o.contentMix?.visualOnly??0,
+      textOnly:o.contentMix?.textOnly??0,
+      minimalObservable:o.contentMix?.minimalObservable??0,
+      unobservable:o.contentMix?.unobservable??o.coverage.unobservable??0,
+      failed:o.coverage.trueFailed??o.coverage.failed??0,
       successRate:o.coverage.successRate||0,fullCoverage:Boolean(o.fullCoverage),
       missing:false
     }:{
-      theme:t.code,rank:b.rank,platform:b.platform,url:b.url,totalListed:0,analyzed:0,failed:0,successRate:0,fullCoverage:false,missing:true
+      theme:t.code,rank:b.rank,platform:b.platform,url:b.url,totalListed:0,analyzed:0,observed:0,textEligible:0,visualEligible:0,visualOnly:0,textOnly:0,minimalObservable:0,unobservable:0,failed:0,successRate:0,fullCoverage:false,missing:true
     });
   }
   rows.push({
@@ -51,6 +60,13 @@ for(const t of seed.themes||[]){
     materializedSites:targets.filter(x=>!x.missing).length,
     totalListed:targets.reduce((a,b)=>a+b.totalListed,0),
     analyzed:targets.reduce((a,b)=>a+b.analyzed,0),
+    observed:targets.reduce((a,b)=>a+b.observed,0),
+    textEligible:targets.reduce((a,b)=>a+b.textEligible,0),
+    visualEligible:targets.reduce((a,b)=>a+b.visualEligible,0),
+    visualOnly:targets.reduce((a,b)=>a+b.visualOnly,0),
+    textOnly:targets.reduce((a,b)=>a+b.textOnly,0),
+    minimalObservable:targets.reduce((a,b)=>a+b.minimalObservable,0),
+    unobservable:targets.reduce((a,b)=>a+b.unobservable,0),
     failed:targets.reduce((a,b)=>a+b.failed,0),
     fullCoverageSites:targets.filter(x=>x.fullCoverage).length,
     blockedSites:targets.filter(x=>!x.missing&&!x.fullCoverage&&x.totalListed===0).length,
@@ -68,6 +84,13 @@ const report={
   materializedSites:rows.reduce((a,b)=>a+b.materializedSites,0),
   totalListed:rows.reduce((a,b)=>a+b.totalListed,0),
   analyzed:rows.reduce((a,b)=>a+b.analyzed,0),
+  observed:rows.reduce((a,b)=>a+b.observed,0),
+  textEligible:rows.reduce((a,b)=>a+b.textEligible,0),
+  visualEligible:rows.reduce((a,b)=>a+b.visualEligible,0),
+  visualOnly:rows.reduce((a,b)=>a+b.visualOnly,0),
+  textOnly:rows.reduce((a,b)=>a+b.textOnly,0),
+  minimalObservable:rows.reduce((a,b)=>a+b.minimalObservable,0),
+  unobservable:rows.reduce((a,b)=>a+b.unobservable,0),
   failed:rows.reduce((a,b)=>a+b.failed,0),
   fullCoverageSites:rows.reduce((a,b)=>a+b.fullCoverageSites,0),
   blockedSites:rows.reduce((a,b)=>a+b.blockedSites,0),
@@ -78,7 +101,9 @@ fs.mkdirSync(path.dirname(output),{recursive:true});
 fs.writeFileSync(output,JSON.stringify(report,null,2));
 console.log("COVERAGE_REBUILT",JSON.stringify({
   themes:report.themes,sites:report.sites,materializedSites:report.materializedSites,
-  missingSites:report.missingSites,totalListed:report.totalListed,analyzed:report.analyzed,failed:report.failed
+  missingSites:report.missingSites,totalListed:report.totalListed,analyzed:report.analyzed,
+  textEligible:report.textEligible,visualEligible:report.visualEligible,visualOnly:report.visualOnly,
+  unobservable:report.unobservable,failed:report.failed
 }));
 if(report.themes!==31||report.sites!==310||report.missingSites!==0){
   console.error("COVERAGE_INCOMPLETE");
