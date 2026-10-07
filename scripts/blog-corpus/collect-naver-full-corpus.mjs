@@ -60,7 +60,6 @@ async function processTarget(target,targetIndex){
         try{
           const metrics=await fetchNaverPostListPageMetrics(target.blogId,group.posts,group.pageNo,{delayMs});
           for(const metric of metrics){
-            if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
             analyzed.push(metric);
           }
         }catch(batchError){
@@ -71,7 +70,6 @@ async function processTarget(target,targetIndex){
             }
             try{
               const metric=await fetchNaverPostMetrics(target.blogId,post,{delayMs});
-              if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
               analyzed.push(metric);
             }catch(error){
               failures.push({logNo:post.logNo,stage:"post",message:String(error).slice(0,300),batchFallback:String(batchError).slice(0,180)});
@@ -95,7 +93,6 @@ async function processTarget(target,targetIndex){
         } else {
           try{
             const metric=await fetchNaverPostMetrics(target.blogId,post,{delayMs});
-            if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
             analyzed.push(metric);
           }catch(error){
             failures.push({logNo:post.logNo,stage:"post",message:String(error).slice(0,300)});
