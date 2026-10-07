@@ -45,7 +45,14 @@ for(const [category,data] of categoryEntries){
   }
 }
 
-if(coverage.schemaVersion!==1) fail("unexpected coverage schemaVersion");
+if(![1,2].includes(coverage.schemaVersion)) fail("unexpected coverage schemaVersion");
+if(coverage.schemaVersion===2){
+  if(coverage.expectedThemes!==31) fail("expectedThemes must be 31");
+  if(coverage.expectedRankedSlots!==310) fail("expectedRankedSlots must be 310");
+  if(coverage.sites!==310) fail("expected exactly 310 ranked sites, got "+coverage.sites);
+  if(coverage.materializedSites!==310) fail("materializedSites must be 310, got "+coverage.materializedSites);
+  if(coverage.missingSites!==0) fail("missingSites must be 0, got "+coverage.missingSites);
+}
 if(coverage.themes!==31) fail("expected 31 coverage themes, got "+coverage.themes);
 if(coverage.sites<250) fail("too few ranked sites covered: "+coverage.sites);
 if(coverage.totalListed<1||coverage.analyzed<1) fail("empty coverage");
