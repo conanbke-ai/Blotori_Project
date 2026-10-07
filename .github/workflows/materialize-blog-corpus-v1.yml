@@ -2,17 +2,13 @@ name: Materialize Blog Corpus V1
 
 on:
   workflow_dispatch:
-  push:
-    branches: [feature/blog-dna-adaptive-v1]
-    paths:
-      - .github/workflows/materialize-blog-corpus-v1.yml
 
 permissions:
   contents: write
 
 concurrency:
   group: materialize-blog-corpus-v1-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   seed:
@@ -49,7 +45,7 @@ jobs:
   corpus:
     needs: seed
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       max-parallel: 20
@@ -163,7 +159,7 @@ jobs:
         with:
           pattern: corpus-*
           path: tmp-blog-corpus/all
-          merge-multiple: true
+          merge-multiple: false
       - name: Cluster whole-blog metrics into category archetypes
         run: node scripts/blog-corpus/cluster-blog-dna.mjs tmp-blog-corpus/all tmp-blog-corpus/category-blog-dna-v1.json
       - name: Synthesize structured Blog DNA preset library
