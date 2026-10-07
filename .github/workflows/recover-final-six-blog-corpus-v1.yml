@@ -1,0 +1,75 @@
+name: Recover Final Six Blog Corpus V1
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - .github/workflows/recover-final-six-blog-corpus-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  naver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        include:
+          - theme: health-medical
+            rank: 9
+          - theme: food
+            rank: 8
+          - theme: food
+            rank: 9
+          - theme: food
+            rank: 10
+          - theme: education
+            rank: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - run: >
+          node scripts/blog-corpus/collect-naver-full-corpus.mjs
+          --seed data/blog-corpus/recovery-targets-v1.json
+          --theme ${{ matrix.theme }}
+          --rank ${{ matrix.rank }}
+          --output tmp-final-six/${{ matrix.theme }}/${{ matrix.rank }}/naver
+          --delay-ms 40 --concurrency 8 --blog-concurrency 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-six-${{ matrix.theme }}-${{ matrix.rank }}
+          path: tmp-final-six/${{ matrix.theme }}/${{ matrix.rank }}/
+          if-no-files-found: warn
+          retention-days: 90
+
+  generic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - run: >
+          node scripts/blog-corpus/collect-generic-full-corpus.mjs
+          --seed data/blog-corpus/recovery-targets-v1.json
+          --theme education
+          --rank 5
+          --output tmp-final-six/education/5/generic
+          --delay-ms 50 --concurrency 6
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-six-education-5
+          path: tmp-final-six/education/5/
+          if-no-files-found: warn
+          retention-days: 90
