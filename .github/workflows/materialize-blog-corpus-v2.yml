@@ -1,0 +1,199 @@
+name: Materialize Blog Corpus V2 Bias Corrected
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - .github/workflows/materialize-blog-corpus-v2.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-blog-corpus-v2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Snapshot BlogChart 31 themes x TOP10
+        run: node scripts/blog-corpus/collect-blogchart-top10.mjs
+      - name: Validate 31 x TOP10 seed
+        run: |
+          node - <<'NODE'
+          const fs=require("fs");
+          const d=JSON.parse(fs.readFileSync("tmp-blog-corpus/blogchart-top10-v1.json","utf8"));
+          if(d.themes.length!==31) throw new Error(`expected 31 themes, got ${d.themes.length}`);
+          const bad=d.themes.filter(t=>t.blogs.length!==10);
+          if(bad.length) throw new Error("TOP10 incomplete: "+bad.map(t=>`${t.code}:${t.blogs.length}`).join(","));
+          const total=d.themes.reduce((a,t)=>a+t.blogs.length,0);
+          if(total!==310) throw new Error(`expected 310 ranked slots, got ${total}`);
+          console.log("SEED_GATE_PASS themes=31 slots=310");
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blogchart-top10-v2
+          path: tmp-blog-corpus/blogchart-top10-v1.json
+          retention-days: 90
+
+  corpus:
+    needs: seed
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        theme:
+          - it-review
+          - health-medical
+          - games
+          - wedding
+          - domestic-travel
+          - fishing
+          - books
+          - marketing
+          - real-estate
+          - beauty
+          - sports
+          - pets
+          - parenting
+          - food
+          - interior
+          - car-review
+          - finance
+          - jobs
+          - camping
+          - fashion
+          - overseas-travel
+          - celebrities
+          - design
+          - hiking
+          - music
+          - comics-anime
+          - entertainment
+          - education
+          - photography
+          - diet
+          - movies
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - uses: actions/download-artifact@v4
+        with:
+          name: blogchart-top10-v2
+          path: tmp-blog-corpus
+      - name: Exhaust every public Naver post with split eligibility
+        run: >
+          node scripts/blog-corpus/collect-naver-full-corpus.mjs
+          --seed tmp-blog-corpus/blogchart-top10-v1.json
+          --theme ${{ matrix.theme }}
+          --output tmp-blog-corpus/theme/${{ matrix.theme }}/naver
+          --delay-ms 55
+          --concurrency 6
+          --blog-concurrency 2
+      - name: Exhaust supported non-Naver public posts with split eligibility
+        run: >
+          node scripts/blog-corpus/collect-generic-full-corpus.mjs
+          --seed tmp-blog-corpus/blogchart-top10-v1.json
+          --theme ${{ matrix.theme }}
+          --output tmp-blog-corpus/theme/${{ matrix.theme }}/generic
+          --delay-ms 65
+          --concurrency 4
+      - name: Write theme coverage
+        run: |
+          node - <<'NODE'
+          const fs=require("fs"),path=require("path");
+          const root="tmp-blog-corpus/theme/${{ matrix.theme }}";
+          const summaries=[];
+          for(const kind of ["naver","generic"]){
+            const p=path.join(root,kind,"summary.json");
+            if(fs.existsSync(p)) summaries.push(...JSON.parse(fs.readFileSync(p,"utf8")).targets);
+          }
+          const coverage={
+            schemaVersion:2,
+            theme:"${{ matrix.theme }}",
+            sites:summaries.length,
+            totalListed:summaries.reduce((a,b)=>a+(b.totalListed||0),0),
+            analyzed:summaries.reduce((a,b)=>a+(b.analyzed||0),0),
+            failed:summaries.reduce((a,b)=>a+(b.failed||0),0),
+            targets:summaries
+          };
+          fs.mkdirSync(root,{recursive:true});
+          fs.writeFileSync(path.join(root,"coverage.json"),JSON.stringify(coverage,null,2));
+          console.log("THEME_COVERAGE_V2",JSON.stringify(coverage));
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: corpus-v2-${{ matrix.theme }}
+          path: tmp-blog-corpus/theme/${{ matrix.theme }}/
+          if-no-files-found: error
+          retention-days: 90
+
+  finalize:
+    needs: corpus
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download seed provenance
+        uses: actions/download-artifact@v4
+        with:
+          name: blogchart-top10-v2
+          path: tmp-blog-corpus/seed
+      - name: Download all v2 theme artifacts without flattening
+        uses: actions/download-artifact@v4
+        with:
+          pattern: corpus-v2-*
+          path: tmp-blog-corpus/all
+          merge-multiple: false
+      - name: Rebuild exact 31x10 coverage
+        run: node scripts/blog-corpus/rebuild-global-coverage.mjs tmp-blog-corpus/all tmp-blog-corpus/seed/blogchart-top10-v1.json tmp-blog-corpus/coverage-v2.json
+      - name: Cluster bias-corrected whole-blog metrics
+        run: node scripts/blog-corpus/cluster-blog-dna.mjs tmp-blog-corpus/all tmp-blog-corpus/category-blog-dna-v2.json
+      - name: Synthesize bias-corrected structured presets
+        run: node scripts/blog-corpus/synthesize-category-presets.mjs tmp-blog-corpus/category-blog-dna-v2.json tmp-blog-corpus/category-blog-presets-v2.json
+      - name: Validate bias-corrected corpus QA
+        run: node scripts/blog-corpus/validate-materialized-corpus.mjs tmp-blog-corpus/category-blog-presets-v2.json tmp-blog-corpus/coverage-v2.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: category-blog-dna-v2-bias-corrected
+          path: |
+            tmp-blog-corpus/category-blog-dna-v2.json
+            tmp-blog-corpus/category-blog-presets-v2.json
+            tmp-blog-corpus/coverage-v2.json
+            tmp-blog-corpus/seed/blogchart-top10-v1.json
+          retention-days: 90
+      - name: Persist v2 only after QA pass
+        run: |
+          mkdir -p data/blog-corpus
+          cp tmp-blog-corpus/category-blog-presets-v2.json data/blog-corpus/category-blog-presets-v2.json
+          cp tmp-blog-corpus/coverage-v2.json data/blog-corpus/coverage-v2.json
+          cp tmp-blog-corpus/seed/blogchart-top10-v1.json data/blog-corpus/blogchart-top10-v2.json
+          cp tmp-blog-corpus/category-blog-dna-v2.json data/blog-corpus/category-blog-dna-v2.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/blog-corpus/category-blog-presets-v2.json data/blog-corpus/coverage-v2.json data/blog-corpus/blogchart-top10-v2.json data/blog-corpus/category-blog-dna-v2.json
+          if git diff --cached --quiet; then
+            echo "No v2 materialized corpus changes."
+            exit 0
+          fi
+          git commit -m "data: materialize bias-corrected BlogChart corpus v2"
+          git pull --rebase origin feature/blog-dna-adaptive-v1
+          git push origin HEAD:feature/blog-dna-adaptive-v1
