@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "source": "BlogChart recovery targets for incomplete full-corpus run",
+  "themes": [
+    {
+      "code": "it-review",
+      "label": "IT리뷰",
+      "blogs": [
+        {
+          "rank": 8,
+          "platform": "naver",
+          "blogId": "dongle2__",
+          "url": "https://blog.naver.com/dongle2__"
+        },
+        {
+          "rank": 9,
+          "platform": "naver",
+          "blogId": "irony_june",
+          "url": "https://blog.naver.com/irony_june"
+        },
+        {
+          "rank": 10,
+          "platform": "naver",
+          "blogId": "aiwositai",
+          "url": "https://blog.naver.com/aiwositai"
+        }
+      ]
+    },
+    {
+      "code": "health-medical",
+      "label": "건강/의학",
+      "blogs": [
+        {
+          "rank": 9,
+          "platform": "naver",
+          "blogId": "ph001144",
+          "url": "https://blog.naver.com/ph001144"
+        }
+      ]
+    },
+    {
+      "code": "pets",
+      "label": "반려동물",
+      "blogs": [
+        {
+          "rank": 10,
+          "platform": "naver",
+          "blogId": "djsvh123",
+          "url": "https://blog.naver.com/djsvh123"
+        }
+      ]
+    },
+    {
+      "code": "parenting",
+      "label": "육아",
+      "blogs": [
+        {
+          "rank": 10,
+          "platform": "naver",
+          "blogId": "misskim616",
+          "url": "https://blog.naver.com/misskim616"
+        }
+      ]
+    },
+    {
+      "code": "food",
+      "label": "음식정보",
+      "blogs": [
+        {
+          "rank": 8,
+          "platform": "naver",
+          "blogId": "lotusms12",
+          "url": "https://blog.naver.com/lotusms12"
+        },
+        {
+          "rank": 9,
+          "platform": "naver",
+          "blogId": "howmany70",
+          "url": "https://blog.naver.com/howmany70"
+        },
+        {
+          "rank": 10,
+          "platform": "naver",
+          "blogId": "crispynote",
+          "url": "https://blog.naver.com/crispynote"
+        }
+      ]
+    },
+    {
+      "code": "interior",
+      "label": "인테리어정보",
+      "blogs": [
+        {
+          "rank": 9,
+          "platform": "naver",
+          "blogId": "gasina5508",
+          "url": "https://blog.naver.com/gasina5508"
+        },
+        {
+          "rank": 10,
+          "platform": "naver",
+          "blogId": "anjeljj",
+          "url": "https://blog.naver.com/anjeljj"
+        }
+      ]
+    },
+    {
+      "code": "entertainment",
+      "label": "방송/연예",
+      "blogs": [
+        {
+          "rank": 10,
+          "platform": "tistory",
+          "blogId": null,
+          "url": "https://71hades.tistory.com/",
+          "hostname": "71hades.tistory.com"
+        }
+      ]
+    },
+    {
+      "code": "education",
+      "label": "교육/학문",
+      "blogs": [
+        {
+          "rank": 1,
+          "platform": "naver",
+          "blogId": "feia1230",
+          "url": "https://blog.naver.com/feia1230"
+        },
+        {
+          "rank": 5,
+          "platform": "tistory",
+          "blogId": null,
+          "url": "https://ywpop.tistory.com/",
+          "hostname": "ywpop.tistory.com"
+        },
+        {
+          "rank": 10,
+          "platform": "naver",
+          "blogId": "jelpy",
+          "url": "https://blog.naver.com/jelpy"
+        }
+      ]
+    }
+  ]
+}
