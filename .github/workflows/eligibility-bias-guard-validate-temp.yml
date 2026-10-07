@@ -1,0 +1,42 @@
+name: Eligibility Bias Guard Validate Temp
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - scripts/blog-corpus/naver-corpus-lib.mjs
+      - scripts/blog-corpus/collect-naver-full-corpus.mjs
+      - scripts/blog-corpus/generic-corpus-lib.mjs
+      - scripts/blog-corpus/cluster-blog-dna.mjs
+      - scripts/blog-corpus/synthesize-category-presets.mjs
+      - scripts/blog-corpus/validate-eligibility-separation.mjs
+      - lib/domain/category-blog-dna.ts
+      - app/BlotoriAssetStudio.tsx
+      - .github/workflows/eligibility-bias-guard-validate-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BLOTORI_MOCK_MODE: "true"
+      OPENAI_MODEL: "gpt-5.6-luna"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Eligibility separation fixture
+        run: node scripts/blog-corpus/validate-eligibility-separation.mjs
+      - name: TypeScript
+        run: npm run lint
+      - name: Platform QA
+        run: npm run qa:platform
+      - name: Production build
+        run: npm run build
