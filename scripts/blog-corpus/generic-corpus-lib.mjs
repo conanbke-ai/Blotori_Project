@@ -114,7 +114,6 @@ export async function collectGenericBlogCorpus(target,{delayMs=120,maxPosts=Infi
       const post=selected[i];
       try{
         const metric=await fetchGenericPostMetrics(post,{delayMs});
-        if(metric.textChars<20) throw new Error("EMPTY_OR_TOO_SHORT");
         analyzed.push(metric);
       }catch(e){failures.push({logNo:post.logNo,stage:"post",message:String(e).slice(0,300)});}
       completed++;
