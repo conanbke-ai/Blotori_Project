@@ -259,5 +259,8 @@ V1 실측 프리셋은 V2 확정 전 fallback으로만 유지한다. 출시 확�
 - [x] source URL dedupe + matchedThemes provenance PASS
 - [x] V2 인증조건 / V1 fallback / QA mutation rejection PASS
 - [x] bjstour 실데이터 회귀: true failure 465 → 144 (-69.0%), success 93.03% → 97.84% (+4.81%p), visual-only 449건 Visual DNA 복구
-- [ ] 현재 V2 전체 materialization: 20/31 테마 SUCCESS, 11개 실행 중, 실패 0
+- [ ] 현재 V2 전체 materialization: 23/31 테마 SUCCESS, 8개 실행 중, 실패 0
 - [ ] V2 완료 후 Certify Blog Corpus V2 PASS 및 category-blog-presets-v2.json 자동 승격
+
+- [x] Certify Blog Corpus V2에 source_run_id 수동 인증 경로 추가
+- [x] 현재 source materialization run: 37568100548
