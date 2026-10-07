@@ -65,6 +65,9 @@ function buildPreset(category,cluster,index){
   const analyzed=members.reduce((a,m)=>a+n(m.coverage?.analyzed),0);
   const failed=members.reduce((a,m)=>a+n(m.coverage?.failed),0);
   const successRate=totalListed?Math.round(analyzed/totalListed*10000)/10000:0;
+  const visualOnlyRate=n(c.visualOnlyRate);
+  const visualCoverageRate=n(c.visualCoverageRate);
+  const textCoverageRate=n(c.textCoverageRate);
   const voice=voiceSummary(c);
   const structure=structureSummary(c);
   const image=imageSummary(c);
@@ -86,6 +89,9 @@ function buildPreset(category,cluster,index){
       analyzedPosts:analyzed,
       failedPosts:failed,
       successRate,
+      textCoverageRate,
+      visualCoverageRate,
+      visualOnlyRate,
       members:members.map(m=>({
         theme:m.theme,rank:m.rank,platform:m.platform,sourceUrl:m.sourceUrl,
         coverage:m.coverage,
@@ -95,7 +101,7 @@ function buildPreset(category,cluster,index){
       version:2,
       signature:`${voice}. ${structure}. ${image}. ${visual}.`,
       confidence:successRate>=.95&&cluster.blogCount>=3?"high":successRate>=.8?"medium":"low",
-      evidenceSummary:`BlogChart TOP10 표본 ${cluster.blogCount}개 블로그의 공개 포스팅 전수 지표를 집계했습니다. 분석 ${analyzed}/목록 ${totalListed}, 실패 ${failed}.`,
+      evidenceSummary:`BlogChart TOP10 표본 ${cluster.blogCount}개 블로그의 공개 포스팅 전수 지표를 집계했습니다. 관측 ${analyzed}/목록 ${totalListed}, 실제 접근 실패 ${failed}. 텍스트 적격률 ${Math.round(textCoverageRate*1000)/10}%, 비주얼 적격률 ${Math.round(visualCoverageRate*1000)/10}%, 비주얼 전용 글 비율 ${Math.round(visualOnlyRate*1000)/10}%.`,
       voice:{
         summary:voice,
         endings:[
@@ -132,7 +138,7 @@ function buildPreset(category,cluster,index){
         energy:n(c.exclamation)+n(c.laugh)+n(c.emoji)>=2?"활발":"차분",
         intimacy:n(c.haeyoRate)>=.2?"중간 이상":"중간 이하",
         informationDensity:n(c.avgParagraphChars)>=140||n(c.headingCount)>=4?"높음":"중간",
-        visualMood:visual,
+        visualMood:`${visual} · 비주얼 전용 글 비율 ${Math.round(visualOnlyRate*1000)/10}%`,
       },
       structure:{
         summary:structure,
@@ -150,10 +156,12 @@ function buildPreset(category,cluster,index){
         ],
         fixedPrinciples:["카테고리 핵심 정보와 실제 경험을 분리하지 않고 연결","본문 리듬은 전체 코퍼스 중앙값 범위에서 유지"],
         flexiblePatterns:["소제목 수","사진 묶음 크기","도입 방식","마무리 표현","사진 사이 문장 수"],
-        contentBalance:n(c.formalRate)>n(c.haeyoRate)?"정보 비중 높음":"경험과 정보의 균형",
+        contentBalance:visualOnlyRate>=.15
+          ? "비주얼 비중이 높고 짧은 텍스트를 함께 사용"
+          : n(c.formalRate)>n(c.haeyoRate)?"정보 비중 높음":"경험과 정보의 균형",
       },
       imageRhythm:{
-        summary:image,
+        summary:visualOnlyRate>=.15 ? `${image}, 비주얼 전용 포스팅 비중이 높음` : image,
         cadence:`게시글당 이미지 중앙값 ${Math.round(n(c.imageCount))}개, 텍스트↔이미지 전환 중앙값 ${Math.round(n(c.textImageTransitions))}회`,
         grouping:`평균 이미지 묶음 길이 ${n(c.avgImageRunLength).toFixed(1)}, 최대 연속 이미지 중앙값 ${Math.round(n(c.imageRun))}개`,
         placementRules:[
