@@ -1,0 +1,49 @@
+name: Recover Missing Blog Corpus V1
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - data/blog-corpus/recovery-targets-v1.json
+      - .github/workflows/recover-missing-blog-corpus-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        theme: [it-review,health-medical,pets,parenting,food,interior,entertainment,education]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Recover missing Naver blogs
+        run: >
+          node scripts/blog-corpus/collect-naver-full-corpus.mjs
+          --seed data/blog-corpus/recovery-targets-v1.json
+          --theme ${{ matrix.theme }}
+          --output tmp-recovery/${{ matrix.theme }}/naver
+          --delay-ms 70 --concurrency 3 --blog-concurrency 2
+      - name: Recover missing non-Naver blogs
+        run: >
+          node scripts/blog-corpus/collect-generic-full-corpus.mjs
+          --seed data/blog-corpus/recovery-targets-v1.json
+          --theme ${{ matrix.theme }}
+          --output tmp-recovery/${{ matrix.theme }}/generic
+          --delay-ms 80 --concurrency 3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: recovery-${{ matrix.theme }}
+          path: tmp-recovery/${{ matrix.theme }}/
+          if-no-files-found: warn
+          retention-days: 90
