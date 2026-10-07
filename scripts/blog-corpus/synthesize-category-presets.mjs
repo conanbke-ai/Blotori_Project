@@ -93,7 +93,7 @@ function buildPreset(category,cluster,index){
       visualCoverageRate,
       visualOnlyRate,
       members:members.map(m=>({
-        theme:m.theme,rank:m.rank,platform:m.platform,sourceUrl:m.sourceUrl,
+        theme:m.theme,matchedThemes:m.matchedThemes||[m.theme],rank:m.rank,platform:m.platform,sourceUrl:m.sourceUrl,
         coverage:m.coverage,
       })),
     },
