@@ -207,6 +207,8 @@ const result={
   schemaVersion:2,
   generatedAt:new Date().toISOString(),
   source:"BlogChart TOP10 x public full-post corpus · bias-corrected text/visual eligibility",
+  deduplicatedSources:true,
+  deduplicationKey:"canonical source URL within app category",
   inputBlogs:clustered.inputBlogs,
   categories,
 };
