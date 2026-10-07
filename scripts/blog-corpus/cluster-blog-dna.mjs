@@ -113,6 +113,27 @@ function inferLabel(raw){
   return "균형형 블로그 서술";
 }
 
+function dedupeCategoryMembers(rows){
+  const bySource=new Map();
+  for(const row of rows){
+    const key=(row.sourceUrl||`${row.platform}:${row.data?.blogId||row.file}`).replace(/\/$/,"");
+    const current=bySource.get(key);
+    if(!current){
+      bySource.set(key,{...row,matchedThemes:[row.theme]});
+      continue;
+    }
+    current.matchedThemes=[...new Set([...(current.matchedThemes||[current.theme]),row.theme])];
+    const score=(item)=>{
+      const coverage=item.data?.coverage||{};
+      return Number(coverage.analyzed||0)+(Number(coverage.successRate||0)*100)-Number(coverage.failed||0)*0.1;
+    };
+    if(score(row)>score(current)){
+      bySource.set(key,{...row,matchedThemes:current.matchedThemes});
+    }
+  }
+  return [...bySource.values()];
+}
+
 function rawCentroid(members){
   const out={};
   for(const [name,path] of FEATURES) out[name]=Math.round(mean(members.map(r=>Number(get(r.data,path)||0)))*10000)/10000;
@@ -142,7 +163,7 @@ for(const file of files){
 
 const result={schemaVersion:2,generatedAt:new Date().toISOString(),inputBlogs:blogs.length,categories:{}};
 for(const [category,themes] of Object.entries(CATEGORY_THEME_MAP)){
-  const members=blogs.filter(b=>themes.includes(b.theme));
+  const members=dedupeCategoryMembers(blogs.filter(b=>themes.includes(b.theme)));
   if(!members.length){result.categories[category]={themes,blogs:0,clusters:[]};continue;}
   const raw=members.map(b=>FEATURES.map(([,p])=>Number(get(b.data,p)||0)));
   const means=raw[0].map((_,i)=>mean(raw.map(v=>v[i])));
@@ -156,7 +177,7 @@ for(const [category,themes] of Object.entries(CATEGORY_THEME_MAP)){
       label:inferLabel(rc),
       blogCount:cluster.members.length,
       centroid:rc,
-      members:cluster.members.map(m=>({theme:m.theme,rank:m.rank,platform:m.platform,sourceUrl:m.sourceUrl,coverage:m.data.coverage,representativePosts:m.data.representativePosts||[]})),
+      members:cluster.members.map(m=>({theme:m.theme,matchedThemes:m.matchedThemes||[m.theme],rank:m.rank,platform:m.platform,sourceUrl:m.sourceUrl,coverage:m.data.coverage,representativePosts:m.data.representativePosts||[]})),
     };
   }).sort((a,b)=>b.blogCount-a.blogCount);
   result.categories[category]={themes,blogs:members.length,clusters};
