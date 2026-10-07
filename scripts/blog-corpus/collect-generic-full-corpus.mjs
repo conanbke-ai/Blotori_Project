@@ -8,6 +8,8 @@ function arg(name,fallback=null){
 }
 const seedPath=String(arg("seed",""));
 const theme=String(arg("theme",""));
+const rankFilterRaw=arg("rank");
+const rankFilter=rankFilterRaw?Number(rankFilterRaw):null;
 const outputDir=String(arg("output","tmp-blog-corpus/generic"));
 const delayMs=Number(arg("delay-ms","120"));
 const maxPostsRaw=arg("max-posts");
@@ -17,7 +19,7 @@ if(!seedPath) throw new Error("--seed is required");
 
 const seed=JSON.parse(fs.readFileSync(seedPath,"utf8"));
 const themes=theme?seed.themes.filter(t=>t.code===theme):seed.themes;
-const targets=themes.flatMap(t=>t.blogs.filter(b=>b.platform!=="naver").map(b=>({...b,theme:t.code})));
+const targets=themes.flatMap(t=>t.blogs.filter(b=>b.platform!=="naver"&&(rankFilter==null||Number(b.rank)===rankFilter)).map(b=>({...b,theme:t.code})));
 fs.mkdirSync(outputDir,{recursive:true});
 const summaries=[];
 for(const [i,target] of targets.entries()){
