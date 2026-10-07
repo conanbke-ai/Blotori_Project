@@ -23,6 +23,9 @@ export interface CategoryBlogDNAPreset {
         analyzedPosts: number;
         failedPosts: number;
         successRate: number;
+        textCoverageRate?: number;
+        visualCoverageRate?: number;
+        visualOnlyRate?: number;
         members: Array<{
           theme: string;
           rank: number | null;
