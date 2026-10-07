@@ -140,7 +140,7 @@ for(const file of files){
   }catch{}
 }
 
-const result={schemaVersion:1,generatedAt:new Date().toISOString(),inputBlogs:blogs.length,categories:{}};
+const result={schemaVersion:2,generatedAt:new Date().toISOString(),inputBlogs:blogs.length,categories:{}};
 for(const [category,themes] of Object.entries(CATEGORY_THEME_MAP)){
   const members=blogs.filter(b=>themes.includes(b.theme));
   if(!members.length){result.categories[category]={themes,blogs:0,clusters:[]};continue;}
