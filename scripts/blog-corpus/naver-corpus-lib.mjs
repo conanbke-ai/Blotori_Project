@@ -264,15 +264,34 @@ function sumNested(rows,group,key){
   return rows.reduce((a,r)=>a+num(r[group]?.[key]),0);
 }
 
-function representativePosts(rows,count=3){
+function representativeByKeys(rows,keys,count=3){
   if(!rows.length) return [];
-  const keys=["textChars","avgSentenceChars","avgParagraphChars","imageCount","imagesPer1000Chars","shortParagraphRate","headingCount","maxConsecutiveImageComponents"];
   const med=Object.fromEntries(keys.map(k=>[k,quantile(rows.map(r=>r[k]),.5)]));
   const scale=Object.fromEntries(keys.map(k=>[k,Math.max(1,quantile(rows.map(r=>r[k]),.75)-quantile(rows.map(r=>r[k]),.25))]));
   return [...rows].map(r=>{
     const distance=keys.reduce((a,k)=>a+Math.abs(num(r[k])-med[k])/scale[k],0);
-    return {logNo:r.logNo,date:r.date,distance:Math.round(distance*1000)/1000};
+    return {
+      logNo:r.logNo,
+      date:r.date,
+      contentClass:r.contentClass,
+      distance:Math.round(distance*1000)/1000,
+    };
   }).sort((a,b)=>a.distance-b.distance).slice(0,count);
+}
+
+function representativeTextPosts(rows,count=3){
+  return representativeByKeys(rows,[
+    "textChars","avgSentenceChars","avgParagraphChars","shortParagraphRate",
+    "headingCount","strongCount","hashtagCount","imagesPer1000Chars"
+  ],count);
+}
+
+function representativeVisualPosts(rows,count=3){
+  return representativeByKeys(rows,[
+    "imageCount","maxConsecutiveImageComponents","imageRunCount","avgImageRunLength",
+    "textImageTransitions","textComponentsBeforeFirstImage","avgTextComponentsBetweenImageRuns",
+    "centeredBlockCount","galleryLike","mapCount","videoCount"
+  ],count);
 }
 
 export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
@@ -375,9 +394,9 @@ export function aggregateNaverBlogCorpus(blogId,listed,analyzed,failures=[]){
       unobservable:unobservableRows.length,
       visualOnlyRate:rate(visualRows.filter(r=>!(r?.eligibility?.text ?? r.textChars>=20)).length),
     },
-    representativePosts:representativePosts(textRows,3),
-    representativeTextPosts:representativePosts(textRows,3),
-    representativeVisualPosts:representativePosts(visualRows,3),
+    representativePosts:representativeTextPosts(textRows,3),
+    representativeTextPosts:representativeTextPosts(textRows,3),
+    representativeVisualPosts:representativeVisualPosts(visualRows,3),
     structuralTotals:{
       images:visualRows.reduce((a,r)=>a+r.imageCount,0),
       headings:textRows.reduce((a,r)=>a+r.headingCount,0),
