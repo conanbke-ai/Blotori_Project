@@ -1,0 +1,80 @@
+name: Certify Blog Corpus V2
+
+on:
+  workflow_run:
+    workflows: ["Materialize Blog Corpus V2 Bias Corrected"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  certify:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.head_branch == 'feature/blog-dna-adaptive-v1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/blog-dna-adaptive-v1
+      - name: Resolve source run
+        id: source
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "run_id=${{ github.event.workflow_run.id }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "workflow_dispatch requires workflow_run trigger for artifact certification"
+            exit 1
+          fi
+      - name: Download seed from source run
+        uses: actions/download-artifact@v4
+        with:
+          name: blogchart-top10-v2
+          path: tmp-blog-corpus/seed
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download all v2 theme artifacts from source run
+        uses: actions/download-artifact@v4
+        with:
+          pattern: corpus-v2-*
+          path: tmp-blog-corpus/all
+          merge-multiple: false
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Rebuild exact coverage with latest code
+        run: node scripts/blog-corpus/rebuild-global-coverage.mjs tmp-blog-corpus/all tmp-blog-corpus/seed/blogchart-top10-v1.json tmp-blog-corpus/coverage-v2.json
+      - name: Cluster with source deduplication
+        run: node scripts/blog-corpus/cluster-blog-dna.mjs tmp-blog-corpus/all tmp-blog-corpus/category-blog-dna-v2.json
+      - name: Synthesize certified bias-corrected presets
+        run: node scripts/blog-corpus/synthesize-category-presets.mjs tmp-blog-corpus/category-blog-dna-v2.json tmp-blog-corpus/category-blog-presets-v2.json
+      - name: Run certified v2 QA
+        run: node scripts/blog-corpus/validate-materialized-corpus.mjs tmp-blog-corpus/category-blog-presets-v2.json tmp-blog-corpus/coverage-v2.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: category-blog-dna-v2-certified
+          path: |
+            tmp-blog-corpus/category-blog-dna-v2.json
+            tmp-blog-corpus/category-blog-presets-v2.json
+            tmp-blog-corpus/coverage-v2.json
+            tmp-blog-corpus/seed/blogchart-top10-v1.json
+          retention-days: 90
+      - name: Persist certified v2
+        run: |
+          mkdir -p data/blog-corpus
+          cp tmp-blog-corpus/category-blog-presets-v2.json data/blog-corpus/category-blog-presets-v2.json
+          cp tmp-blog-corpus/coverage-v2.json data/blog-corpus/coverage-v2.json
+          cp tmp-blog-corpus/category-blog-dna-v2.json data/blog-corpus/category-blog-dna-v2.json
+          cp tmp-blog-corpus/seed/blogchart-top10-v1.json data/blog-corpus/blogchart-top10-v2.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/blog-corpus/category-blog-presets-v2.json data/blog-corpus/coverage-v2.json data/blog-corpus/category-blog-dna-v2.json data/blog-corpus/blogchart-top10-v2.json
+          if git diff --cached --quiet; then
+            echo "No certified v2 changes."
+            exit 0
+          fi
+          git commit -m "data: certify bias-corrected BlogChart corpus v2"
+          git pull --rebase origin feature/blog-dna-adaptive-v1
+          git push origin HEAD:feature/blog-dna-adaptive-v1
