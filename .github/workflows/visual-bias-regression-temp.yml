@@ -1,0 +1,57 @@
+name: Visual Bias Regression Temp
+
+on:
+  push:
+    branches: [feature/blog-dna-adaptive-v1]
+    paths:
+      - .github/workflows/visual-bias-regression-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Re-analyze old high-failure photography blog
+        run: >
+          node scripts/blog-corpus/collect-naver-full-corpus.mjs
+          --blog bjstour
+          --theme photography
+          --output tmp-bias-regression
+          --delay-ms 35
+          --concurrency 8
+          --blog-concurrency 1
+      - name: Assert short visual posts are not true failures
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require("fs"),path=require("path");
+          const file=fs.readdirSync("tmp-bias-regression").find(n=>n.endsWith("__bjstour.json"));
+          const d=JSON.parse(fs.readFileSync(path.join("tmp-bias-regression",file),"utf8"));
+          console.log("BIAS_REGRESSION",JSON.stringify({
+            schemaVersion:d.schemaVersion,
+            totalListed:d.coverage.totalListed,
+            analyzed:d.coverage.analyzed,
+            textEligible:d.coverage.textEligible,
+            visualEligible:d.coverage.visualEligible,
+            visualOnly:d.contentMix.visualOnly,
+            unobservable:d.coverage.unobservable,
+            trueFailed:d.coverage.trueFailed,
+            successRate:d.coverage.successRate
+          }));
+          if(d.schemaVersion!==2) throw new Error("expected schema v2");
+          if(d.coverage.trueFailed>=465) throw new Error("old EMPTY_OR_TOO_SHORT failures were not corrected");
+          if(d.contentMix.visualOnly<1) throw new Error("expected at least one visual-only post to be retained");
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: visual-bias-regression-bjstour
+          path: tmp-bias-regression/
+          retention-days: 30
