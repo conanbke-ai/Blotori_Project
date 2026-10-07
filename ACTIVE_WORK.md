@@ -241,7 +241,23 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - [x] Naver / generic collector pilot PASS
 - [x] Materialize Blog Corpus V2 workflow 시작
 - [x] 최신 코드로 재합성하는 Certify Blog Corpus V2 후처리 추가
-- [ ] photography high-failure regression 최종 결과 확정
+- [x] photography high-failure regression PASS: bjstour V1 6,204/6,669·failed 465 → V2 6,527/6,671·trueFailed 144, visualOnly 449, EMPTY_OR_TOO_SHORT 0
 - [ ] 31 × TOP10 전체 V2 materialization + certified preset 저장 완료
 
 V1 실측 프리셋은 V2 확정 전 fallback으로만 유지한다. 출시 확정 기본 스타일은 certified V2를 기준으로 한다.
+
+
+### Independent QA — Bias Guard
+
+- [x] 독립 QA: PR #14 bias guard 최종 PASS
+- [x] validate-eligibility-separation.mjs PASS
+- [x] npm run lint PASS
+- [x] npm run qa:platform PASS
+- [x] npm run build PASS
+- [x] visual-only Voice 오염 방지 fixture PASS
+- [x] text-only image 통계 희석 방지 fixture PASS
+- [x] source URL dedupe + matchedThemes provenance PASS
+- [x] V2 인증조건 / V1 fallback / QA mutation rejection PASS
+- [x] bjstour 실데이터 회귀: true failure 465 → 144 (-69.0%), success 93.03% → 97.84% (+4.81%p), visual-only 449건 Visual DNA 복구
+- [ ] 현재 V2 전체 materialization: 20/31 테마 SUCCESS, 11개 실행 중, 실패 0
+- [ ] V2 완료 후 Certify Blog Corpus V2 PASS 및 category-blog-presets-v2.json 자동 승격
