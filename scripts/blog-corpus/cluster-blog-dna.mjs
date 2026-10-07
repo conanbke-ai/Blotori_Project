@@ -45,6 +45,9 @@ const FEATURES=[
   ["closingHasHashtag","distributions.closingHasHashtag.median"],
   ["mapCount","distributions.mapCount.median"],
   ["videoCount","distributions.videoCount.median"],
+  ["visualOnlyRate","coverage.visualOnlyRate"],
+  ["visualCoverageRate","coverage.visualCoverageRate"],
+  ["textCoverageRate","coverage.textCoverageRate"],
   ["formalRate","voice.endings.formal.rate"],
   ["haeyoRate","voice.endings.haeyo.rate"],
   ["jyoRate","voice.endings.jyo.rate"],
@@ -98,7 +101,8 @@ function inferLabel(raw){
   const info=raw.headingCount||0, formal=raw.formalRate||0, haeyo=raw.haeyoRate||0;
   const emo=(raw.exclamation||0)+(raw.laugh||0)+(raw.emoji||0);
   const transitions=raw.textImageTransitions||0, hashtags=raw.hashtagCount||0;
-  const run=raw.avgImageRunLength||0;
+  const run=raw.avgImageRunLength||0, visualOnly=raw.visualOnlyRate||0;
+  if(visualOnly>=0.18&&image>=5) return "비주얼 중심·짧은텍스트형";
   if(image>=12&&para<=90&&transitions>=5) return "사진-짧은코멘트 교차형";
   if(image>=12&&run>=2) return "사진 묶음 중심 비주얼형";
   if(info>=4&&formal>haeyo) return "구조화 전문 정보형";
