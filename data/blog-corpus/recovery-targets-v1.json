@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "source": "BlogChart recovery targets for incomplete full-corpus run",
+  "source": "BlogChart recovery targets for 14 genuinely missing ranked blogs after cross-run artifact merge",
   "themes": [
     {
       "code": "it-review",
@@ -121,12 +121,6 @@
       "code": "education",
       "label": "교육/학문",
       "blogs": [
-        {
-          "rank": 1,
-          "platform": "naver",
-          "blogId": "feia1230",
-          "url": "https://blog.naver.com/feia1230"
-        },
         {
           "rank": 5,
           "platform": "tistory",
