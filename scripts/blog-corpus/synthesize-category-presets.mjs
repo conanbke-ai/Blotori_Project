@@ -82,7 +82,7 @@ function buildPreset(category,cluster,index){
     tags,
     sourceMeta:{
       kind:"blogchart-top10-full-corpus",
-      schemaVersion:1,
+      schemaVersion:2,
       generatedAt:clustered.generatedAt,
       blogCount:cluster.blogCount,
       totalListedPosts:totalListed,
@@ -204,9 +204,9 @@ for(const [category,data] of Object.entries(clustered.categories||{})){
   };
 }
 const result={
-  schemaVersion:1,
+  schemaVersion:2,
   generatedAt:new Date().toISOString(),
-  source:"BlogChart TOP10 x public full-post corpus",
+  source:"BlogChart TOP10 x public full-post corpus · bias-corrected text/visual eligibility",
   inputBlogs:clustered.inputBlogs,
   categories,
 };
