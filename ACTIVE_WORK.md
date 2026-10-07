@@ -226,3 +226,22 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - 코드 구현 완료를 visual acceptance로 간주하지 않는다.
 
 - 2026-09-15: 공통 TORI canonical 기반 Blotori 얼굴/전신 PNG 적용 상태를 visual QA로 재확인하고, 빈 화면 hero 카피를 짧게 정리했으며 생성 로딩 전신 크기를 조정했다. 캐릭터 자체는 재생성하지 않았다.
+
+
+## Bias-corrected corpus V2
+
+- [x] `textChars < 20`을 실패로 처리하던 규칙 제거
+- [x] textEligible / visualEligible / visualOnly / textOnly / trueFailure 분리
+- [x] Voice 통계는 textEligible, Image/Visual 통계는 visualEligible 모수 사용
+- [x] 비주얼 전용 포스트를 Visual DNA 증거로 보존
+- [x] source URL 기준 동일 블로그 카테고리 중복 가중 제거
+- [x] text/visual coverage와 visual-only rate를 실측 프리셋 evidence에 노출
+- [x] v2 source deduplication 인증 없으면 앱 활성화 차단
+- [x] synthetic eligibility separation QA PASS
+- [x] Naver / generic collector pilot PASS
+- [x] Materialize Blog Corpus V2 workflow 시작
+- [x] 최신 코드로 재합성하는 Certify Blog Corpus V2 후처리 추가
+- [ ] photography high-failure regression 최종 결과 확정
+- [ ] 31 × TOP10 전체 V2 materialization + certified preset 저장 완료
+
+V1 실측 프리셋은 V2 확정 전 fallback으로만 유지한다. 출시 확정 기본 스타일은 certified V2를 기준으로 한다.
