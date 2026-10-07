@@ -14,7 +14,7 @@ const coverage=JSON.parse(fs.readFileSync(coveragePath,"utf8"));
 const categories=library.categories||{};
 const categoryEntries=Object.entries(categories);
 
-if(library.schemaVersion!==1) fail("unexpected preset schemaVersion");
+if(![1,2].includes(library.schemaVersion)) fail("unexpected preset schemaVersion");
 if(!library.generatedAt) fail("materialized generatedAt missing");
 if(!library.inputBlogs||library.inputBlogs<100) fail("inputBlogs unexpectedly low: "+library.inputBlogs);
 if(categoryEntries.length<15) fail("too few materialized categories: "+categoryEntries.length);
@@ -34,6 +34,12 @@ for(const [category,data] of categoryEntries){
     if(meta.analyzedPosts<1) fail("no analyzed posts: "+preset.id);
     if(meta.successRate<0.65) fail("success rate too low: "+preset.id+" "+meta.successRate);
     if(meta.analyzedPosts>meta.totalListedPosts) fail("analyzed exceeds listed: "+preset.id);
+    if(library.schemaVersion===2){
+      for(const key of ["textCoverageRate","visualCoverageRate","visualOnlyRate"]){
+        const value=Number(meta[key]);
+        if(!Number.isFinite(value)||value<0||value>1) fail("invalid "+key+": "+preset.id+" "+meta[key]);
+      }
+    }
     const dna=preset.dna;
     for(const key of ["voice","mood","structure","imageRhythm","visual","variation"]){
       if(!dna[key]) fail("missing DNA dimension "+key+": "+preset.id);
@@ -58,6 +64,13 @@ if(coverage.sites<250) fail("too few ranked sites covered: "+coverage.sites);
 if(coverage.totalListed<1||coverage.analyzed<1) fail("empty coverage");
 const globalRate=coverage.totalListed?coverage.analyzed/coverage.totalListed:0;
 if(globalRate<0.75) fail("global analyzed/listed rate too low: "+globalRate.toFixed(4));
+if(library.schemaVersion===2){
+  const trueFailureRate=coverage.totalListed?coverage.failed/coverage.totalListed:0;
+  if(trueFailureRate>0.02) fail("true failure rate too high for bias-corrected corpus: "+trueFailureRate.toFixed(4));
+  if(!Number.isFinite(Number(coverage.textEligible))) fail("textEligible missing from coverage v2");
+  if(!Number.isFinite(Number(coverage.visualEligible))) fail("visualEligible missing from coverage v2");
+  if(!Number.isFinite(Number(coverage.visualOnly))) fail("visualOnly missing from coverage v2");
+}
 
 if(!process.exitCode){
   console.log("CORPUS_QA_PASS",JSON.stringify({
@@ -69,6 +82,9 @@ if(!process.exitCode){
     totalListed:coverage.totalListed,
     analyzed:coverage.analyzed,
     failed:coverage.failed,
+    textEligible:coverage.textEligible,
+    visualEligible:coverage.visualEligible,
+    visualOnly:coverage.visualOnly,
     globalRate:Math.round(globalRate*10000)/10000
   }));
 }
