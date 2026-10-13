@@ -1,0 +1,73 @@
+
+/* Approved Blotori brand identity - final overrides */
+
+.workspaceV2 .compactBrand::before,
+.workspaceV2 .emptyMascotStage::after,
+.generationOverlay .blotoriStateCard::before,
+.blotoriCharacterMotion::before {
+  content: none !important;
+  display: none !important;
+  background-image: none !important;
+}
+
+.workspaceV2 .blotoriBrandMark {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.workspaceV2 .blotoriBrandMark img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.workspaceV2 .blotoriBrandMark span {
+  color: #315b7a;
+  font-size: 22px;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.workspaceV2 .blotoriMascotEmpty,
+.generationOverlay .loadingMascot,
+.blotoriCharacterMotion .loadingMascot {
+  display: block !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+
+.workspaceV2 .blotoriMascotEmpty {
+  height: 286px !important;
+  margin: 0 auto !important;
+}
+
+.generationOverlay .loadingMascot {
+  height: 168px !important;
+}
+
+@media (max-width: 760px) {
+  .workspaceV2 .blotoriBrandMark img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .workspaceV2 .blotoriBrandMark span {
+    font-size: 17px;
+  }
+
+  .workspaceV2 .blotoriMascotEmpty {
+    height: 196px !important;
+  }
+
+  .generationOverlay .loadingMascot {
+    height: 128px !important;
+  }
+}

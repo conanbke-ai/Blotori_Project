@@ -22,14 +22,15 @@ import "./workspace-v2-hotfix.css";
 import "./workspace-v2-consistency.css";
 import "./workspace-v2-character-fix.css";
 import "./tori-paw-cursor.css";
+import "./blotori-brand-final.css";
 
 export const metadata: Metadata = {
   title: "Blotori",
   description: "플랫폼별 블로그 원고·시각 강조·이미지 가이드를 구성하는 TORI Family Blog Composer",
   icons: {
-    icon: "/blotori-face-ui.png",
-    shortcut: "/blotori-face-ui.png",
-    apple: "/blotori-face-ui.png",
+    icon: "/blotori-feather-mark.png",
+    shortcut: "/blotori-feather-mark.png",
+    apple: "/blotori-feather-mark.png",
   },
 };
 
