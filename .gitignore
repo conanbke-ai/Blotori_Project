@@ -7,3 +7,8 @@ node_modules
 knowledge-base/**/*
 !knowledge-base/README.md
 !knowledge-base/.gitkeep
+
+# Local corpus research, resumable checkpoints, and brand import staging.
+# Keep raw data and probe artifacts out of Git; commit only reviewed source/config.
+/tmp-blog-corpus/
+/public/brand-import/
