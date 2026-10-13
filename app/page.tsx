@@ -219,7 +219,7 @@ export default function Home() {
     <main className={`shell appShell workspaceV2 mobile-${mobilePanel}`} aria-busy={loading}>
       <header className="topbar blotoriTopbar workspaceHeader">
         <div className="brandIntro compactBrand">
-          <img className="blotoriMascotTop" src="/blotori-face-ui.png" alt="블로토리" />
+          <div className="blotoriBrandMark" aria-label="BLOTORI"><img src="/blotori-feather-mark.png" alt="" /><span>BLOTORI</span></div>
           <div>
             <div className="eyebrow">BLOTORI · BLOG STUDIO</div>
             <h1>글과 이미지를 엮어, 이야기를 완성해요.</h1>
@@ -306,7 +306,7 @@ export default function Home() {
             </div>
           </div>
 
-          {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><div className="emptyMascotStage"><span className="emptyGlow" /><img className="blotoriMascotEmpty" src="/blotori-character-ui.png" alt="블로토리" /></div><div className="emptyCopy"><span className="emptyEyebrow">READY TO COMPOSE</span><h3>자료와 문체를 정하고, 초안을 바로 시작하세요</h3><p>주제와 참고자료를 고르면 블로토리가 플랫폼에 맞는 게시 초안을 구성해드려요.</p><div className="emptyQuickActions"><button type="button" className="secondaryAction" onClick={() => focusSettings('.referenceMaterialGroup')}>참고자료 등록</button><button type="button" className="ghost" onClick={() => focusSettings('.styleBuilder')}>내 문체 만들기</button></div><div className="emptyFeatureRow"><span>플랫폼 맞춤</span><span>참고자료 반영</span><span>이미지·검수</span></div></div></div> :
+          {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><div className="emptyMascotStage"><span className="emptyGlow" /><img className="blotoriMascotEmpty" src="/blotori-character-master.png" alt="블로토리" /></div><div className="emptyCopy"><span className="emptyEyebrow">READY TO COMPOSE</span><h3>자료와 문체를 정하고, 초안을 바로 시작하세요</h3><p>주제와 참고자료를 고르면 블로토리가 플랫폼에 맞는 게시 초안을 구성해드려요.</p><div className="emptyQuickActions"><button type="button" className="secondaryAction" onClick={() => focusSettings('.referenceMaterialGroup')}>참고자료 등록</button><button type="button" className="ghost" onClick={() => focusSettings('.styleBuilder')}>내 문체 만들기</button></div><div className="emptyFeatureRow"><span>플랫폼 맞춤</span><span>참고자료 반영</span><span>이미지·검수</span></div></div></div> :
           <div className="previewLayout appPreviewLayout previewOnlyLayout">
             <div className="blogScroller" ref={previewScrollRef}>
               <article className={`blogPaper ${platformClass} density-${draft.presentation?.density ?? "balanced"}`}>
@@ -332,7 +332,7 @@ export default function Home() {
         </aside>}
       </div>
 
-      {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-character-ui.png" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">자료와 문체를 반영해 게시 전 초안을 정리하고 있어요.</span></div></div>}
+      {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-character-master.png" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">자료와 문체를 반영해 게시 전 초안을 정리하고 있어요.</span></div></div>}
       {successVisible && draft && <div className="successToast" role="status" aria-live="polite"><div className="successPaw">✦</div><div><strong>블로토리가 원고를 완성했어요.</strong><span>제목·이미지·검수 결과까지 확인해 주세요.</span></div><button onClick={() => setSuccessVisible(false)} aria-label="완료 알림 닫기">×</button></div>}
     </main>
   );
