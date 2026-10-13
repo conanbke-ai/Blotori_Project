@@ -1,5 +1,33 @@
 # ACTIVE_WORK
 
+## Current canonical status — 2026-10-13
+
+- Canonical local path: `C:\Blotori_Project`
+- Active integration branch: `feature/composer-workspace-v2`
+- GitHub HEAD at integration: `476b46c`
+- Brand / Composer V2 / Blog DNA core integration: PASS
+- Blog DNA: 19 categories, 45 curated presets; functional regression QA PASS
+- Layout fingerprint / deterministic mock / platform export / TypeScript: PASS
+- Corpus checkpoint schema V2 / eligibility separation: synthetic QA PASS
+- `camoju` 20-post and 100-post probe checkpoints migrated; SHA-256 verified
+- Raw corpus and checkpoints: local only, `/tmp-blog-corpus/` ignored by Git
+- Materialize / Recovery V2 workflow definitions: `.yml.disabled`, not active GitHub Actions
+- Bulk Naver collection: BLOCKED pending explicit authorization; do not run collectors
+- Certified V2 materialization and application activation: BLOCKED; curated fallback active
+- Playwright rendered capture: legacy DNA branch evidence only; not yet integrated or validated in canonical Composer branch
+- Desktop/mobile visual acceptance and live API/clipboard E2E: NOT VERIFIED
+- `ACTIVE_WORK.md` historical checklists below may describe earlier branch-specific outcomes; this current status takes precedence for release readiness
+
+
+
+## Environment contract refreeze — 2026-09-18
+
+- TORI 공통 canonical local env: `.env.example`(Git 추적) + `.env.local`(실제 로컬 값, Git 제외).
+- Next.js runtime과 `scripts/sync-knowledge-base.mjs` 모두 `.env.local`을 기준으로 사용한다. legacy `.env` fallback 및 `.env.txt`류 진단 경로는 제거했다.
+- machine-readable contract: `configs/environment-contract.json`; human contract: `docs/ENVIRONMENT_VARIABLES.md`.
+- env 표준화 후 기존 TypeScript nullability 오류를 최소 수정했고 Blotori Validate run #156에서 TypeScript / platform export QA / production build 전체 PASS.
+- Render에서는 동일 변수명을 Secret/Environment로 관리한다.
+
 ## Status
 
 `IN_PROGRESS` — Blotori V1 실사용 기준본 구축
@@ -18,7 +46,10 @@
 - Knowledge source manifest / 라이선스 게이트 / 상용·연구 profile 분리 QA
 - 외부 생성 이미지 슬롯 drag/drop + 로컬 미리보기 UX
 - 사용자 참고자료 업로드 + 브라우저 내 자료함 + 생성 요청 직접 첨부
-- 이름을 붙여 재사용하는 `내 문체` 프로필 + 블로그/포스팅/붙여넣기/직접설정 분석
+- 이름을 붙여 재사용하는 `내 블로그 스타일` + Blog DNA(문체/분위기/구성/사진 리듬/꾸밈) + Adaptive Variation
+- Playwright/Chromium 렌더 분석 + DOM/이미지 위치/전체 페이지 스크린샷 Visual DNA 증거
+- Category Blog DNA Library v1: 블로그차트 테마를 앱 카테고리로 재구성한 출시용 기본 스타일
+- BlogChart TOP10 전체 공개 포스팅 전수 분석: 31테마 × TOP10, whole-blog corpus → cluster → materialized Blog DNA
 - 문체·자료 `.blotori` 공유 팩 import/export
 - Composer V2 3-column workspace + canonical Blotori 얼굴/전체 캐릭터/생성 로딩 visual QA
 
@@ -82,7 +113,41 @@
 - [x] 참고자료 PDF/DOCX/TXT/MD 업로드 + 선택 자료 생성 요청 첨부
 - [x] 브라우저 내 자료함(IndexedDB) 재사용
 - [x] 이름 지정형 내 문체 저장/재사용 + 기본 강도 저장
-- [x] 블로그 전체 / 포스팅 1개 / 글 붙여넣기 / 직접 설정 문체 분석 UI
+- [x] 블로그 전체 / 포스팅 1개 / 글 붙여넣기 / 직접 설정 Blog DNA 분석 UI
+- [x] Blog DNA: Voice / Mood / Structure / Image Rhythm / Visual / Variation 구조화 저장
+- [x] Blog DNA 차원별 적용 ON/OFF
+- [x] 최근 6개 layout fingerprint 기반 반복 구조 억제
+- [x] 콘텐츠/사진 수에 따라 이미지 역할 중심 재분배하도록 Adaptive Variation 적용
+- [ ] [Legacy branch — canonical 재검증 필요] URL 실제 Chromium 렌더링 + DOM/이미지 배치/스타일 메타데이터 수집
+- [ ] [Legacy branch — canonical 재검증 필요] 블로그 전체 입력 시 동일 사이트 포스트 후보 최대 3개 추가 렌더링
+- [ ] [Legacy branch — canonical 재검증 필요] 전체 페이지 스크린샷을 시각 입력으로 Blog DNA 분석에 전달
+- [ ] [Legacy branch — canonical 재검증 필요] localhost/사설망/링크로컬/특수 IP 차단 SSRF guard
+- [ ] [Legacy branch — canonical 재검증 필요] 렌더링 실패 시 web search fallback + evidence/confidence UI 표시
+- [ ] [Legacy branch — canonical 재검증 필요] Chromium smoke / TypeScript / platform QA / production build PASS
+- [x] 앱 카테고리 7개 → 19개로 확장
+- [x] 신규 카테고리: IT·테크 / 뷰티·패션 / 육아·가족 / 반려동물 / 부동산 / 재테크·경제 / 취업·커리어 / 자동차 / 게임·엔터테인먼트 / 리빙·인테리어 / 마케팅·비즈니스 / 스포츠·아웃도어
+- [x] 각 확장 카테고리에 출시용 기본 Blog DNA 프리셋 연결
+- [x] 카테고리 선택 시 기본 Blog DNA를 Composer 스타일 목록에 노출
+- [x] Category Blog DNA TypeScript / platform QA / production build PASS
+- [x] BlogChart 31테마 × TOP10 = 310개 랭킹 슬롯 seed gate PASS
+- [x] Naver 전체 공개 포스팅 enumeration/분석 구현
+- [x] Tistory/Aladin 공개 포스팅 enumeration/분석 구현
+- [x] 제목/문단/어미/감탄/이모지/사진리듬/강조/정렬/지도/영상/해시태그/마무리 지표 수집
+- [x] whole-blog 분포 + coverage + representative posts + corpus digest 집계
+- [x] whole-blog cluster → 구조화 Blog DNA preset 자동 합성
+- [x] materialized preset JSON이 있으면 curated preset 대신 자동 우선 적용
+- [x] full-corpus preset integration TypeScript / platform QA / production build PASS
+- [x] Naver full-corpus pilot: roooad 543/543 analyzed, failed 0, successRate 1.0
+- [x] materialized corpus QA gate: 카테고리 수/사이트 수/분석률/sourceMeta/DNA 필수 차원 검증
+- [x] 실측 프리셋 UI에 블로그 수/포스팅 수/성공률 evidence 표시
+- [x] materialized JSON 존재 시 curated fallback보다 실측 프리셋 우선 적용
+- [x] cross-run artifact merge로 305/310 랭킹 블로그 확보
+- [x] 누락 recovery: IT 8~10 / 건강 9 / 반려동물 10 / 육아 10 / 인테리어 9~10 / 방송연예 10 복구
+- [x] 기존 coverage.json 동일 파일명 merge 충돌 원인 확인 및 exact theme+rank 재구성 방식으로 수정
+- [x] full materialization workflow를 workflow_dispatch 전용 + non-cancelling + 360분 timeout + artifact 디렉터리 보존으로 안정화
+- [x] final-six rank 단위 독립 recovery workflow 추가
+- [ ] 현재 확보 305/310, 남은 음식 8~10 / 교육 5·10 recovery 완료
+- [ ] 31테마 × TOP10 전체 본 런 materialization 완료 및 coverage-v1.json 확정
 - [x] 문체 프로필명은 생성 본문 프롬프트에서 분리하고 스타일 signature만 적용
 - [x] `.blotori` 문체·자료 공유 팩 import/export
 - [x] canonical Blotori 얼굴 아이콘 / 전체 캐릭터 / 생성 로딩 자산 정상 복구
@@ -108,6 +173,16 @@
 - 문체 강도는 기존 단일 생성 프롬프트에 포함하며 추가 AI 재호출을 만들지 않는다.
 
 상세 기준: `docs/WRITING_STYLE_INTENSITY_STANDARD.md`
+
+## Blog DNA + Adaptive Variation
+
+- 참고 블로그는 단일 `signature`가 아니라 문체·분위기·구성·이미지 리듬·꾸밈·변주 규칙으로 분해한다.
+- 고정 템플릿 복제를 금지하고 콘텐츠 의미와 사진 수를 우선해 자연스럽게 재배치한다.
+- 같은 저장 스타일의 최근 생성 결과에서 layout fingerprint를 최대 6개 기억해 도입/섹션/이미지/마무리 반복을 줄인다.
+- 링크 분석으로 실제 렌더링을 충분히 확인하지 못한 시각 규칙은 confidence를 낮춰 과도하게 강제하지 않는다.
+- 기존 v1 문체 프로필은 구조화 DNA가 없어도 그대로 동작한다.
+
+상세 기준: `docs/BLOG_DNA_ADAPTIVE_STANDARD.md`
 
 ## Glossary footnote
 
@@ -178,6 +253,57 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - 이미지 슬롯 업로드 적용 commit `a0658f75ed03d7a86d2a745d725976999d352629`도 TypeScript check / production build PASS
 - 2026-09-15 Composer V2 user-asset/hydration 수정본도 TypeScript check / platform export QA / production build PASS; dev hydration diagnostics `NO_HYDRATION_MESSAGES`.
 
+- 2026-09-15: 공통 TORI canonical 기반 Blotori 얼굴/전신 PNG 적용 상태를 visual QA로 재확인하고, 빈 화면 hero 카피를 짧게 정리했으며 생성 로딩 전신 크기를 조정했다. 캐릭터 자체는 재생성하지 않았다.
+
+
+## Bias-corrected corpus V2
+
+- [x] `textChars < 20`을 실패로 처리하던 규칙 제거
+- [x] textEligible / visualEligible / visualOnly / textOnly / trueFailure 분리
+- [x] Voice 통계는 textEligible, Image/Visual 통계는 visualEligible 모수 사용
+- [x] 비주얼 전용 포스트를 Visual DNA 증거로 보존
+- [x] source URL 기준 동일 블로그 카테고리 중복 가중 제거
+- [x] text/visual coverage와 visual-only rate를 실측 프리셋 evidence에 노출
+- [x] v2 source deduplication 인증 없으면 앱 활성화 차단
+- [x] synthetic eligibility separation QA PASS
+- [x] Naver / generic collector pilot PASS
+- [x] Materialize Blog Corpus V2 workflow 시작
+- [x] 최신 코드로 재합성하는 Certify Blog Corpus V2 후처리 추가
+- [x] photography high-failure regression PASS: bjstour V1 6,204/6,669·failed 465 → V2 6,527/6,671·trueFailed 144, visualOnly 449, EMPTY_OR_TOO_SHORT 0
+- [ ] 31 × TOP10 전체 V2 materialization + certified preset 저장 완료
+
+V1 실측 프리셋은 V2 확정 전 fallback으로만 유지한다. 출시 확정 기본 스타일은 certified V2를 기준으로 한다.
+
+
+### Independent QA — Bias Guard
+
+- [x] 독립 QA: PR #14 bias guard 최종 PASS
+- [x] validate-eligibility-separation.mjs PASS
+- [x] npm run lint PASS
+- [x] npm run qa:platform PASS
+- [x] npm run build PASS
+- [x] visual-only Voice 오염 방지 fixture PASS
+- [x] text-only image 통계 희석 방지 fixture PASS
+- [x] source URL dedupe + matchedThemes provenance PASS
+- [x] V2 인증조건 / V1 fallback / QA mutation rejection PASS
+- [x] bjstour 실데이터 회귀: true failure 465 → 144 (-69.0%), success 93.03% → 97.84% (+4.81%p), visual-only 449건 Visual DNA 복구
+- [x] V2 source materialization: run `37568100548`의 31/31 테마 artifact SUCCESS
+- [x] 실제 artifact 로컬 재조립: 31 themes / 310 slots / missingSites 0 / 19 categories / 62 presets
+- [ ] V2 certification BLOCKED: `gaming-entertainment-observed-03` successRate 0.5172, 전체 true failure rate 0.0238로 QA 상한 0.02 초과; placeholder와 V1/curated fallback 유지
+
+- [x] Certify Blog Corpus V2에 source_run_id 수동 인증 경로 추가
+- [x] 현재 source materialization run: 37568100548
+- [x] checkpoint/resume, Retry-After + exponential backoff + jitter, canonical request dedupe, deterministic raw-metric reaggregation 구현
+- [x] run `37568100548` artifact 32/32 SHA-256 검증 및 2027-01-05 만료 확인
+- [x] legacy recovery audit: indexed failure requests 4,855(재시도 가능 429는 2,312) / 전역 최소 복구 5,246, gaming indexed 200(재시도 가능 21) / 최소 복구 3,612
+- [x] 34건 불일치 정의 확인: post request failure 32,679 + source-list collection failure 34 = trueFailed 32,713; list failure는 totalListed 분모가 없음
+- [x] 기존 artifact 복구 범위 확인: exact failure post ID 4,855 / representative success ID 1,640 / per-post raw Text·Visual feature 0
+- [x] checkpoint schema v2: 전체 manifest/result ID, raw Text·Visual metric, event hash-chain, fsync, 중단 재개 및 결정론적·멱등 병합 보존
+- [ ] 최소 재수집 1단계(미실행): `camoju` 12,270 posts + 409 list requests = 12,679 base requests, 보수적 checkpoint 약 19.35 MiB; 충분하지 않을 때만 `duswns202` 11,610 requests / 약 17.73 MiB 추가
+- [x] `camoju` 단계 probe: 공개 HTTP 21/21 성공(목록 1 + 포스트 20, 상한 30), 403/429 0, schema v2 hash-chain·raw feature·10건 후 재개 및 완료 checkpoint 재실행 멱등성 PASS; 현재 totalCount 12,271(+1)
+- [x] `camoju` 100건 안정성 probe: 기존 20 ID 제외, 공개 HTTP 104/104 성공(목록 4 + 포스트 100, 상한 120), 403/429 0, 50건 close/reopen 및 완료 resume-only HTTP/event 0 PASS, 처리량 43.38 posts/min
+- [ ] 기존 run은 성공 post ID/raw metric checkpoint가 없어 실패-only exact merge 불가; 승인 없는 재수집은 실행하지 않고 V2 placeholder/fallback 유지
+
 ## Guardrails
 
 - 기본 글 생성은 애플리케이션 기준 AI 1회 호출을 유지한다.
@@ -192,4 +318,35 @@ Blotori는 단순 spinner가 아니라 아래 상태를 명시적으로 보여�
 - 사용자 local preview 이미지는 브라우저 세션용이며 서버 업로드/영구 저장으로 간주하지 않는다.
 - 코드 구현 완료를 visual acceptance로 간주하지 않는다.
 
-- 2026-09-15: 공통 TORI canonical 기반 Blotori 얼굴/전신 PNG 적용 상태를 visual QA로 재확인하고, 빈 화면 hero 카피를 짧게 정리했으며 생성 로딩 전신 크기를 조정했다. 캐릭터 자체는 재생성하지 않았다.
+## POLICY_ACK — ChatGPT logical orchestration — 2026-09-18
+
+- Common baseline: `conanbke-ai/Tori_Common_Project@943b567e7740d72727c45ba4c03d267e99dc4596`
+- tags: `AGENT_ORCHESTRATION,AI_SURFACE,CREDIT,DOCUMENTATION`
+- result: `ADOPTED`
+- Runtime model: ChatGPT logical roles; no Cursor/plugin installation required.
+- Surface rule: Chat/connector first; Codex only for repository-local implementation/build/test; Work only for actual rendered/interactive acceptance; LOCAL_RUNTIME for long GPU workloads where applicable.
+- Product-specific contracts in this repository remain authoritative over generic common assumptions.
+
+### ORCHESTRATION_V3_ACK — 2026-09-18
+- Common baseline: `conanbke-ai/Tori_Common_Project@943b567e7740d72727c45ba4c03d267e99dc4596`
+- Added logical gates: Runtime Reliability / AI Output Evaluation.
+- Trigger/regression policy: ADOPTED.
+- Product runtime code unchanged by this ACK.
+
+### ROUTING_REGRESSION_ACK — 2026-09-18
+- Common baseline: `conanbke-ai/Tori_Common_Project@943b567e7740d72727c45ba4c03d267e99dc4596`
+- Result: `ORCHESTRATION_REGRESSION_PASS` — 15/15 representative scenarios.
+- No product runtime code changed by this ACK.
+
+### PRODUCT_FLOW_QA_ACK — 2026-09-23
+- Common baseline: `conanbke-ai/Tori_Common_Project@943b567e7740d72727c45ba4c03d267e99dc4596`
+- Result: `ADOPTED`
+- User-facing changes require PRE_IMPLEMENTATION_FLOW_QA and PRE_COMPLETION_FLOW_QA; implementation may be reordered/trimmed when the current journey is unnecessarily difficult or risky.
+- Product runtime code unchanged by this ACK.
+
+### PROFESSIONAL_QA_V5_ACK — 2026-09-23
+- Common baseline: `conanbke-ai/Tori_Common_Project@943b567e7740d72727c45ba4c03d267e99dc4596`
+- Result: `ADOPTED`
+- Non-trivial feature lifecycle: QA PRECHECK -> implementation -> Functional/Regression -> selected specialist QA -> Accessibility/Compatibility/Visual as applicable -> regression -> QA exit -> Acceptance.
+- User-facing flows keep mandatory Product Flow QA before implementation and completion.
+- Product runtime code unchanged by this ACK.
