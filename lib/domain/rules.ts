@@ -28,6 +28,49 @@ export function findRiskyExpressions(draft: BlogDraft): string[] {
   return [...found];
 }
 
+const placeholderPatterns = [
+  /실제 API(?:\s*모드)?에서는/,
+  /필요한 (?:조건|정보)(?:을|만) 입력하면/,
+  /선택한 (?:글 )?구성에 맞춰/,
+  /핵심 내용을? 정리(?:합니다|해요)/,
+];
+
+function normalizedHeading(value: string) {
+  return value.toLowerCase().replace(/[\s·:：!?.,()\[\]{}'“”‘’_-]+/g, "");
+}
+
+function paragraphLead(value: string) {
+  return value.trim().match(/^([가-힣A-Za-z]{2,12})(?:은|는|이|가|을|를|에서|부터|그리고|그래서|하지만|또한|특히|먼저|마지막으로)?[\s,]/)?.[1] ?? "";
+}
+
+export function findDraftQualityIssues(draft: BlogDraft): string[] {
+  const issues: string[] = [];
+  const headings = draft.sections.map((section) => normalizedHeading(section.heading)).filter(Boolean);
+  if (new Set(headings).size !== headings.length) {
+    issues.push("품질 확인: 동일하거나 거의 같은 소제목이 반복됩니다.");
+  }
+
+  const paragraphs = [...draft.intro, ...draft.sections.flatMap((section) => section.paragraphs), ...draft.closing]
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (paragraphs.some((paragraph) => placeholderPatterns.some((pattern) => pattern.test(paragraph)))) {
+    issues.push("품질 확인: 실제 내용 대신 템플릿·자리표시자 문장이 남아 있습니다.");
+  }
+
+  const leads = paragraphs.map(paragraphLead).filter(Boolean);
+  const leadCounts = new Map<string, number>();
+  for (const lead of leads) leadCounts.set(lead, (leadCounts.get(lead) ?? 0) + 1);
+  if (paragraphs.length >= 4 && [...leadCounts.values()].some((count) => count >= 3)) {
+    issues.push("품질 확인: 같은 연결 방식으로 시작하는 문단이 반복됩니다.");
+  }
+
+  const lengths = paragraphs.map((paragraph) => paragraph.length);
+  if (lengths.length >= 5 && Math.max(...lengths) - Math.min(...lengths) <= 12) {
+    issues.push("품질 확인: 문단 길이가 지나치게 균일해 정형적으로 보일 수 있습니다.");
+  }
+  return issues;
+}
+
 export function normalizeImagePlans(images: ImagePlan[], maxImages: number): ImagePlan[] {
   const roleOrder = ["HERO", "CONTEXT", "EXPLAINER", "PROCESS", "TIP", "CAUTION"];
   return images
@@ -41,6 +84,7 @@ export function normalizeImagePlans(images: ImagePlan[], maxImages: number): Ima
 
 export function ensureWarnings(draft: BlogDraft): BlogDraft {
   const detected = findRiskyExpressions(draft);
-  const warnings = [...new Set([...(draft.warnings ?? []), ...detected.map((x) => `주의 표현 감지: “${x}”`)])];
+  const qualityIssues = findDraftQualityIssues(draft);
+  const warnings = [...new Set([...(draft.warnings ?? []), ...detected.map((x) => `주의 표현 감지: “${x}”`), ...qualityIssues])];
   return { ...draft, warnings };
 }

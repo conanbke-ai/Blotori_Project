@@ -2,7 +2,7 @@ import type { BlogDraft, ImagePlan, PlatformExport, PlatformId, TextAlign, TextE
 import { getPlatformStrategy } from "../domain/platform-strategy";
 
 function imageMarker(image: ImagePlan) {
-  return `[${image.id} 삽입 · ${image.label} · ${image.size} · ${image.ratio}]`;
+  return `[${image.id} 삽입 · ${image.label} · ${image.placement} · ${image.size} · ${image.ratio}]`;
 }
 
 function escapeHtml(value: string) {
