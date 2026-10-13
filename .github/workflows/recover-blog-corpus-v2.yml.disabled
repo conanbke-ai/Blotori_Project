@@ -1,0 +1,237 @@
+name: Recover Blog Corpus V2 Failures
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Completed checkpoint-enabled Materialize Blog Corpus V2 run ID"
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: recover-blog-corpus-v2-${{ inputs.source_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/blog-dna-adaptive-v1
+      - name: Download source seed
+        uses: actions/download-artifact@v4
+        with:
+          name: blogchart-top10-v2
+          path: tmp-blog-corpus/seed
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download source corpus artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: corpus-v2-*
+          path: tmp-blog-corpus/source
+          merge-multiple: false
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Refuse legacy aggregate-only artifacts
+        run: |
+          node - <<'NODE'
+          const fs=require("fs"),path=require("path"),crypto=require("crypto");
+          const files=[];
+          const walk=(dir)=>{for(const name of fs.readdirSync(dir)){const p=path.join(dir,name),s=fs.statSync(p);if(s.isDirectory())walk(p);else if(name.endsWith(".jsonl"))files.push(p);}};
+          walk("tmp-blog-corpus/source");
+          const canonical=(value)=>{const u=new URL(String(value));u.hash="";u.hostname=u.hostname.toLowerCase();if(u.hostname==="m.blog.naver.com")u.hostname="blog.naver.com";u.protocol="https:";u.pathname=u.pathname.replace(/\/{2,}/g,"/").replace(/\/$/,"")||"/";u.searchParams.sort();return u.href.replace(/\/$/,"");};
+          const stable=(value)=>Array.isArray(value)?value.map(stable):(!value||typeof value!=="object")?value:Object.fromEntries(Object.keys(value).sort().map(key=>[key,stable(value[key])]));
+          const digest=(value)=>crypto.createHash("sha256").update(JSON.stringify(stable(value))).digest("hex");
+          const complete=new Set();
+          for(const file of files){
+            const events=fs.readFileSync(file,"utf8").split(/\r?\n/).filter(Boolean).map(line=>JSON.parse(line));
+            let previous=null;
+            for(const [index,event] of events.entries()){
+              if((event.previousEventDigest??null)!==previous)throw new Error(`CHECKPOINT_EVENT_CHAIN_MISMATCH file=${file} line=${index+1}`);
+              const supplied=event.eventDigest,payload={...event};delete payload.eventDigest;
+              if(!supplied||digest(payload)!==supplied)throw new Error(`CHECKPOINT_EVENT_DIGEST_MISMATCH file=${file} line=${index+1}`);
+              previous=supplied;
+            }
+            const header=events.find(event=>event.type==="header");
+            const manifest=[...events].reverse().find(event=>event.type==="manifest");
+            const discovery=[...events].reverse().find(event=>event.type==="discovery");
+            const certifiedCheckpoint=header?.schemaVersion>=2&&header?.rawMetricSchemaVersion>=1;
+            if(certifiedCheckpoint&&(manifest||(discovery?.outcome==="failure"&&discovery.permanent===true))) complete.add(canonical(header.canonicalSourceUrl||header.sourceUrl));
+          }
+          const seed=JSON.parse(fs.readFileSync("tmp-blog-corpus/seed/blogchart-top10-v1.json","utf8"));
+          const slots=seed.themes.flatMap(theme=>theme.blogs);
+          const expected=[...new Set(slots.map(blog=>canonical(blog.url)))];
+          const missing=expected.filter(source=>!complete.has(source));
+          if(slots.length!==310) throw new Error(`expected 310 ranked slots, got ${slots.length}`);
+          if(missing.length) throw new Error(`LEGACY_RECOVERY_INDEX_INCOMPLETE missing=${missing.length}; refusing to repeat successful requests`);
+          console.log(`RECOVERY_PREFLIGHT_PASS slots=${slots.length} canonicalSources=${expected.length} checkpoints=${complete.size}`);
+          NODE
+
+  recover:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        theme:
+          - it-review
+          - health-medical
+          - games
+          - wedding
+          - domestic-travel
+          - fishing
+          - books
+          - marketing
+          - real-estate
+          - beauty
+          - sports
+          - pets
+          - parenting
+          - food
+          - interior
+          - car-review
+          - finance
+          - jobs
+          - camping
+          - fashion
+          - overseas-travel
+          - celebrities
+          - design
+          - hiking
+          - music
+          - comics-anime
+          - entertainment
+          - education
+          - photography
+          - diet
+          - movies
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/blog-dna-adaptive-v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Download source seed
+        uses: actions/download-artifact@v4
+        with:
+          name: blogchart-top10-v2
+          path: tmp-blog-corpus/seed
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download checkpoint-enabled theme
+        uses: actions/download-artifact@v4
+        with:
+          name: corpus-v2-${{ matrix.theme }}
+          path: tmp-blog-corpus/theme/${{ matrix.theme }}
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Resume only failed Naver requests
+        run: >
+          node scripts/blog-corpus/collect-naver-full-corpus.mjs
+          --seed tmp-blog-corpus/seed/blogchart-top10-v1.json
+          --theme ${{ matrix.theme }}
+          --output tmp-blog-corpus/theme/${{ matrix.theme }}/naver
+          --checkpoint-dir tmp-blog-corpus/theme/${{ matrix.theme }}/naver/checkpoints
+          --require-checkpoint true
+          --max-attempts 8
+          --delay-ms 250
+          --concurrency 2
+          --blog-concurrency 1
+      - name: Resume only failed generic requests
+        run: >
+          node scripts/blog-corpus/collect-generic-full-corpus.mjs
+          --seed tmp-blog-corpus/seed/blogchart-top10-v1.json
+          --theme ${{ matrix.theme }}
+          --output tmp-blog-corpus/theme/${{ matrix.theme }}/generic
+          --checkpoint-dir tmp-blog-corpus/theme/${{ matrix.theme }}/generic/checkpoints
+          --require-checkpoint true
+          --max-attempts 8
+          --delay-ms 250
+          --concurrency 2
+      - name: Rebuild theme coverage
+        run: |
+          node - <<'NODE'
+          const fs=require("fs"),path=require("path");
+          const root="tmp-blog-corpus/theme/${{ matrix.theme }}";
+          const summaries=[];
+          for(const kind of ["naver","generic"]){
+            const p=path.join(root,kind,"summary.json");
+            if(fs.existsSync(p)) summaries.push(...JSON.parse(fs.readFileSync(p,"utf8")).targets);
+          }
+          const sum=(key)=>summaries.reduce((total,item)=>total+Number(item[key]||0),0);
+          const coverage={schemaVersion:2,theme:"${{ matrix.theme }}",sites:summaries.length,totalListed:sum("totalListed"),analyzed:sum("analyzed"),failed:sum("failed"),targets:summaries};
+          fs.writeFileSync(path.join(root,"coverage.json"),JSON.stringify(coverage,null,2));
+          console.log("RECOVERED_THEME_COVERAGE",JSON.stringify(coverage));
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: corpus-v2-recovered-${{ matrix.theme }}
+          path: tmp-blog-corpus/theme/${{ matrix.theme }}/
+          if-no-files-found: error
+          retention-days: 90
+
+  certify:
+    needs: recover
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/blog-dna-adaptive-v1
+      - name: Download seed
+        uses: actions/download-artifact@v4
+        with:
+          name: blogchart-top10-v2
+          path: tmp-blog-corpus/seed
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download recovered themes
+        uses: actions/download-artifact@v4
+        with:
+          pattern: corpus-v2-recovered-*
+          path: tmp-blog-corpus/all
+          merge-multiple: false
+      - name: Rebuild exact coverage
+        run: node scripts/blog-corpus/rebuild-global-coverage.mjs tmp-blog-corpus/all tmp-blog-corpus/seed/blogchart-top10-v1.json tmp-blog-corpus/coverage-v2.json
+      - name: Cluster with canonical source deduplication
+        run: node scripts/blog-corpus/cluster-blog-dna.mjs tmp-blog-corpus/all tmp-blog-corpus/category-blog-dna-v2.json
+      - name: Synthesize V2 presets
+        run: node scripts/blog-corpus/synthesize-category-presets.mjs tmp-blog-corpus/category-blog-dna-v2.json tmp-blog-corpus/category-blog-presets-v2.json
+      - name: Certify without relaxed thresholds
+        run: node scripts/blog-corpus/validate-materialized-corpus.mjs tmp-blog-corpus/category-blog-presets-v2.json tmp-blog-corpus/coverage-v2.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: category-blog-dna-v2-recovered-certified
+          path: |
+            tmp-blog-corpus/category-blog-dna-v2.json
+            tmp-blog-corpus/category-blog-presets-v2.json
+            tmp-blog-corpus/coverage-v2.json
+            tmp-blog-corpus/seed/blogchart-top10-v1.json
+          retention-days: 90
+      - name: Persist only certified V2
+        run: |
+          cp tmp-blog-corpus/category-blog-presets-v2.json data/blog-corpus/category-blog-presets-v2.json
+          cp tmp-blog-corpus/coverage-v2.json data/blog-corpus/coverage-v2.json
+          cp tmp-blog-corpus/category-blog-dna-v2.json data/blog-corpus/category-blog-dna-v2.json
+          cp tmp-blog-corpus/seed/blogchart-top10-v1.json data/blog-corpus/blogchart-top10-v2.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/blog-corpus/category-blog-presets-v2.json data/blog-corpus/coverage-v2.json data/blog-corpus/category-blog-dna-v2.json data/blog-corpus/blogchart-top10-v2.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "data: certify recovered BlogChart corpus v2"
+          git pull --rebase origin feature/blog-dna-adaptive-v1
+          git push origin HEAD:feature/blog-dna-adaptive-v1
