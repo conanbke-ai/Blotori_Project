@@ -21,14 +21,14 @@
   width: 34px;
   height: 34px;
   object-fit: contain;
-  filter: drop-shadow(0 3px 5px rgba(49, 91, 122, .13));
+  filter: none;
   transition: transform 80ms ease, filter 80ms ease;
   user-select: none;
 }
 
 .toriPawCursor.pressed img {
   transform: translateY(3px) scaleX(1.08) scaleY(.82);
-  filter: drop-shadow(0 1px 3px rgba(49, 91, 122, .12));
+  filter: none;
 }
 
 @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
