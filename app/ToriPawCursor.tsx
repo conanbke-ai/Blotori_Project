@@ -33,14 +33,14 @@ export default function ToriPawCursor() {
     const onMove = (event: PointerEvent) => {
       setPosition({ x: event.clientX, y: event.clientY });
       setTextMode(isTextInteraction(event.target));
-      setVisible(true);
+      setVisible(event.pointerType === "mouse");
     };
     const onDown = (event: PointerEvent) => {
       if (event.pointerType === "mouse") setPressed(true);
     };
     const onUp = () => setPressed(false);
     const onLeave = () => setVisible(false);
-    const onEnter = () => setVisible(true);
+    const onEnter = (event: MouseEvent) => { if (event.buttons === 0) setVisible(false); };
 
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerdown", onDown, { passive: true });
@@ -61,11 +61,11 @@ export default function ToriPawCursor() {
     };
   }, []);
 
-  if (!enabled || !visible || textMode) return null;
+  if (!enabled) return null;
 
   return (
     <div
-      className={`toriPawCursor ${pressed ? "pressed" : ""}`}
+      className={`toriPawCursor ${visible && !textMode && artworkReady ? "is-visible" : ""} ${pressed ? "pressed" : ""}`}
       style={{ transform: `translate3d(${position.x}px, ${position.y}px, 0)` }}
       aria-hidden="true"
     >
