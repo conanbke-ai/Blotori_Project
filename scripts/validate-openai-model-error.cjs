@@ -56,7 +56,23 @@ for (const test of cases) {
   }
 }
 assert.equal(modelListQueries, 1, "only confirmed model errors may enter the lookup gate");
+
+const requestIdCases = [
+  { label: "null request ID", requestID: null, expected: undefined },
+  { label: "missing request ID", requestID: undefined, expected: undefined },
+  { label: "empty request ID", requestID: "", expected: "" },
+  { label: "present request ID", requestID: "req-preserved", expected: "req-preserved" },
+];
+for (const test of requestIdCases) {
+  const error = sdkError(404, { type: "invalid_request_error", code: "model_not_found", param: "model" });
+  error.requestID = test.requestID;
+  const normalized = normalizeModelUnavailable(error, "unavailable-test-model");
+  assert.ok(normalized instanceof ModelUnavailableError, test.label);
+  assert.equal(normalized.upstreamRequestId, test.expected, test.label);
+}
+
 console.log("MODEL_ERROR_CLASSIFICATION_PASS", JSON.stringify({
   cases: cases.length, confirmedModelErrors: modelListQueries,
+  requestIdCases: requestIdCases.length,
   nonModelLookupAttempts: 0, externalApiCalls: 0,
 }));

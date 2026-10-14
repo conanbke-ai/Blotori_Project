@@ -28,5 +28,5 @@ export function isConfirmedModelNotFound(error: unknown): boolean {
 export function normalizeModelUnavailable(error: unknown, modelId: string): unknown {
   if (!isConfirmedModelNotFound(error)) return error;
   const requestID = error instanceof OpenAI.APIError ? error.requestID : undefined;
-  return new ModelUnavailableError(modelId, requestID);
+  return new ModelUnavailableError(modelId, requestID ?? undefined);
 }
