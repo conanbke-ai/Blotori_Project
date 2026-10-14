@@ -23,6 +23,7 @@ import "./workspace-v2-consistency.css";
 import "./workspace-v2-character-fix.css";
 import "./tori-paw-cursor.css";
 import "./blotori-brand-final.css";
+import "./responsive-inspector.css";
 
 export const metadata: Metadata = {
   title: "Blotori",

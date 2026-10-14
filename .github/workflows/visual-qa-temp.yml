@@ -52,6 +52,9 @@ jobs:
       - name: Capture screenshots
         run: node scripts/visual-qa-temp.mjs
 
+      - name: Verify responsive image and review workflow
+        run: node scripts/validate-responsive-inspector.mjs
+
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4

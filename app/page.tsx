@@ -5,6 +5,7 @@ import { composeGenerationRequest } from "../lib/application/compose-generation-
 import { buildPlatformExport } from "../lib/application/platform-exporter";
 import { rememberLayoutFingerprint } from "../lib/domain/layout-history";
 import BlotoriAssetStudio from "./BlotoriAssetStudio";
+import ResponsiveInspector, { useWorkspaceLayout } from "./ResponsiveInspector";
 import type {
   BlogDraft,
   BlogSection,
@@ -36,7 +37,7 @@ type ApiHealth = {
   sample?: string;
 };
 type InspectorTab = "images" | "qa";
-type MobilePanel = "settings" | "preview" | "review";
+type MobilePanel = "settings" | "preview";
 
 const initialForm: ComposerForm = {
   platformId: "",
@@ -106,6 +107,28 @@ export default function Home() {
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>("settings");
   const [generationContext, setGenerationContext] = useState<GenerationContext>(emptyGenerationContext);
   const previewScrollRef = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  const { compact, single } = useWorkspaceLayout(workspaceRef, settingsOpen);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  useEffect(() => { if (!compact) setReviewOpen(false); }, [compact]);
+
+  function locateImage(id: string) {
+    setReviewOpen(false);
+    setMobilePanel("preview");
+    requestAnimationFrame(() => {
+      const slot = previewScrollRef.current?.querySelector<HTMLElement>(`[data-image-id="${CSS.escape(id)}"]`);
+      slot?.scrollIntoView({ block: "center", behavior: "instant" });
+      slot?.focus({ preventScroll: true });
+    });
+  }
+
+  function handleInspectorKeys(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const tab = event.key === "Home" ? "images" : event.key === "End" ? "qa" : inspectorTab === "images" ? "qa" : "images";
+    setInspectorTab(tab);
+    document.getElementById(`inspector-tab-${tab}`)?.focus();
+  }
 
   useEffect(() => { void loadApiHealth(false); }, []);
   useEffect(() => {
@@ -246,7 +269,7 @@ export default function Home() {
   }
 
   return (
-    <main className={`shell appShell workspaceV2 mobile-${mobilePanel}`} aria-busy={loading}>
+    <main className={`shell appShell workspaceV2 mobile-${mobilePanel} ${single ? "workspaceSingle" : ""}`} data-review-layout={compact ? "compact" : "wide"} aria-busy={loading}>
       <header className="topbar blotoriTopbar workspaceHeader">
         <div className="brandIntro compactBrand">
           <div className="blotoriBrandMark" aria-label="BLOTORI"><img src="/blotori-feather-mark.png" alt="" /><span>BLOTORI</span></div>
@@ -259,7 +282,7 @@ export default function Home() {
         <div className="topActions workspaceTopActions">
           {platformProfile && <span className="platformChip">{platformProfile.label}</span>}
           <button className="ghost iconGhost" onClick={() => setSettingsOpen((v) => !v)} aria-label="작성 설정 열기 또는 접기">{settingsOpen ? "설정 숨기기" : "설정 열기"}</button>
-          <button className="ghost iconGhost" onClick={() => setGuideOpen((v) => !v)} aria-label="검수 패널 열기 또는 접기">{guideOpen ? "검수 숨기기" : "검수 열기"}</button>
+          <button className="ghost reviewLauncher" onClick={() => compact ? setReviewOpen(true) : setGuideOpen((v) => !v)} aria-label={compact ? "이미지·검수 열기" : "이미지·검수 패널 열기 또는 접기"} aria-haspopup={compact ? "dialog" : undefined} aria-controls="image-review-panel" aria-expanded={compact ? reviewOpen : guideOpen}>{compact ? "이미지·검수" : guideOpen ? "검수 숨기기" : "검수 열기"}</button>
           <details className="devStatusMenu">
             <summary aria-label={`연결 상태: ${connectionLabel}`}><span className={`connectionSummary ${connectionTone}`}><i />{connectionLabel}</span></summary>
             <div className="devStatusPopover">
@@ -276,11 +299,11 @@ export default function Home() {
       <nav className="mobileWorkspaceTabs" aria-label="모바일 작업 단계">
         <button className={mobilePanel === "settings" ? "active" : ""} onClick={() => setMobilePanel("settings")}>입력 · 문체</button>
         <button className={mobilePanel === "preview" ? "active" : ""} onClick={() => setMobilePanel("preview")}>초안</button>
-        <button className={mobilePanel === "review" ? "active" : ""} onClick={() => setMobilePanel("review")}>이미지 · 검수</button>
+        <button className="mobileReviewLauncher" onClick={() => setReviewOpen(true)} aria-haspopup="dialog" aria-controls="image-review-panel" aria-expanded={reviewOpen}>이미지·검수</button>
       </nav>
 
-      <div className={`workspace workspaceApp workspaceGridV2 ${settingsOpen ? "" : "settingsClosed"} ${guideOpen ? "" : "guideClosed"}`}>
-        {settingsOpen && <aside className="panel controls scrollPanel settingsRail" data-mobile-panel="settings">
+      <div ref={workspaceRef} className={`workspace workspaceApp workspaceGridV2 ${settingsOpen || single ? "" : "settingsClosed"} ${guideOpen && !compact ? "" : "guideClosed"}`}>
+        {(settingsOpen || single) && <aside className="panel controls scrollPanel settingsRail" data-mobile-panel="settings">
           <div className="railHeading">
             <div><span className="step">01</span><div><h2>입력 · 문체</h2><p>플랫폼과 주제를 정하고, 참고자료와 문체를 선택해요.</p></div></div>
             <span className="subtle">필수 2개 · 나머지 선택</span>
@@ -358,11 +381,15 @@ export default function Home() {
           {draft && <div className="previewActionBar"><button className="ghost" onClick={() => scrollPreview("top")}>↑ TOP</button><div><button className="secondaryAction" disabled={!form.platformId} onClick={copyPlatformDraft}>{copied === "platform" ? "본문 복사됨 ✓" : `${platformProfile?.label ?? "플랫폼"}용 본문 복사`}</button><button className="ghost" onClick={copyTags}>{copied === "tags" ? "태그 복사됨 ✓" : "태그 복사"}</button></div><button className="ghost" onClick={() => scrollPreview("bottom")}>↓ END</button></div>}
         </section>
 
-        {guideOpen && <aside className="panel inspectorRail scrollPanel" data-mobile-panel="review">
-          <div className="railHeading inspectorHeading"><div><span className="step">03</span><div><h2>이미지 · 검수</h2><p>게시 전 마지막 완성도를 확인해요.</p></div></div></div>
-          <div className="inspectorTabs" role="tablist"><button role="tab" aria-selected={inspectorTab === "images"} className={inspectorTab === "images" ? "active" : ""} onClick={() => setInspectorTab("images")}>이미지</button><button role="tab" aria-selected={inspectorTab === "qa"} className={inspectorTab === "qa" ? "active" : ""} onClick={() => setInspectorTab("qa")}>검수</button></div>
-          {!draft ? <div className="inspectorEmpty"><span className="inspectorEmptyIcon">✓</span><strong>게시 전 마지막 점검 공간이에요.</strong><p>글을 만들면 아래 항목이 자동으로 채워져요.</p><div className="inspectorEmptyGuide"><div><b>01</b><span><strong>이미지</strong><small>프롬프트와 삽입 위치</small></span></div><div><b>02</b><span><strong>근거자료</strong><small>참고한 자료와 용어</small></span></div><div><b>03</b><span><strong>표현 검수</strong><small>주의 표현과 게시 전 확인</small></span></div></div></div> : inspectorTab === "images" ? <div className="guideRailContent"><div className="guideTitle"><strong>이미지 제작 가이드</strong><span>{draft.images.length}개</span></div>{draft.images.map((image) => <PromptCard key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</div> : <QualityInspector draft={draft} />}
-        </aside>}
+        <ResponsiveInspector compact={compact} open={compact ? reviewOpen : guideOpen} onDismiss={() => setReviewOpen(false)} tabs={
+          <div className="inspectorTabs" role="tablist" aria-label="이미지와 검수" onKeyDown={handleInspectorKeys}>
+            {(["images", "qa"] as const).map((tab) => <button key={tab} id={`inspector-tab-${tab}`} role="tab" aria-selected={inspectorTab === tab} aria-controls="inspector-content" tabIndex={inspectorTab === tab ? 0 : -1} className={inspectorTab === tab ? "active" : ""} onClick={() => setInspectorTab(tab)}>{tab === "images" ? "이미지" : "검수"}</button>)}
+          </div>
+        }>
+          <div id="inspector-content" role="tabpanel" aria-labelledby={`inspector-tab-${inspectorTab}`} tabIndex={0}>
+          {!draft ? <div className="inspectorEmpty"><span className="inspectorEmptyIcon">✓</span><strong>게시 전 마지막 점검 공간이에요.</strong><p>글을 만들면 아래 항목이 자동으로 채워져요.</p><div className="inspectorEmptyGuide"><div><b>01</b><span><strong>이미지</strong><small>프롬프트와 삽입 위치</small></span></div><div><b>02</b><span><strong>근거자료</strong><small>참고한 자료와 용어</small></span></div><div><b>03</b><span><strong>표현 검수</strong><small>주의 표현과 게시 전 확인</small></span></div></div></div> : inspectorTab === "images" ? <div className="guideRailContent"><div className="guideTitle"><strong>이미지 제작 가이드</strong><span>{draft.images.length}개</span></div>{draft.images.map((image) => <PromptCard key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} onLocate={locateImage} />)}</div> : <QualityInspector draft={draft} />}
+          </div>
+        </ResponsiveInspector>
       </div>
 
       {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-character-master.png" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">자료와 문체를 반영해 게시 전 초안을 정리하고 있어요.</span></div></div>}
@@ -406,9 +433,9 @@ function SectionPreview({ section, editMode, updateSection, updateParagraph, chi
 function Field({ label, children }: { label: string; children: ReactNode }) { return <label className="field"><span>{label}</span>{children}</label>; }
 
 function ImageSlot({ image, editMode, updateImage, copyText, copied }: { image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {
-  return <div className="imageSlot"><div className="slotBadge">{image.id}</div><div className="slotArt"><span>IMAGE</span><small>{image.ratio}</small></div><div className="slotInfo">{editMode ? <><input value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /></> : <><div><strong>{image.label}</strong><span>{image.size}</span></div><p>{image.placement}</p></>}<button onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "프롬프트 복사됨 ✓" : "이 이미지 프롬프트 복사"}</button></div></div>;
+  return <div className="imageSlot" data-image-id={image.id} tabIndex={-1} aria-label={`${image.id} ${image.label} 삽입 위치`}><div className="slotBadge">{image.id}</div><div className="slotArt"><span>IMAGE</span><small>{image.ratio}</small></div><div className="slotInfo">{editMode ? <><input value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /></> : <><div><strong>{image.label}</strong><span>{image.size}</span></div><p>{image.placement}</p></>}<button onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "프롬프트 복사됨 ✓" : "이 이미지 프롬프트 복사"}</button></div></div>;
 }
 
-function PromptCard({ image, editMode, updateImage, copyText, copied }: { image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {
-  return <div className="promptCard"><div className="promptTop"><strong>{image.id}</strong><span>{image.ratio}</span></div>{editMode ? <><input className="promptEdit" value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input className="promptEdit" value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /><textarea className="promptTextarea" value={image.prompt} onChange={(e) => updateImage(image.id, { prompt: e.target.value })} rows={7} /></> : <><p className="promptLabel">{image.label}</p><div className="meta"><span>{image.size}</span><span>{image.placement}</span>{image.continuityMode === "series" && <span>동일 인물 연속 · {image.continuityGroup ?? "series"}</span>}</div><p className="promptText">{image.prompt}</p></>}<button className="copyButton" onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "복사됨 ✓" : "프롬프트 복사"}</button></div>;
+function PromptCard({ image, editMode, updateImage, copyText, copied, onLocate }: { onLocate: (id: string) => void; image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {
+  return <div className="promptCard"><div className="promptTop"><strong>{image.id}</strong><span>{image.ratio}</span></div>{editMode ? <><input className="promptEdit" value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input className="promptEdit" value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /><textarea className="promptTextarea" value={image.prompt} onChange={(e) => updateImage(image.id, { prompt: e.target.value })} rows={7} /></> : <><p className="promptLabel">{image.label}</p><div className="meta"><span>{image.size}</span><span>{image.placement}</span>{image.continuityMode === "series" && <span>동일 인물 연속 · {image.continuityGroup ?? "series"}</span>}</div><p className="promptText">{image.prompt}</p></>}<button className="copyButton" onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "복사됨 ✓" : "프롬프트 복사"}</button><button className="ghost locateImageButton" onClick={() => onLocate(image.id)}>본문 위치 보기</button></div>;
 }
