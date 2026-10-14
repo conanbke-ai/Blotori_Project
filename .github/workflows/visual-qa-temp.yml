@@ -37,6 +37,7 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Start production app
+        id: start_app
         run: |
           npm run start -- -H 127.0.0.1 > /tmp/blotori-start.log 2>&1 &
           for i in {1..45}; do
@@ -59,12 +60,15 @@ jobs:
         run: node scripts/validate-copy-workspace.mjs
 
       - name: Capture screenshots
+        if: ${{ !cancelled() && steps.start_app.outcome == 'success' }}
         run: node scripts/visual-qa-temp.mjs
 
       - name: Verify responsive brand header
+        if: ${{ !cancelled() && steps.start_app.outcome == 'success' }}
         run: node scripts/validate-brand-header.mjs
 
       - name: Verify responsive image and review workflow
+        if: ${{ !cancelled() && steps.start_app.outcome == 'success' }}
         run: node scripts/validate-responsive-inspector.mjs
 
       - name: Upload screenshots

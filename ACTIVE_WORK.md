@@ -1,10 +1,10 @@
 # ACTIVE_WORK
 
-## Current canonical status — 2026-10-13
+## Current canonical status — 2026-10-14
 
 - Canonical local path: `C:\Blotori_Project`
 - Active integration branch: `feature/composer-workspace-v2`
-- GitHub HEAD at integration: `476b46c`
+- Latest UI/export code checkpoint: `603a292` on the active integration branch (not merged or deployed).
 - Brand / Composer V2 / Blog DNA core integration: PASS
 - Blog DNA: 19 categories, 45 curated presets; functional regression QA PASS
 - Layout fingerprint / deterministic mock / platform export / TypeScript: PASS
@@ -14,8 +14,9 @@
 - Materialize / Recovery V2 workflow definitions: `.yml.disabled`, not active GitHub Actions
 - Bulk Naver collection: BLOCKED pending explicit authorization; do not run collectors
 - Certified V2 materialization and application activation: BLOCKED; curated fallback active
-- Playwright rendered capture: legacy DNA branch evidence only; not yet integrated or validated in canonical Composer branch
-- Desktop/mobile visual acceptance and live API/clipboard E2E: NOT VERIFIED
+- Playwright mock production captures now run on the canonical Composer branch. Header desktop/tablet/390px/320px captures visually reviewed at `603a292`; original logo and copy preserved, semantic wrapping added.
+- Real Chromium dual-MIME clipboard, local draft/original-image reload, failure feedback and 320px footer controls: PASS at `603a292` ([run](https://github.com/conanbke-ai/Blotori_Project/actions/runs/38520104977)). Responsive inspector baseline: 10/10 PASS at `6d0a33a`.
+- Live paid API generation, external Naver SmartEditor ONE paste fidelity and cross-browser/device acceptance: NOT VERIFIED. Each new commit still requires its own complete mock CI gate.
 - `ACTIVE_WORK.md` historical checklists below may describe earlier branch-specific outcomes; this current status takes precedence for release readiness
 
 
@@ -30,7 +31,7 @@
 - Local IndexedDB stores draft identity, text/styles, selected platform and original Blob bytes per image slot; reload restores active workspace. No third-party uploads, crop editor, sync, or Naver account integration.
 - Storage failures reject without clearing prior saved data; unavailable/corrupt storage is surfaced. Old drafts are retained but there is not yet a history picker.
 - Local TypeScript, serializer/clipboard unit tests, storage unit tests, production build, deterministic mock, layout history, Blog DNA and request-ID regression checks: PASS before final browser run.
-- Exact-commit mock browser suites added for real dual-MIME clipboard, fallback failures, original image bytes after reload, platform retention, atomic quota rollback and responsive regression. CI verification pending publication.
+- Exact-commit mock browser suites for real dual-MIME clipboard, fallback failures, original image bytes after reload, platform retention and atomic quota rollback: PASS at `603a292`. The same commit adds 16 header scenarios and tighter responsive label assertions; its initial header test incorrectly counted a closed diagnostic popover and assumed a line break at 390px despite sufficient text width. Those test assumptions are corrected without changing the reviewed production layout; the final gate must pass on the follow-up commit.
 
 ## Environment contract refreeze — 2026-09-18
 

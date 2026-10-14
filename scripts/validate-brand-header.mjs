@@ -43,8 +43,11 @@ async function measureHeader(page) {
         }
       }
     }
-    const checked = [mark, copy, heading, paragraph, ...header.querySelectorAll('button, summary')];
-    const clipped = checked.filter((node) => node.getClientRects().length).flatMap((node) => {
+    // Only the header's visible controls belong in its geometry. Diagnostic
+    // popover contents can retain layout rectangles while <details> is closed.
+    const checked = [mark, copy, heading, paragraph,
+      ...header.querySelectorAll('.workspaceTopActions > button, .workspaceTopActions > details > summary')];
+    const clipped = checked.filter((node) => node.checkVisibility()).flatMap((node) => {
       const bounds = rect(node);
       const parent = rect(header);
       return bounds.left < parent.left - 1 || bounds.right > parent.right + 1
@@ -104,8 +107,8 @@ try {
           if (width >= 1440) {
             assert.ok(Math.abs(first.top - second.top) <= 1, `${label}: a wide header must not force a title break`);
           }
-          if (width <= 390) {
-            assert.ok(second.top > first.top, `${label}: phone headline should break at the comma`);
+          if (first.width + second.width > state.copy.width + 1) {
+            assert.ok(second.top > first.top, `${label}: a headline that cannot fit should break at the comma`);
           }
           results.push({ name: label, width, passed: true, ...state });
           console.log(`PASS header ${label}`);
