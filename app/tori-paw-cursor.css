@@ -15,6 +15,13 @@
   margin-left: -16.72px;
   margin-top: -7.92px;
   will-change: transform;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.toriPawCursor.is-visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .toriPawCursor img {
