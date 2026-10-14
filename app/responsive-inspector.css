@@ -39,6 +39,7 @@
 .workspaceV2 .inspectorBody { min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .workspaceV2 .workspaceGridV2 .inspectorDialog {
   position: fixed;
+  background: #fffdf9;
   inset: 16px 16px 16px auto;
   margin: auto 0;
   width: min(520px, calc(100% - 32px));
@@ -111,7 +112,9 @@ body:has(.workspaceSingle) { overflow: auto; }
 .workspaceSingle .mobileWorkspaceTabs button.active { background: rgba(105, 199, 213, .17); color: #2d8fa0; }
 .workspaceV2.workspaceSingle .workspaceTopActions > .iconGhost,
 .workspaceV2.workspaceSingle .workspaceTopActions > .reviewLauncher { display: none !important; }
-.workspaceSingle .workspacePreviewHeader > div:first-child { flex-basis: auto; }
+.workspaceSingle .workspacePreviewHeader { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+.workspaceSingle .composerWorkflowEnhancer { flex-basis: auto; }
+.workspaceSingle .workspacePreviewHeader > div:first-child { flex: 0 0 auto; }
 .workspaceSingle .workspacePreviewHeader .headerActions { flex-shrink: 0; }
 
 @media (max-width: 560px) {

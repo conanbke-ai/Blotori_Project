@@ -54,6 +54,7 @@ export default function ResponsiveInspector({ compact, open, onDismiss, children
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const focusedInside = dialog.contains(previousFocus);
     const modal = compact && open;
+    if (dialog.open && bodyRef.current) scrollRef.current = bodyRef.current.scrollTop;
     if (modal) {
       if (!dialog.matches(":modal")) {
         openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -80,7 +81,7 @@ export default function ResponsiveInspector({ compact, open, onDismiss, children
       }
     }
     wasModal.current = modal;
-    if (bodyRef.current) bodyRef.current.scrollTop = scrollRef.current;
+    if (open && bodyRef.current) bodyRef.current.scrollTop = scrollRef.current;
   }, [compact, open]);
 
   useEffect(() => {
@@ -98,12 +99,28 @@ export default function ResponsiveInspector({ compact, open, onDismiss, children
     aria-modal={compact && open ? true : undefined}
     aria-labelledby="image-review-heading"
     onCancel={(event) => { event.preventDefault(); dismissRef.current(); }}
+    onKeyDown={(event) => {
+      if (!compact || !open || event.key !== "Tab") return;
+      // Native modality makes the page inert, but Chromium can otherwise move
+      // Tab focus into browser chrome at the boundary. Keep the review loop local.
+      const stops = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("button, input, textarea, select, a[href], [tabindex]"))
+        .filter((node) => node.tabIndex >= 0 && !node.matches(":disabled") && node.getClientRects().length > 0);
+      const first = stops[0];
+      const last = stops[stops.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }}
   >
     <div className="railHeading inspectorHeading">
       <div><span className="step">03</span><div><h2 id="image-review-heading">이미지 · 검수</h2><p>게시 전 마지막 완성도를 확인해요.</p></div></div>
       {compact && <button ref={closeRef} className="ghost inspectorClose" onClick={onDismiss} aria-label="이미지·검수 닫기">닫기</button>}
     </div>
     {tabs}
-    <div className="inspectorBody" ref={bodyRef} onScroll={(event) => { scrollRef.current = event.currentTarget.scrollTop; }}>{children}</div>
+    <div className="inspectorBody" ref={bodyRef} onScroll={(event) => { if (dialogRef.current?.open) scrollRef.current = event.currentTarget.scrollTop; }}>{children}</div>
   </dialog>;
 }

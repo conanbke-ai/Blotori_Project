@@ -7,6 +7,7 @@ import { chromium } from 'playwright';
 // This uses the real generation endpoint and React state, not a synthetic DOM.
 const baseURL = process.env.BLOTORI_QA_URL || 'http://127.0.0.1:3000';
 const outputDir = 'visual-qa-artifacts';
+const modalWindowScroll = new WeakMap();
 const scenarios = [
   { name: 'desktop', width: 1440, height: 1100, layout: 'wide', single: false },
   { name: 'tablet', width: 1024, height: 1100, layout: 'compact', single: false },
@@ -109,6 +110,10 @@ async function openInspector(page) {
   await assertControlVisible(page.locator('.inspectorClose'), 'Inspector close button');
   assert.equal(await page.locator('.inspectorRail').evaluate((node) => node.contains(document.activeElement)), true,
     'Opening the dialog must move focus inside');
+  // Playwright may scroll the page to reach the launcher. Take the baseline
+  // after the click so only modal dismissal/focus restoration is compared.
+  await settle(page);
+  modalWindowScroll.set(page, await page.evaluate(() => window.scrollY));
   return launcher;
 }
 
@@ -119,6 +124,12 @@ async function closeInspector(page, launcher, method) {
   await page.waitForFunction((node) => document.activeElement === node, await launcher.elementHandle());
   assert.equal(await launcher.evaluate((node) => node === document.activeElement), true,
     `${method} must return focus to the actual opening button`);
+  await settle(page);
+  const expectedScroll = modalWindowScroll.get(page);
+  const actualScroll = await page.evaluate(() => window.scrollY);
+  assert.ok(Number.isFinite(expectedScroll), 'Modal window-scroll baseline must exist');
+  assert.ok(Math.abs(actualScroll - expectedScroll) <= 2,
+    `${method} must preserve window scroll when restoring focus: ${expectedScroll} → ${actualScroll}`);
 }
 
 async function assertModalFocus(page) {
@@ -285,6 +296,30 @@ async function testResize(page, values, imageCount) {
   await assertNoHorizontalOverflow(page, 'resized-compact');
 }
 
+async function testSettingsSpace(page, values, imageCount) {
+  // Keep viewport fixed: removing the settings rail alone must make room for
+  // the persistent inspector, proving mode follows usable workspace space.
+  assert.equal(page.viewportSize().width, 1024, 'Settings-space regression must run at a fixed tablet width');
+  const toggle = page.getByRole('button', { name: '작성 설정 열기 또는 접기', exact: true });
+  await toggle.click();
+  await assertLayout(page, 'wide', false);
+  await assertDialogState(page, { open: true, modal: false });
+  assert.equal(await page.locator('.settingsRail').count(), 0, 'Collapsing settings must release its layout space');
+  assert.equal(page.viewportSize().width, 1024, 'Viewport must not change when settings collapse');
+  await assertEditsPreserved(page, values, false);
+  assert.equal(await page.locator('.promptTextarea').first().inputValue(), values.prompt);
+  assert.equal(await page.locator('.promptCard').count(), imageCount);
+  await assertNoHorizontalOverflow(page, 'tablet-settings-collapsed');
+
+  await toggle.click();
+  await assertLayout(page, 'compact', false);
+  await assertDialogState(page, { open: false, modal: false });
+  assert.equal(await page.locator('.settingsRail').isVisible(), true, 'Expanding settings must restore the rail');
+  assert.equal(page.viewportSize().width, 1024, 'Viewport must not change when settings expand');
+  await assertEditsPreserved(page, values, false);
+  await assertNoHorizontalOverflow(page, 'tablet-settings-expanded');
+}
+
 async function runScenario(page, scenario, platform) {
   const name = `${platform}-${scenario.name}`;
   const draft = await prepareDraft(page, scenario, platform);
@@ -338,6 +373,7 @@ async function runScenario(page, scenario, platform) {
   if (scenario.name === 'tablet') {
     await openInspector(page);
     await testResize(page, values, draft.images.length);
+    await testSettingsSpace(page, values, draft.images.length);
   }
 }
 
