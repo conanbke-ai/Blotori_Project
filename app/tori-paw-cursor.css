@@ -14,6 +14,13 @@
   margin-left: -9px;
   margin-top: -7px;
   will-change: transform;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.toriPawCursor.is-visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .toriPawCursor img {
@@ -32,36 +39,26 @@
 }
 
 @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  body,
-  .appShell,
-  .panel,
-  .blogPaper,
-  .imageSlot,
-  button,
-  a,
-  [role='button'],
-  select,
-  input[type='checkbox'],
-  input[type='radio'],
-  input[type='range'] {
+  html.blotori-paw-active,
+  html.blotori-paw-active * {
     cursor: none !important;
   }
 
-  input[type='text'],
-  input:not([type]),
-  input[type='search'],
-  input[type='email'],
-  input[type='url'],
-  input[type='number'],
-  textarea,
-  [contenteditable='true'],
-  [role='textbox'],
-  .titleEdit,
-  .summaryEdit,
-  .sectionHeadingEdit,
-  .promptEdit,
-  .promptTextarea,
-  .tagsEditing input {
+  html.blotori-paw-active input[type='text'],
+  html.blotori-paw-active input:not([type]),
+  html.blotori-paw-active input[type='search'],
+  html.blotori-paw-active input[type='email'],
+  html.blotori-paw-active input[type='url'],
+  html.blotori-paw-active input[type='number'],
+  html.blotori-paw-active textarea,
+  html.blotori-paw-active [contenteditable='true'],
+  html.blotori-paw-active [role='textbox'],
+  html.blotori-paw-active .titleEdit,
+  html.blotori-paw-active .summaryEdit,
+  html.blotori-paw-active .sectionHeadingEdit,
+  html.blotori-paw-active .promptEdit,
+  html.blotori-paw-active .promptTextarea,
+  html.blotori-paw-active .tagsEditing input {
     cursor: text !important;
   }
 }

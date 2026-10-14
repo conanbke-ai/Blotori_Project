@@ -11,8 +11,16 @@ export default function ToriPawCursor() {
   const [enabled, setEnabled] = useState(false);
   const [visible, setVisible] = useState(false);
   const [pressed, setPressed] = useState(false);
+  const [artworkReady, setArtworkReady] = useState(false);
   const [textMode, setTextMode] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  // Native pointer is hidden only after the custom image is loaded and visible.
+  useEffect(() => {
+    const active = enabled && visible && !textMode && artworkReady;
+    document.documentElement.classList.toggle("blotori-paw-active", active);
+    return () => document.documentElement.classList.remove("blotori-paw-active");
+  }, [enabled, visible, textMode, artworkReady]);
 
   useEffect(() => {
     const finePointer = window.matchMedia("(pointer: fine)");
@@ -24,6 +32,7 @@ export default function ToriPawCursor() {
     reducedMotion.addEventListener("change", syncEnabled);
 
     const onMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") { setVisible(false); return; }
       setPosition({ x: event.clientX, y: event.clientY });
       setTextMode(isTextInteraction(event.target));
       setVisible(true);
@@ -33,7 +42,7 @@ export default function ToriPawCursor() {
     };
     const onUp = () => setPressed(false);
     const onLeave = () => setVisible(false);
-    const onEnter = () => setVisible(true);
+    const onEnter = () => setVisible(false); // wait for an actual pointer position
 
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerdown", onDown, { passive: true });
@@ -54,11 +63,11 @@ export default function ToriPawCursor() {
     };
   }, []);
 
-  if (!enabled || !visible || textMode) return null;
+  if (!enabled) return null;
 
   return (
     <div
-      className={`toriPawCursor ${pressed ? "pressed" : ""}`}
+      className={`toriPawCursor ${visible && !textMode && artworkReady ? "is-visible" : ""} ${pressed ? "pressed" : ""}`}
       style={{ transform: `translate3d(${position.x}px, ${position.y}px, 0)` }}
       aria-hidden="true"
     >
@@ -66,6 +75,8 @@ export default function ToriPawCursor() {
         src={pressed ? "/blotori-paw-pressed.png" : "/blotori-paw-default.png"}
         alt=""
         draggable={false}
+        onLoad={() => setArtworkReady(true)}
+        onError={() => { setArtworkReady(false); document.documentElement.classList.remove("blotori-paw-active"); }}
       />
     </div>
   );
