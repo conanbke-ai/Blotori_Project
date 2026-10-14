@@ -12,3 +12,6 @@ knowledge-base/**/*
 # Keep raw data and probe artifacts out of Git; commit only reviewed source/config.
 /tmp-blog-corpus/
 /public/brand-import/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
