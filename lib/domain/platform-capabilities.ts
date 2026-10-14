@@ -16,7 +16,7 @@ const portable: PlatformCapabilities = {
   notice: "외부 편집기의 서식 유지 여부는 아직 검증하지 않았어요. 붙여넣은 뒤 서식과 이미지 위치를 확인해 주세요.",
 };
 const capabilities: Readonly<Record<PlatformId, PlatformCapabilities>> = {
-  naver: { ...portable, serializer: "naver", notice: "네이버용 기본 서식을 함께 복사해요. SmartEditor ONE에서 색상·배경색·정렬이 유지되는지는 아직 검증하지 않았어요. 이미지는 원본 파일을 따로 업로드해 주세요." },
+  naver: { ...portable, serializer: "naver", notice: "네이버 붙여넣기 서식은 아직 미검증이에요. 이미지는 원본 파일을 따로 올려 주세요." },
   tistory: { ...portable },
   blogger: { ...portable },
   wordpress: { ...portable },

@@ -118,6 +118,19 @@ try {
   assert.equal(await page.getByLabel(`${image.id} 삽입 위치`, { exact: true }).inputValue(), section.id);
   results.push({ name: 'platform switch, anchor movement, width/alignment and reload preserve original bytes', status: 'passed' });
   await page.screenshot({ path: `${artifacts}/copy-workspace-persisted.png`, fullPage: true });
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.waitForFunction(() => document.querySelector('.workspaceV2')?.dataset.reviewLayout === 'compact');
+  for (const selector of ['[data-copy-platform]', '[data-copy-plain]', '[data-copy-tags]']) {
+    const control = page.locator(selector);
+    await control.scrollIntoViewIfNeeded();
+    const box = await control.evaluate((node) => ({ width: node.clientWidth, content: node.scrollWidth, height: node.getBoundingClientRect().height, whiteSpace: getComputedStyle(node).whiteSpace }));
+    assert.equal(box.whiteSpace, 'nowrap', 'Narrow copy labels must not break into vertical syllables');
+    assert.ok(box.content <= box.width + 1 && box.height >= 44, 'Copy controls must fit and keep touch targets');
+  }
+  await page.screenshot({ path: `${artifacts}/copy-workspace-mobile-controls.png`, fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  results.push({ name: '320px copy labels remain single-line with accessible touch targets', status: 'passed' });
+
 
   await page.evaluate(() => {
     const original = IDBObjectStore.prototype.put;

@@ -200,27 +200,57 @@
   line-height: 1.45;
 }
 
-/* Brand lockup spacing: keep logo/name clearly separate from the heading. */
+/* Give the identity and introduction separate breathing room. Phrase groups
+ * wrap only when needed; Korean words never split just to fill a line. */
 .workspaceV2 .brandIntro.compactBrand {
-  column-gap: clamp(16px, 2vw, 30px) !important;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: clamp(24px, 3vw, 40px) !important;
+  align-items: center;
   min-width: 0;
 }
-.workspaceV2 .brandIntro.compactBrand > div:last-child {
+.workspaceV2 .brandIntro.compactBrand::after {
+  content: none;
+}
+.workspaceV2 .compactBrand .brandCopy {
   min-width: 0;
+}
+.workspaceV2 .compactBrand h1 {
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+.workspaceV2 .compactBrand p {
+  margin-top: 6px;
+  line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+.workspaceV2 .compactBrand .brandPhrase {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
 }
 @media (max-width: 760px) {
-  .workspaceV2 .brandIntro.compactBrand {
-    column-gap: 18px !important;
-    align-items: center;
+  .workspaceV2 .workspaceTopActions {
+    display: none;
   }
   .workspaceV2 .blotoriBrandMark {
-    gap: 6px;
+    gap: 8px;
   }
   .workspaceV2 .blotoriBrandMark span {
-    font-size: 16px;
+    font-size: 17px;
   }
-  .workspaceV2 .compactBrand h1 {
-    overflow-wrap: anywhere;
-    line-height: 1.35;
+}
+@media (max-width: 600px) {
+  .workspaceV2 .brandIntro.compactBrand {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 16px;
+    width: 100%;
+  }
+  .workspaceV2 .compactBrand .eyebrow {
+    font-size: 10px;
+    letter-spacing: .15em;
+    margin-bottom: 6px;
   }
 }

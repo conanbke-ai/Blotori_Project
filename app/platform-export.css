@@ -21,3 +21,8 @@ pre.platformExportDocument { white-space: pre-wrap; font: inherit; line-height: 
 .blogPaper.platform-naver .textEmphasis.accent { font-weight: 700; color: #2D8FA0; }
 .blogPaper.platform-naver .textEmphasis.highlight { background: #FFF0A8; font-weight: 700; padding: 0; }
 .blogPaper.platform-naver .visual-glossary h3 { color: #7b8794; font-size: 12px; }
+
+@media (max-width: 380px) {
+  .workspaceV2 .previewActionBar > div { gap: 6px; }
+  .workspaceV2 .previewActionBar > div > button { flex: 1 1 auto; white-space: nowrap; min-height: 44px; font-size: 12px; padding: 8px 10px; }
+}

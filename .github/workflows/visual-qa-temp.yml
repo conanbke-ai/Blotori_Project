@@ -61,6 +61,9 @@ jobs:
       - name: Capture screenshots
         run: node scripts/visual-qa-temp.mjs
 
+      - name: Verify responsive brand header
+        run: node scripts/validate-brand-header.mjs
+
       - name: Verify responsive image and review workflow
         run: node scripts/validate-responsive-inspector.mjs
 

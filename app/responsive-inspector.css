@@ -52,6 +52,9 @@
 .workspaceV2 .workspacePreviewHeader { flex-wrap: wrap; }
 .workspaceV2 .workspacePreviewHeader > div:first-child { flex: 1 1 190px; }
 .workspaceV2 .workspacePreviewHeader .headerActions { flex: 0 1 auto; }
+.workspaceV2 .workspacePreviewHeader h2 { word-break: keep-all; }
+.workspaceV2 .workspacePreviewHeader .headerActions { align-items: center; }
+.workspaceV2 .workspacePreviewHeader .headerActions > button { flex: 0 0 auto; white-space: nowrap; }
 .workspaceV2 .segmentedMode { flex-shrink: 0; }
 .workspaceV2 .segmentedMode button { white-space: nowrap; }
 .workspaceV2 .previewActionBar { display: flex; flex-wrap: wrap; }

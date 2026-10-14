@@ -222,6 +222,13 @@ async function prepareDraft(page, scenario, platform) {
   assert.equal(await page.locator('.blogPaper').count(), 1, 'There must be only one preview draft');
   assert.equal(await page.locator('.imageSlot').count(), result.draft.images.length, 'Preview image locations must not be duplicated');
   await assertNoHorizontalOverflow(page, `${platform}/${scenario.name} generated`);
+  const titleCopy = page.locator('.headerActions').getByRole('button', { name: /^제목 복사/ });
+  await titleCopy.waitFor({ state: 'visible' });
+  assert.equal(await titleCopy.evaluate((node) => {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    return range.getClientRects().length;
+  }), 1, 'Title copy label must remain one readable line, not a vertical stack of characters');
   return result.draft;
 }
 

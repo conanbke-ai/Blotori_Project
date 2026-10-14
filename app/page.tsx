@@ -275,10 +275,10 @@ export default function Home() {
       <header className="topbar blotoriTopbar workspaceHeader">
         <div className="brandIntro compactBrand">
           <div className="blotoriBrandMark" aria-label="BLOTORI"><img src="/blotori-feather-mark.png" alt="" /><span>BLOTORI</span></div>
-          <div>
+          <div className="brandCopy">
             <div className="eyebrow">BLOTORI · BLOG STUDIO</div>
-            <h1>글과 이미지를 엮어, 이야기를 완성해요.</h1>
-            <p>자료를 넣고 문체를 고르면, 게시할 수 있는 블로그 초안과 이미지 가이드까지 한 흐름으로 완성해요.</p>
+            <h1><span className="brandPhrase">글과 이미지를 엮어,</span>{" "}<span className="brandPhrase">이야기를 완성해요.</span></h1>
+            <p><span className="brandPhrase">자료를 넣고 문체를 고르면,</span>{" "}<span className="brandPhrase">게시할 수 있는 블로그 초안과 이미지 가이드까지</span>{" "}<span className="brandPhrase">한 흐름으로 완성해요.</span></p>
           </div>
         </div>
         <div className="topActions workspaceTopActions">
