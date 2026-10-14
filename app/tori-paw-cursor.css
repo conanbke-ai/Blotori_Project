@@ -1,4 +1,5 @@
 /* Blotori derivative of the common TORI paw cursor.
+ * Master cursor size 44px; pointer anchor 38% / 18% as in Mystori/Untori.
  * The visual layer follows the pointer; native text cursors remain untouched.
  */
 
@@ -6,20 +7,20 @@
   position: fixed;
   left: 0;
   top: 0;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   z-index: 9999;
   pointer-events: none;
-  transform-origin: 50% 35%;
-  margin-left: -9px;
-  margin-top: -7px;
+  transform-origin: 38% 18%;
+  margin-left: -16.72px;
+  margin-top: -7.92px;
   will-change: transform;
 }
 
 .toriPawCursor img {
   display: block;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   filter: drop-shadow(0 3px 5px rgba(49, 91, 122, .13));
   transition: transform 80ms ease, filter 80ms ease;
