@@ -7,7 +7,7 @@ const artifacts = 'visual-qa-artifacts';
 fs.mkdirSync(artifacts, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const results = [];
-const imageBytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6MqkAAAAASUVORK5CYII=', 'base64');
+const imageBytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64');
 
 async function saved(page) {
   await page.locator('.draftStorageStatus[data-state="saved"]').waitFor();

@@ -314,8 +314,8 @@ async function testSettingsSpace(page, values, imageCount) {
   assert.equal(await page.locator('.settingsRail').count(), 0, 'Collapsing settings must release its layout space');
   assert.equal(page.viewportSize().width, 1024, 'Viewport must not change when settings collapse');
   await assertEditsPreserved(page, values, false);
-  assert.equal(await page.locator('.promptTextarea').first().evaluate((node) => node === document.activeElement), true,
-    'Resizing to a persistent rail must preserve focus in the active prompt editor');
+  assert.equal(await toggle.evaluate((node) => node === document.activeElement), true,
+    'Opening a persistent rail by collapsing settings must keep focus on the settings toggle');
   assert.equal(await page.locator('.promptTextarea').first().inputValue(), values.prompt);
   assert.equal(await page.locator('.promptCard').count(), imageCount);
   await assertNoHorizontalOverflow(page, 'tablet-settings-collapsed');
