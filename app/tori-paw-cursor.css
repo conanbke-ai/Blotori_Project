@@ -51,14 +51,14 @@
   html.blotori-paw-active input[type='url'],
   html.blotori-paw-active input[type='number'],
   html.blotori-paw-active textarea,
-  [contenteditable='true'],
-  [role='textbox'],
-  .titleEdit,
-  .summaryEdit,
-  .sectionHeadingEdit,
-  .promptEdit,
-  .promptTextarea,
-  .tagsEditing input {
+  html.blotori-paw-active [contenteditable='true'],
+  html.blotori-paw-active [role='textbox'],
+  html.blotori-paw-active .titleEdit,
+  html.blotori-paw-active .summaryEdit,
+  html.blotori-paw-active .sectionHeadingEdit,
+  html.blotori-paw-active .promptEdit,
+  html.blotori-paw-active .promptTextarea,
+  html.blotori-paw-active .tagsEditing input {
     cursor: text !important;
   }
 }
