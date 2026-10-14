@@ -28,6 +28,7 @@ function sdkError(status, payload, requestID = "req-offline-test") {
 
 const cases = [
   { label: "confirmed model_not_found", error: sdkError(404, { type: "invalid_request_error", code: "model_not_found", param: "model" }), expected: true },
+  { label: "404 model code attached to input parameter", error: sdkError(404, { type: "invalid_request_error", code: "model_not_found", param: "input" }), expected: false },
   { label: "404 unrelated endpoint", error: sdkError(404, { type: "invalid_request_error", code: "not_found", param: null }), expected: false },
   { label: "404 without structured code", error: sdkError(404, { type: "invalid_request_error", message: "model not found" }), expected: false },
   { label: "400 incorrect request", error: sdkError(400, { type: "invalid_request_error", code: "invalid_value", param: "input" }), expected: false },
