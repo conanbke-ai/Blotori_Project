@@ -13,6 +13,13 @@ export default function ToriPawCursor() {
   const [pressed, setPressed] = useState(false);
   const [textMode, setTextMode] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [artworkReady, setArtworkReady] = useState(false);
+
+  useEffect(() => {
+    const active = enabled && visible && !textMode && artworkReady;
+    document.documentElement.classList.toggle("blotori-paw-active", active);
+    return () => document.documentElement.classList.remove("blotori-paw-active");
+  }, [enabled, visible, textMode, artworkReady]);
 
   useEffect(() => {
     const finePointer = window.matchMedia("(pointer: fine)");
@@ -63,9 +70,11 @@ export default function ToriPawCursor() {
       aria-hidden="true"
     >
       <img
-        src={pressed ? "/blotori-paw-pressed.png" : "/blotori-paw-default.png"}
+        src="/blotori-paw.webp"
         alt=""
         draggable={false}
+        onLoad={() => setArtworkReady(true)}
+        onError={() => { setArtworkReady(false); document.documentElement.classList.remove("blotori-paw-active"); }}
       />
     </div>
   );
