@@ -21,7 +21,8 @@ export function isConfirmedModelNotFound(error: unknown): boolean {
   if (!body || typeof body !== "object") return false;
   const payload = body as Record<string, unknown>;
   return payload.code === "model_not_found" &&
-    payload.type === "invalid_request_error";
+    payload.type === "invalid_request_error" &&
+    (payload.param == null || payload.param === "model");
 }
 
 export function normalizeModelUnavailable(error: unknown, modelId: string): unknown {
