@@ -22,13 +22,19 @@ Module._extensions[".ts"] = function loadTypeScript(module, filename) {
 
 try {
   const { CATEGORY_BLOG_DNA_LIBRARY_META, CATEGORY_BLOG_DNA_PRESETS } = require(path.join(workspace, "lib/domain/category-blog-dna.ts"));
+  const { CATEGORY_DEFINITIONS } = require(path.join(workspace, "lib/domain/content-config.ts"));
   const { buildPrompt } = require(path.join(workspace, "lib/application/build-prompt.ts"));
+  const { composeGenerationRequest } = require(path.join(workspace, "lib/application/compose-generation-request.ts"));
   const { buildPlatformExport } = require(path.join(workspace, "lib/application/platform-exporter.ts"));
   const { ensureWarnings, findDraftQualityIssues } = require(path.join(workspace, "lib/domain/rules.ts"));
 
   assert.equal(CATEGORY_BLOG_DNA_LIBRARY_META.biasCorrected, false, "uncertified V2 must stay inactive");
   assert.equal(CATEGORY_BLOG_DNA_PRESETS.length, 45, "current V1/curated fallback must expose 45 presets");
   assert.equal(new Set(CATEGORY_BLOG_DNA_PRESETS.map((preset) => preset.categoryId)).size, 19, "all 19 categories must be represented");
+  const composerCategoryIds = new Set(CATEGORY_DEFINITIONS.map((category) => category.id));
+  for (const categoryId of new Set(CATEGORY_BLOG_DNA_PRESETS.map((preset) => preset.categoryId))) {
+    assert.ok(composerCategoryIds.has(categoryId), `${categoryId}: Blog DNA category must be selectable in Composer`);
+  }
 
   for (const preset of CATEGORY_BLOG_DNA_PRESETS) {
     const input = {
@@ -61,6 +67,38 @@ try {
       `variation nonce: fixture-${preset.id}`,
     ]) assert.ok(prompt.includes(expected), `${preset.id}: missing prompt DNA ${expected}`);
   }
+
+  const selectedPreset = CATEGORY_BLOG_DNA_PRESETS.find((preset) => preset.categoryId === "food");
+  assert.ok(selectedPreset, "food category preset fixture must exist");
+  const explicitPayload = composeGenerationRequest({
+    platformId: "naver",
+    categoryId: "food",
+    freeTopic: "명시적 생성 컨텍스트 fixture",
+    attributes: {},
+    styleId: "auto",
+    styleIntensity: 3,
+    structureId: "auto",
+    length: "medium",
+    imageCount: 4,
+  }, {
+    overrides: {
+      styleId: "custom",
+      customStyle: selectedPreset.dna.signature,
+      styleProfileName: selectedPreset.label,
+      blogDNA: selectedPreset.dna,
+      blogDNAApply: { voice: true, mood: true, structure: true, imageRhythm: true, visual: true },
+      recentLayoutFingerprints: ["이전 레이아웃"],
+    },
+    layoutHistoryKey: "category:fixture",
+    variationPrefix: "category-variation",
+  }, "category-variation-fixed");
+  assert.equal(explicitPayload.styleProfileName, selectedPreset.label);
+  assert.equal(explicitPayload.blogDNA, selectedPreset.dna);
+  assert.deepEqual(explicitPayload.recentLayoutFingerprints, ["이전 레이아웃"]);
+  assert.equal(explicitPayload.variationNonce, "category-variation-fixed");
+  const explicitPrompt = buildPrompt(explicitPayload);
+  assert.ok(explicitPrompt.includes(selectedPreset.dna.voice.summary));
+  assert.ok(explicitPrompt.includes(selectedPreset.dna.imageRhythm.summary));
 
   const baseDraft = {
     title: "직접 고친 제목",
@@ -99,6 +137,8 @@ try {
   assert.ok(ensureWarnings(badDraft).warnings.length >= 3);
 
   const studioSource = fs.readFileSync(path.join(workspace, "app/BlotoriAssetStudio.tsx"), "utf8");
+  assert.doesNotMatch(studioSource, /window\.fetch\s*=/, "asset studio must not override global fetch");
+  assert.match(studioSource, /onGenerationContextChange/, "asset studio must publish explicit generation context");
   assert.match(studioSource, /\['pasted_text', '글 붙여넣기'\]/, "pasted-text DNA entry must remain available");
   assert.match(studioSource, /\['manual', '직접 설정'\]/, "manual DNA entry must remain available");
   const analyzeRoute = fs.readFileSync(path.join(workspace, "app/api/style/analyze/route.ts"), "utf8");

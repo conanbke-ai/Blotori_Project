@@ -71,3 +71,131 @@
     height: 128px !important;
   }
 }
+
+/* Desktop workspace owns the viewport; each rail and the preview scrolls on its
+ * own. Mobile deliberately keeps the document flow for step-by-step screens. */
+@media (min-width: 761px) {
+  body:has(.workspaceV2) {
+    overflow: hidden;
+  }
+
+  .workspaceV2 {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .workspaceV2 .workspaceHeader {
+    position: relative;
+  }
+
+  .workspaceV2 .workspaceGridV2 {
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .workspaceV2 .settingsRail,
+  .workspaceV2 .inspectorRail,
+  .workspaceV2 .previewStage {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  .workspaceV2 .workspaceHeader {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .workspaceV2 .compactBrand,
+  .workspaceV2 .compactBrand > div:last-child {
+    min-width: 0;
+  }
+
+  .workspaceV2 .compactBrand {
+    gap: 9px;
+  }
+
+  .workspaceV2 .blotoriBrandMark img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .workspaceV2 .blotoriBrandMark span {
+    font-size: 18px;
+  }
+
+  .workspaceV2 .compactBrand h1 {
+    font-size: 19px;
+    line-height: 1.25;
+  }
+
+  .workspaceV2 .compactBrand p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .workspaceV2 .workspaceTopActions {
+    max-width: 250px;
+  }
+
+  .workspaceV2 .workspaceTopActions > .iconGhost {
+    display: inline-flex !important;
+  }
+}
+
+.workspaceV2 .connectionSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.workspaceV2 .connectionSummary i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e69a62;
+  box-shadow: 0 0 0 3px rgba(230, 154, 98, .14);
+}
+
+.workspaceV2 .connectionSummary.ok i {
+  background: #3fa986;
+  box-shadow: 0 0 0 3px rgba(63, 169, 134, .14);
+}
+
+.workspaceV2 .connectionSummary.checking i {
+  background: #6aaec0;
+}
+
+.workspaceV2 .diagnosticTitle {
+  display: block;
+  margin-bottom: 8px;
+  color: #315b7a;
+  font-size: 12px;
+}
+
+.workspaceV2 .apiStatusMessage {
+  margin: 8px 0 10px;
+  color: #667984;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.workspaceV2 .apiWarning,
+.workspaceV2 .inputRequirement {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fff8ec;
+  color: #8a633e;
+  font-size: 10.5px;
+  line-height: 1.45;
+}

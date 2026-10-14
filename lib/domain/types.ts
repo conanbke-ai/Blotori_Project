@@ -128,6 +128,24 @@ export interface GenerateRequest {
   referenceFiles?: ReferenceFileInput[];
 }
 
+export type GenerateRequestOverrides = Partial<Pick<GenerateRequest,
+  | "styleId"
+  | "styleIntensity"
+  | "customStyle"
+  | "styleProfileName"
+  | "blogDNA"
+  | "blogDNAApply"
+  | "recentLayoutFingerprints"
+  | "variationNonce"
+  | "referenceFiles"
+>>;
+
+export interface GenerationContext {
+  overrides: GenerateRequestOverrides;
+  layoutHistoryKey?: string;
+  variationPrefix?: string;
+}
+
 export interface TextEmphasis {
   phrase: string;
   kind: EmphasisKind;

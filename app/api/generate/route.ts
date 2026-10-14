@@ -106,9 +106,14 @@ export async function POST(request: Request) {
       errorCode: classified.code,
       message: classified.message,
     });
+    const status = classified.code === "OPENAI_CONFIG_ERROR"
+      ? 503
+      : classified.code === "UPSTREAM_RATE_LIMIT"
+        ? 429
+        : 502;
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "생성 중 오류가 발생했습니다.", requestId },
-      { status: 500, headers: { "x-blotori-request-id": requestId } },
+      { error: error instanceof Error ? error.message : "생성 중 오류가 발생했습니다.", code: classified.code, requestId },
+      { status, headers: { "x-blotori-request-id": requestId } },
     );
   }
 }

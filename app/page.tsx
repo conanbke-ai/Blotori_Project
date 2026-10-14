@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { composeGenerationRequest } from "../lib/application/compose-generation-request";
 import { buildPlatformExport } from "../lib/application/platform-exporter";
+import { rememberLayoutFingerprint } from "../lib/domain/layout-history";
 import BlotoriAssetStudio from "./BlotoriAssetStudio";
 import type {
   BlogDraft,
   BlogSection,
   GenerateRequest,
+  GenerationContext,
   ImagePlan,
   Length,
   PlatformId,
@@ -60,6 +63,12 @@ const loadingStages = [
   "최종 미리보기를 정돈하고 있어요.",
 ];
 
+const emptyGenerationContext: GenerationContext = { overrides: {} };
+
+function browserStorage() {
+  try { return window.localStorage; } catch { return null; }
+}
+
 function emphasizedText(text: string, emphasis: TextEmphasis[] = []) {
   const valid = emphasis
     .filter((item) => item.phrase && text.includes(item.phrase))
@@ -95,6 +104,7 @@ export default function Home() {
   const [healthLoading, setHealthLoading] = useState(false);
   const [inspectorTab, setInspectorTab] = useState<InspectorTab>("images");
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>("settings");
+  const [generationContext, setGenerationContext] = useState<GenerationContext>(emptyGenerationContext);
   const previewScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { void loadApiHealth(false); }, []);
@@ -125,8 +135,21 @@ export default function Home() {
   const hasTopic = Boolean(form.presetId || form.freeTopic?.trim());
   const canGenerate = Boolean(form.platformId) && (form.platformId !== "other" || Boolean(form.otherPlatform?.trim())) && hasTopic;
   const platformClass = form.platformId ? `platform-${form.platformId}` : "platform-generic";
+  const connectionLabel = healthLoading
+    ? "연결 확인 중"
+    : !apiHealth
+      ? "연결 상태 확인 전"
+      : apiHealth.verified && apiHealth.ok
+        ? "API 연결 확인됨"
+        : apiHealth.keyDetected
+          ? "API 키 감지됨"
+          : "API 설정 필요";
+  const connectionTone = healthLoading ? "checking" : apiHealth?.ok ? "ok" : "bad";
 
-  function patch(next: Partial<ComposerForm>) { setForm((prev) => ({ ...prev, ...next })); }
+  function patch(next: Partial<ComposerForm>) {
+    setForm((prev) => ({ ...prev, ...next }));
+    if (error) setError("");
+  }
   function setAttribute(id: string, value: string) { setForm((prev) => ({ ...prev, attributes: { ...prev.attributes, [id]: value } })); }
 
   async function loadApiHealth(verify: boolean) {
@@ -146,14 +169,21 @@ export default function Home() {
 
     setLoading(true); setLoadingStage(0); setSuccessVisible(false); setError("");
     try {
-      const payload: GenerateRequest = { ...form, platformId: form.platformId };
+      const base: GenerateRequest = { ...form, platformId: form.platformId };
+      const variationNonce = generationContext.variationPrefix
+        ? `${generationContext.variationPrefix}-${crypto.randomUUID()}`
+        : undefined;
+      const payload = composeGenerationRequest(base, generationContext, variationNonce);
       const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "생성 실패");
+      const data = await res.json().catch(() => ({ error: "서버 응답을 읽지 못했습니다." }));
+      if (!res.ok) throw new Error(data.error || (res.status === 503 ? "API 연결 설정을 확인해 주세요." : "생성 요청에 실패했습니다."));
       setDraft(data.draft); setMode(data.mode); setEditMode(false); setSuccessVisible(true); setMobilePanel("preview");
+      if (generationContext.layoutHistoryKey) {
+        rememberLayoutFingerprint(browserStorage(), generationContext.layoutHistoryKey, data?.draft?.layoutFingerprint);
+      }
       requestAnimationFrame(() => previewScrollRef.current?.scrollTo({ top: 0 }));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "오류가 발생했습니다.");
+      setError(e instanceof TypeError ? "생성 서버에 연결하지 못했습니다. 네트워크와 개발 서버 상태를 확인한 뒤 다시 시도해 주세요." : e instanceof Error ? e.message : "오류가 발생했습니다.");
       void loadApiHealth(false);
     } finally { setLoading(false); }
   }
@@ -231,9 +261,11 @@ export default function Home() {
           <button className="ghost iconGhost" onClick={() => setSettingsOpen((v) => !v)} aria-label="작성 설정 열기 또는 접기">{settingsOpen ? "설정 숨기기" : "설정 열기"}</button>
           <button className="ghost iconGhost" onClick={() => setGuideOpen((v) => !v)} aria-label="검수 패널 열기 또는 접기">{guideOpen ? "검수 숨기기" : "검수 열기"}</button>
           <details className="devStatusMenu">
-            <summary aria-label="개발 연결 상태">연결 상태</summary>
+            <summary aria-label={`연결 상태: ${connectionLabel}`}><span className={`connectionSummary ${connectionTone}`}><i />{connectionLabel}</span></summary>
             <div className="devStatusPopover">
+              <strong className="diagnosticTitle">연결 상세 진단</strong>
               <div className={`apiStatus ${apiHealth?.ok ? "ok" : "bad"}`} title={apiHealth?.message ?? "API 상태 확인 중"}><span className="apiDot" /><span>{apiHealth ? (apiHealth.keyDetected ? "API 키 감지" : "API 키 미감지") : "API 확인 중"}</span>{apiHealth?.model && <small>{apiHealth.model}</small>}</div>
+              <p className="apiStatusMessage">{apiHealth?.message ?? "서버 설정을 확인하고 있습니다."}</p>
               <button className="ghost" onClick={() => void loadApiHealth(true)} disabled={healthLoading}>{healthLoading ? "확인 중…" : "연결 테스트"}</button>
               <div className="costBadge"><span>AI 기본 호출</span><strong>1회 / 글</strong></div>
             </div>
@@ -267,6 +299,7 @@ export default function Home() {
           </SettingGroup>
 
           <BlotoriAssetStudio
+            categoryId={form.categoryId}
             styleId={form.styleId}
             styleIntensity={form.styleIntensity ?? 3}
             customStyle={form.customStyle ?? ""}
@@ -279,6 +312,7 @@ export default function Home() {
             onCustomStyleChange={(customStyle) => patch({ customStyle })}
             onStructureIdChange={(structureId) => patch({ structureId })}
             onCustomStructureChange={(customStructure) => patch({ customStructure })}
+            onGenerationContextChange={setGenerationContext}
           />
 
           {visibleFieldIds.length > 0 && <SettingGroup index="5" title="주제별 추가 조건" description="선택한 주제에 필요한 조건만 보여줘요." optional>
@@ -293,7 +327,7 @@ export default function Home() {
             <Field label="기타 조건·요청"><textarea value={form.extraConditions ?? ""} onChange={(e) => patch({ extraConditions: e.target.value })} rows={3} placeholder="꼭 넣을 내용, 제외할 표현, 별도 요청" /></Field>
           </SettingGroup>
 
-          <div className="controlsActionDock stickyGenerateDock">{error && <div className="errorBox stickyError">{error}</div>}{!apiHealth?.keyDetected && apiHealth && <div className="apiWarning">{apiHealth.message}</div>}<button className="primary generatePrimary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "블로토리가 초안을 만드는 중…" : "✦ 블로그 초안 만들기"}</button><small>입력한 자료·문체·옵션을 반영해 하나의 초안으로 정리해요.</small></div>
+          <div className="controlsActionDock stickyGenerateDock">{error && <div className="errorBox stickyError" role="alert">{error}</div>}{!apiHealth?.keyDetected && apiHealth && <div className="apiWarning">{apiHealth.message}</div>}{!canGenerate && <div className="inputRequirement">플랫폼과 추천 주제 또는 자유 주제를 입력하면 생성할 수 있어요.</div>}<button className="primary generatePrimary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "블로토리가 초안을 만드는 중…" : "✦ 블로그 초안 만들기"}</button><small>입력한 자료·문체·옵션을 반영해 하나의 초안으로 정리해요.</small></div>
         </aside>}
 
         <section className="panel previewPanel appPreviewPanel previewStage" data-mobile-panel="preview">

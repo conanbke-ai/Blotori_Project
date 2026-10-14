@@ -6,10 +6,9 @@ import { getCategoryBlogDNAPreset, getCategoryBlogDNAPresets } from "../lib/doma
 import {
   categoryPresetLayoutHistoryKey,
   loadLayoutHistory,
-  rememberLayoutFingerprint,
   savedStyleLayoutHistoryKey,
 } from "../lib/domain/layout-history";
-import type { BlogDNAApplyOptions, BlogDNAProfile, StructureId, StyleId, StyleIntensity } from "../lib/domain/types";
+import type { BlogDNAApplyOptions, BlogDNAProfile, GenerationContext, ReferenceFileInput, StructureId, StyleId, StyleIntensity } from "../lib/domain/types";
 
 type StyleSourceType = "preset" | "blog" | "post" | "pasted_text" | "manual";
 type StyleProfile = {
@@ -62,6 +61,7 @@ type Props = {
   onCustomStyleChange: (value: string) => void;
   onStructureIdChange: (value: StructureId) => void;
   onCustomStructureChange: (value: string) => void;
+  onGenerationContextChange: (value: GenerationContext) => void;
 };
 
 const STYLE_KEY = "blotori.style-profiles.v1";
@@ -174,6 +174,7 @@ export default function BlotoriAssetStudio({
   onCustomStyleChange,
   onStructureIdChange,
   onCustomStructureChange,
+  onGenerationContextChange,
 }: Props) {
   const [styles, setStyles] = useState<StyleProfile[]>([]);
   const [materials, setMaterials] = useState<MaterialRecord[]>([]);
@@ -190,6 +191,7 @@ export default function BlotoriAssetStudio({
   const [builderIntensity, setBuilderIntensity] = useState<StyleIntensity>(3);
   const [analyzing, setAnalyzing] = useState(false);
   const [notice, setNotice] = useState("");
+  const [referenceFiles, setReferenceFiles] = useState<ReferenceFileInput[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
   const packInput = useRef<HTMLInputElement>(null);
 
@@ -208,7 +210,10 @@ export default function BlotoriAssetStudio({
 
   const selectedStyle = useMemo(() => styles.find((item) => item.id === selectedStyleId), [styles, selectedStyleId]);
   const categoryPresets = useMemo(() => getCategoryBlogDNAPresets(categoryId), [categoryId]);
-  const selectedCategoryPreset = useMemo(() => getCategoryBlogDNAPreset(selectedCategoryPresetId), [selectedCategoryPresetId]);
+  const selectedCategoryPreset = useMemo(() => {
+    const candidate = getCategoryBlogDNAPreset(selectedCategoryPresetId);
+    return candidate?.categoryId === categoryId ? candidate : undefined;
+  }, [categoryId, selectedCategoryPresetId]);
   const styleChoice = selectedStyleId
     ? `saved:${selectedStyleId}`
     : selectedCategoryPresetId
@@ -216,63 +221,60 @@ export default function BlotoriAssetStudio({
       : `builtin:${styleId}`;
 
   useEffect(() => {
-    const nativeFetch = window.fetch.bind(window);
-    window.fetch = async (input, init) => {
-      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-      if (!url.endsWith("/api/generate") || init?.method !== "POST" || typeof init.body !== "string") return nativeFetch(input, init);
-      try {
-        const payload = JSON.parse(init.body) as Record<string, unknown>;
-        const profile = styles.find((item) => item.id === selectedStyleId);
-        const categoryPreset = getCategoryBlogDNAPreset(selectedCategoryPresetId);
-        if (profile) {
-          payload.styleId = "custom";
-          payload.customStyle = `${profile.signature}\n\n원문 문장을 복제하지 말고 분석된 특성만 적용한다.`;
-          payload.styleIntensity = styleIntensity;
-          payload.styleProfileName = profile.name;
-          if (profile.blogDNA) {
-            payload.blogDNA = profile.blogDNA;
-            payload.blogDNAApply = blogDNAApply;
-            payload.recentLayoutFingerprints = loadLayoutHistory(browserStorage(), savedStyleLayoutHistoryKey(profile.id));
-            payload.variationNonce = uid("variation");
-          }
-        } else if (categoryPreset) {
-          payload.styleId = "custom";
-          payload.customStyle = `${categoryPreset.dna.signature}\n\n카테고리 기본 Blog DNA를 고정 템플릿처럼 복사하지 말고 현재 콘텐츠에 맞게 자연스럽게 적용한다.`;
-          payload.styleIntensity = styleIntensity;
-          payload.styleProfileName = categoryPreset.label;
-          payload.blogDNA = categoryPreset.dna;
-          payload.blogDNAApply = blogDNAApply;
-          payload.recentLayoutFingerprints = loadLayoutHistory(browserStorage(), categoryPresetLayoutHistoryKey(categoryPreset.id));
-          payload.variationNonce = uid("category-variation");
-        }
-        const chosen = materials.filter((item) => selectedMaterialIds.includes(item.id));
-        if (chosen.length) {
-          payload.referenceFiles = await Promise.all(chosen.map(async (item) => ({
-            id: item.id,
-            name: item.name,
-            mimeType: item.type,
-            size: item.size,
-            dataUrl: await readAsDataUrl(item.blob),
-          })));
-        }
-        const response = await nativeFetch(input, { ...init, body: JSON.stringify(payload) });
-        const historyKey = profile?.blogDNA
-          ? savedStyleLayoutHistoryKey(profile.id)
-          : categoryPreset
-            ? categoryPresetLayoutHistoryKey(categoryPreset.id)
-            : null;
-        if (historyKey && response.ok) {
-          void response.clone().json().then((data) => {
-            rememberLayoutFingerprint(browserStorage(), historyKey, data?.draft?.layoutFingerprint);
-          }).catch(() => undefined);
-        }
-        return response;
-      } catch {
-        return nativeFetch(input, init);
+    if (selectedCategoryPresetId && !selectedCategoryPreset) setSelectedCategoryPresetId("");
+  }, [selectedCategoryPreset, selectedCategoryPresetId]);
+
+  useEffect(() => {
+    let active = true;
+    const chosen = materials.filter((item) => selectedMaterialIds.includes(item.id));
+    void Promise.all(chosen.map(async (item) => ({
+      id: item.id,
+      name: item.name,
+      mimeType: item.type,
+      size: item.size,
+      dataUrl: await readAsDataUrl(item.blob),
+    }))).then((files) => {
+      if (active) setReferenceFiles(files);
+    }).catch(() => {
+      if (active) {
+        setReferenceFiles([]);
+        setNotice("선택한 참고자료를 생성 요청에 준비하지 못했어요.");
       }
-    };
-    return () => { window.fetch = nativeFetch; };
-  }, [blogDNAApply, materials, selectedCategoryPresetId, selectedMaterialIds, selectedStyleId, styleIntensity, styles]);
+    });
+    return () => { active = false; };
+  }, [materials, selectedMaterialIds]);
+
+  useEffect(() => {
+    const overrides: GenerationContext["overrides"] = referenceFiles.length ? { referenceFiles } : {};
+    let layoutHistoryKey: string | undefined;
+    let variationPrefix: string | undefined;
+
+    if (selectedStyle) {
+      overrides.styleId = "custom";
+      overrides.customStyle = `${selectedStyle.signature}\n\n원문 문장을 복제하지 말고 분석된 특성만 적용한다.`;
+      overrides.styleIntensity = styleIntensity;
+      overrides.styleProfileName = selectedStyle.name;
+      if (selectedStyle.blogDNA) {
+        overrides.blogDNA = selectedStyle.blogDNA;
+        overrides.blogDNAApply = blogDNAApply;
+        layoutHistoryKey = savedStyleLayoutHistoryKey(selectedStyle.id);
+        overrides.recentLayoutFingerprints = loadLayoutHistory(browserStorage(), layoutHistoryKey);
+        variationPrefix = "variation";
+      }
+    } else if (selectedCategoryPreset) {
+      overrides.styleId = "custom";
+      overrides.customStyle = `${selectedCategoryPreset.dna.signature}\n\n카테고리 기본 Blog DNA를 고정 템플릿처럼 복사하지 말고 현재 콘텐츠에 맞게 자연스럽게 적용한다.`;
+      overrides.styleIntensity = styleIntensity;
+      overrides.styleProfileName = selectedCategoryPreset.label;
+      overrides.blogDNA = selectedCategoryPreset.dna;
+      overrides.blogDNAApply = blogDNAApply;
+      layoutHistoryKey = categoryPresetLayoutHistoryKey(selectedCategoryPreset.id);
+      overrides.recentLayoutFingerprints = loadLayoutHistory(browserStorage(), layoutHistoryKey);
+      variationPrefix = "category-variation";
+    }
+
+    onGenerationContextChange({ overrides, layoutHistoryKey, variationPrefix });
+  }, [blogDNAApply, onGenerationContextChange, referenceFiles, selectedCategoryPreset, selectedStyle, styleIntensity]);
 
   async function addFiles(event: ChangeEvent<HTMLInputElement>) {
     const files = [...(event.target.files ?? [])];
