@@ -15,7 +15,7 @@ function detectPlatform(): PlatformId | null {
   return select?.value ? select.value as PlatformId : null;
 }
 function paperSignature(paper: HTMLElement) {
-  return [paper.querySelector(".previewTitle")?.textContent ?? "", paper.querySelectorAll(".articleSection").length, paper.querySelectorAll(".textEmphasis").length, paper.querySelectorAll(".imageSlot").length].join("|");
+  return paper.textContent ?? "";
 }
 function findRuntime(): RuntimeState | null {
   const platformId = detectPlatform();
@@ -23,8 +23,8 @@ function findRuntime(): RuntimeState | null {
   const paper = document.querySelector<HTMLElement>(".blogPaper");
   return platformId && host && paper ? { platformId, host, paper, signature: paperSignature(paper) } : null;
 }
-function clickExistingButton(pattern: RegExp) {
-  const button = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((item) => pattern.test(item.textContent ?? "") && !item.closest(".composerWorkflowEnhancer"));
+function clickExistingButton(pattern: RegExp, selector?: string) {
+  const button = (selector ? document.querySelector<HTMLButtonElement>(selector) : null) ?? Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find((item) => pattern.test(item.textContent ?? "") && !item.closest(".composerWorkflowEnhancer"));
   button?.click(); return Boolean(button);
 }
 function formatLabel(platformId: PlatformId) {
@@ -57,7 +57,7 @@ function buildRenderedGuide(paper: HTMLElement, platformId: PlatformId) {
     if (id) lines.push(`${id} → ${placement || "현재 표시된 위치에 이미지 삽입"}`);
   });
   if (platformId === "naver") {
-    lines.unshift("네이버 SmartEditor ONE에는 본문을 일반 텍스트로 붙여넣은 뒤 아래 서식을 적용");
+    lines.unshift("네이버는 서식 포함 복사를 먼저 사용할 수 있어요. 실제 편집기에서 서식이 유지되는지는 아직 검증하지 않았어요.");
     lines.push("이미지는 복붙하지 말고 각 IMG 위치에서 포토업로더로 원본 파일 등록", "태그는 본문에 붙이지 말고 태그 입력 영역에 별도로 등록");
   }
   return [...new Set(lines)];
@@ -99,7 +99,7 @@ export default function ComposerWorkflowEnhancer() {
   const guideLines = useMemo(() => runtime ? buildRenderedGuide(runtime.paper, runtime.platformId) : [], [runtime]);
   if (!runtime) return null;
   const isNaver = runtime.platformId === "naver";
-  function runExisting(pattern: RegExp, key: string) { const ok = clickExistingButton(pattern); setFeedback(ok ? key : "not-found"); window.setTimeout(() => setFeedback(""), 1300); }
+  function runExisting(pattern: RegExp, _key: string, selector?: string) { const ok = clickExistingButton(pattern, selector); setFeedback(ok ? "" : "not-found"); window.setTimeout(() => setFeedback(""), 1300); }
 
   return createPortal(<div className="composerWorkflowEnhancer">
     <button type="button" className="workflowToggle" onClick={() => setOpen((value) => !value)}><span>게시 도우미</span><strong>{open ? "접기" : "열기"}</strong></button>
@@ -107,7 +107,7 @@ export default function ComposerWorkflowEnhancer() {
       <div className="workflowHeading"><div><span>POSTING FLOW</span><strong>{formatLabel(runtime.platformId)}</strong></div><small>{isNaver ? "제목·본문·이미지·태그를 분리해 안전하게 옮겨요." : "플랫폼 특성에 맞는 기존 복사 기능을 순서대로 사용해요."}</small></div>
       <div className="workflowSteps">
         <button type="button" onClick={() => runExisting(/제목 (복사|복사됨)/, "title")}><b>1</b><span><strong>제목 복사</strong><small>{feedback === "title" ? "복사됨 ✓" : "제목 입력란에 붙여넣기"}</small></span></button>
-        <button type="button" onClick={() => runExisting(/용 본문 복사|본문 복사됨/, "body")}><b>2</b><span><strong>본문 복사</strong><small>{feedback === "body" ? "복사됨 ✓" : isNaver ? "SmartEditor ONE에 일반 텍스트로 붙여넣기" : "본문 편집기에 붙여넣기"}</small></span></button>
+        <button type="button" onClick={() => runExisting(/서식 포함 복사|텍스트만 복사/, "body", "[data-copy-platform], [data-copy-plain]")}><b>2</b><span><strong>본문 복사</strong><small>{feedback === "body" ? "복사됨 ✓" : isNaver ? "서식 포함 복사 후 편집기에서 결과 확인" : "본문 편집기에 붙여넣기"}</small></span></button>
         <div className="workflowStatic"><b>3</b><span><strong>이미지 넣기</strong><small>IMG 슬롯 순서대로 생성한 원본 이미지 업로드</small></span></div>
         <button type="button" onClick={() => runExisting(/태그 (복사|복사됨)/, "tags")}><b>4</b><span><strong>태그 복사</strong><small>{feedback === "tags" ? "복사됨 ✓" : "태그/라벨 입력란에 붙여넣기"}</small></span></button>
       </div>

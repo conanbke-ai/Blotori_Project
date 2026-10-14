@@ -49,6 +49,15 @@ jobs:
       - name: Probe canonical assets
         run: node scripts/asset-probe-temp.mjs
 
+      - name: Test platform export and clipboard behavior
+        run: npm run qa:platform
+
+      - name: Test local IndexedDB storage
+        run: node scripts/validate-draft-storage.mjs
+
+      - name: Test real clipboard and draft image reload
+        run: node scripts/validate-copy-workspace.mjs
+
       - name: Capture screenshots
         run: node scripts/visual-qa-temp.mjs
 

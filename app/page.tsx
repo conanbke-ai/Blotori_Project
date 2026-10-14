@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { composeGenerationRequest } from "../lib/application/compose-generation-request";
 import { buildPlatformExport } from "../lib/application/platform-exporter";
+import { copyPlatformContent, copyResultMessage } from "../lib/browser/copy-platform-content";
+import PlatformExportPreview from "./PlatformExportPreview";
+import DraftImageControl from "./DraftImageControl";
+import { useDraftWorkspace } from "./useDraftWorkspace";
 import { rememberLayoutFingerprint } from "../lib/domain/layout-history";
 import BlotoriAssetStudio from "./BlotoriAssetStudio";
 import ResponsiveInspector, { useWorkspaceLayout } from "./ResponsiveInspector";
@@ -91,13 +95,15 @@ function emphasizedText(text: string, emphasis: TextEmphasis[] = []) {
 
 export default function Home() {
   const [form, setForm] = useState<ComposerForm>(initialForm);
-  const [draft, setDraft] = useState<BlogDraft | null>(null);
+  const { draft, setDraft, draftId, restoredPlatform, ready: storageReady, status: storageStatus, message: storageMessage, startDraft } = useDraftWorkspace(form.platformId);
+  useEffect(() => { if (restoredPlatform) { setForm((current) => ({ ...current, platformId: current.platformId || restoredPlatform })); setMobilePanel("preview"); } }, [restoredPlatform]);
   const [loading, setLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
   const [successVisible, setSuccessVisible] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<"mock" | "api" | null>(null);
   const [copied, setCopied] = useState("");
+  const [copyFeedback, setCopyFeedback] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [guideOpen, setGuideOpen] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -155,8 +161,10 @@ export default function Home() {
     return map;
   }, [draft]);
 
+  const platformExport = useMemo(() => draft && form.platformId ? buildPlatformExport(draft, form.platformId) : null, [draft, form.platformId]);
+
   const hasTopic = Boolean(form.presetId || form.freeTopic?.trim());
-  const canGenerate = Boolean(form.platformId) && (form.platformId !== "other" || Boolean(form.otherPlatform?.trim())) && hasTopic;
+  const canGenerate = storageReady && Boolean(form.platformId) && (form.platformId !== "other" || Boolean(form.otherPlatform?.trim())) && hasTopic;
   const platformClass = form.platformId ? `platform-${form.platformId}` : "platform-generic";
   const connectionLabel = healthLoading
     ? "연결 확인 중"
@@ -200,7 +208,7 @@ export default function Home() {
       const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json().catch(() => ({ error: "서버 응답을 읽지 못했습니다." }));
       if (!res.ok) throw new Error(data.error || (res.status === 503 ? "API 연결 설정을 확인해 주세요." : "생성 요청에 실패했습니다."));
-      setDraft(data.draft); setMode(data.mode); setEditMode(false); setSuccessVisible(true); setMobilePanel("preview");
+      startDraft(data.draft); setMode(data.mode); setEditMode(false); setSuccessVisible(true); setMobilePanel("preview");
       if (generationContext.layoutHistoryKey) {
         rememberLayoutFingerprint(browserStorage(), generationContext.layoutHistoryKey, data?.draft?.layoutFingerprint);
       }
@@ -212,27 +220,21 @@ export default function Home() {
   }
 
   async function copyText(text: string, key: string) {
-    await navigator.clipboard.writeText(text);
-    setCopied(key); window.setTimeout(() => setCopied(""), 1200);
+    const result = await copyPlatformContent({ plainText: text }, "plain");
+    if (result.status === "copied") {
+      setCopied(key); window.setTimeout(() => setCopied(""), 1200);
+    } else setCopied("");
+    setCopyFeedback(copyResultMessage(result));
   }
 
-  async function copyPlatformDraft() {
-    if (!draft || !form.platformId) return;
-    const exported = buildPlatformExport(draft, form.platformId);
-    try {
-      if (exported.clipboardMode === "rich" && exported.html && "ClipboardItem" in window) {
-        const item = new ClipboardItem({
-          "text/plain": new Blob([exported.plainText], { type: "text/plain" }),
-          "text/html": new Blob([exported.html], { type: "text/html" }),
-        });
-        await navigator.clipboard.write([item]);
-      } else {
-        await navigator.clipboard.writeText(exported.plainText);
-      }
-      setCopied("platform"); window.setTimeout(() => setCopied(""), 1200);
-    } catch {
-      await copyText(exported.plainText, "platform");
-    }
+  async function copyPlatformDraft(mode: "rich" | "plain") {
+    if (!platformExport) return;
+    const result = await copyPlatformContent(platformExport, mode);
+    setCopyFeedback(copyResultMessage(result));
+    if (result.status === "copied") {
+      setCopied(result.format === "rich" ? "platform-rich" : "platform-plain");
+      window.setTimeout(() => setCopied(""), 1200);
+    } else setCopied("");
   }
 
   async function copyTags() {
@@ -362,6 +364,7 @@ export default function Home() {
             </div>
           </div>
 
+          <p className="draftStorageStatus" data-state={storageStatus} role="status" aria-live="polite">{storageMessage}</p>
           {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><div className="emptyMascotStage"><span className="emptyGlow" /><img className="blotoriMascotEmpty" src="/blotori-character-master.png" alt="블로토리" /></div><div className="emptyCopy"><span className="emptyEyebrow">READY TO COMPOSE</span><h3>자료와 문체를 정하고, 초안을 바로 시작하세요</h3><p>주제와 참고자료를 고르면 블로토리가 플랫폼에 맞는 게시 초안을 구성해드려요.</p><div className="emptyQuickActions"><button type="button" className="secondaryAction" onClick={() => focusSettings('.referenceMaterialGroup')}>참고자료 등록</button><button type="button" className="ghost" onClick={() => focusSettings('.styleBuilder')}>내 문체 만들기</button></div><div className="emptyFeatureRow"><span>플랫폼 맞춤</span><span>참고자료 반영</span><span>이미지·검수</span></div></div></div> :
           <div className="previewLayout appPreviewLayout previewOnlyLayout">
             <div className="blogScroller" ref={previewScrollRef}>
@@ -369,16 +372,24 @@ export default function Home() {
                 {draft.titleCandidates?.length ? <div className="titleCandidatePanel"><div><strong>추천 제목</strong>{draft.titlePurpose && <span>{draft.titlePurpose}</span>}</div><div className="titleCandidateList">{draft.titleCandidates.slice(0,3).map((candidate, index) => <button key={`${candidate}-${index}`} className={candidate === draft.title ? "selected" : ""} onClick={() => updateDraft("title", candidate)}><b>{index + 1}</b><span>{candidate}</span><em>{candidate === draft.title ? "적용됨" : "적용"}</em></button>)}</div></div> : null}
                 {editMode ? <input className="titleEdit" value={draft.title} onChange={(e) => updateDraft("title", e.target.value)} /> : <h1 className={`previewTitle align-${draft.presentation?.titleAlign ?? "left"}`}>{draft.title}</h1>}
                 {editMode ? <textarea className="summaryEdit" value={draft.summary} onChange={(e) => updateDraft("summary", e.target.value)} rows={3} /> : <p className="summary">{draft.summary}</p>}
-                {(imageMap.get(null) ?? []).map((image) => <ImageSlot key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}
+                {(imageMap.get(null) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}
                 <div className={`introBlock align-${draft.presentation?.introAlign ?? "left"}`}>{draft.intro.map((p, i) => editMode ? <textarea key={i} className="paragraphEdit" value={p} onChange={(e) => updateArrayItem("intro", i, e.target.value)} rows={Math.max(3, Math.ceil(p.length/38))} /> : <p key={i}>{p}</p>)}</div>
-                {draft.sections.map((section) => <SectionPreview key={section.id} section={section} editMode={editMode} updateSection={updateSection} updateParagraph={updateParagraph}>{(imageMap.get(section.id) ?? []).map((image) => <ImageSlot key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</SectionPreview>)}
+                {draft.sections.filter((section) => section.presentation?.visualStyle !== "glossary").map((section) => <SectionPreview key={section.id} section={section} editMode={editMode} updateSection={updateSection} updateParagraph={updateParagraph}>{(imageMap.get(section.id) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</SectionPreview>)}
                 <div className="closingBlock">{draft.closing.map((p, i) => editMode ? <textarea key={i} className="paragraphEdit" value={p} onChange={(e) => updateArrayItem("closing", i, e.target.value)} rows={Math.max(3, Math.ceil(p.length/38))} /> : <p key={i}>{p}</p>)}</div>
+                {draft.sections.filter((section) => section.presentation?.visualStyle === "glossary").map((section) => <SectionPreview key={section.id} section={section} editMode={editMode} updateSection={updateSection} updateParagraph={updateParagraph}>{(imageMap.get(section.id) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</SectionPreview>)}
                 <div className={`tags ${editMode ? "tagsEditing" : ""}`}>{draft.tags.map((tag, i) => editMode ? <input key={i} value={tag} onChange={(e) => updateArrayItem("tags", i, e.target.value)} aria-label={`태그 ${i+1}`} /> : <span key={`${tag}-${i}`}>#{tag.replace(/^#/, "")}</span>)}</div>
               </article>
             </div>
           </div>}
 
-          {draft && <div className="previewActionBar"><button className="ghost" onClick={() => scrollPreview("top")}>↑ TOP</button><div><button className="secondaryAction" disabled={!form.platformId} onClick={copyPlatformDraft}>{copied === "platform" ? "본문 복사됨 ✓" : `${platformProfile?.label ?? "플랫폼"}용 본문 복사`}</button><button className="ghost" onClick={copyTags}>{copied === "tags" ? "태그 복사됨 ✓" : "태그 복사"}</button></div><button className="ghost" onClick={() => scrollPreview("bottom")}>↓ END</button></div>}
+          {platformExport && <>
+            <div className="previewActionBar"><button className="ghost" onClick={() => scrollPreview("top")}>↑ TOP</button><div>
+              {platformExport.html && <button className="secondaryAction" data-copy-platform onClick={() => void copyPlatformDraft("rich")}>{copied === "platform-rich" ? "서식 복사됨 ✓" : "서식 포함 복사"}</button>}
+              <button className="ghost" data-copy-plain onClick={() => void copyPlatformDraft("plain")}>{copied === "platform-plain" ? "텍스트 복사됨 ✓" : "텍스트만 복사"}</button>
+              <button className="ghost" data-copy-tags onClick={copyTags}>{copied === "tags" ? "태그 복사됨 ✓" : "태그 복사"}</button>
+            </div><button className="ghost" onClick={() => scrollPreview("bottom")}>↓ END</button></div>
+            <PlatformExportPreview exported={platformExport} feedback={copyFeedback} />
+          </>}
         </section>
 
         <ResponsiveInspector compact={compact} open={compact ? reviewOpen : guideOpen} onDismiss={() => setReviewOpen(false)} tabs={
@@ -432,8 +443,8 @@ function SectionPreview({ section, editMode, updateSection, updateParagraph, chi
 
 function Field({ label, children }: { label: string; children: ReactNode }) { return <label className="field"><span>{label}</span>{children}</label>; }
 
-function ImageSlot({ image, editMode, updateImage, copyText, copied }: { image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {
-  return <div className="imageSlot" data-image-id={image.id} tabIndex={-1} aria-label={`${image.id} ${image.label} 삽입 위치`}><div className="slotBadge">{image.id}</div><div className="slotArt"><span>IMAGE</span><small>{image.ratio}</small></div><div className="slotInfo">{editMode ? <><input value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /></> : <><div><strong>{image.label}</strong><span>{image.size}</span></div><p>{image.placement}</p></>}<button onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "프롬프트 복사됨 ✓" : "이 이미지 프롬프트 복사"}</button></div></div>;
+function ImageSlot({ draftId, sections, image, editMode, updateImage, copyText, copied }: { draftId: string | null; sections: BlogSection[]; image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {
+  return <div className="imageSlot" data-image-id={image.id} tabIndex={-1} aria-label={`${image.id} ${image.label} 삽입 위치`}><div className="slotBadge">{image.id}</div>{draftId && <DraftImageControl draftId={draftId} image={image} sections={sections} onChange={updateImage} />}<div className="slotInfo">{editMode ? <><input value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /></> : <><div><strong>{image.label}</strong><span>{image.size}</span></div><p>{image.placement}</p></>}<button onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "프롬프트 복사됨 ✓" : "이 이미지 프롬프트 복사"}</button></div></div>;
 }
 
 function PromptCard({ image, editMode, updateImage, copyText, copied, onLocate }: { onLocate: (id: string) => void; image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {

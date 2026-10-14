@@ -66,12 +66,19 @@ export default function ResponsiveInspector({ compact, open, onDismiss, children
       if (dialog.open) dialog.close();
       if (!compact && open) {
         dialog.show();
-        if (!wasModal.current) previousFocus?.focus({ preventScroll: true });
+        if (!wasModal.current) {
+          // show() focuses the first control even in a nonmodal dock. On initial
+          // load, leave focus on the document rather than skipping the form.
+          if (previousFocus === document.body) (document.activeElement as HTMLElement | null)?.blur();
+          else previousFocus?.focus({ preventScroll: true });
+        }
       }
       if (wasModal.current) {
         if (!compact) {
           // Resizing removes modality without duplicating or remounting content.
-          dialog.querySelector<HTMLElement>('[aria-selected="true"]')?.focus({ preventScroll: true });
+          const focus = previousFocus?.isConnected && dialog.contains(previousFocus)
+            ? previousFocus : dialog.querySelector<HTMLElement>('[aria-selected="true"]');
+          focus?.focus({ preventScroll: true });
         } else {
           openerRef.current?.focus({ preventScroll: true });
         }

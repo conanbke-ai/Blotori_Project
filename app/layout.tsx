@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import ComposerWorkflowEnhancer from "./ComposerWorkflowEnhancer";
 import GenerationPacingEnhancer from "./GenerationPacingEnhancer";
-import ImageSlotUploadEnhancer from "./ImageSlotUploadEnhancer";
 import StylePreviewPortal from "./StylePreviewPortal";
 import TitleCopyEnhancer from "./TitleCopyEnhancer";
 import ToriPawCursor from "./ToriPawCursor";
@@ -42,7 +41,6 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         {children}
         <GenerationPacingEnhancer />
         <ComposerWorkflowEnhancer />
-        <ImageSlotUploadEnhancer />
         <StylePreviewPortal />
         <TitleCopyEnhancer />
         <ToriPawCursor />

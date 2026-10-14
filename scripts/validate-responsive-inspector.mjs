@@ -194,6 +194,10 @@ async function prepareDraft(page, scenario, platform) {
   await assertLayout(page, scenario.layout, scenario.single);
   await page.evaluate(() => { window.__responsiveQaInspector = document.querySelector('.inspectorRail'); });
   await assertDialogState(page, { open: scenario.layout === 'wide', modal: false });
+  if (scenario.layout === 'wide') {
+    assert.equal(await page.locator('.inspectorRail').evaluate((node) => node.contains(document.activeElement)), false,
+      'The persistent inspector must not steal initial focus from the document');
+  }
   const health = await page.request.get(`${baseURL}/api/health`);
   assert.equal(health.ok(), true, 'Mock server health endpoint must be reachable');
   assert.equal((await health.json()).keyDetected, false, 'Do not run mock regression with a real API key configured');
@@ -271,11 +275,14 @@ async function testImageJump(page) {
 }
 
 async function testResize(page, values, imageCount) {
-  // Begin with a modal open, retain the same node and edits through both modes.
+  // Begin with a modal open, retain the same node, edits and focused input through both modes.
+  await page.locator('.promptTextarea').first().evaluate((node) => node.focus({ preventScroll: true }));
   await page.setViewportSize({ width: 1440, height: 1100 });
   await assertLayout(page, 'wide', false);
   await assertDialogState(page, { open: true, modal: false });
   await assertEditsPreserved(page, values, false);
+  assert.equal(await page.locator('.promptTextarea').first().evaluate((node) => node === document.activeElement), true,
+    'Resizing to a persistent rail must preserve focus in the active prompt editor');
   assert.equal(await page.locator('.promptTextarea').first().inputValue(), values.prompt);
   assert.equal(await page.locator('.promptCard').count(), imageCount);
   await page.locator('.titleEdit').evaluate((node) => node.focus({ preventScroll: true }));
@@ -307,6 +314,8 @@ async function testSettingsSpace(page, values, imageCount) {
   assert.equal(await page.locator('.settingsRail').count(), 0, 'Collapsing settings must release its layout space');
   assert.equal(page.viewportSize().width, 1024, 'Viewport must not change when settings collapse');
   await assertEditsPreserved(page, values, false);
+  assert.equal(await page.locator('.promptTextarea').first().evaluate((node) => node === document.activeElement), true,
+    'Resizing to a persistent rail must preserve focus in the active prompt editor');
   assert.equal(await page.locator('.promptTextarea').first().inputValue(), values.prompt);
   assert.equal(await page.locator('.promptCard').count(), imageCount);
   await assertNoHorizontalOverflow(page, 'tablet-settings-collapsed');

@@ -20,6 +20,18 @@
 
 
 
+## Portable export and local draft workspace — 2026-10-14
+
+- Base integration: `89650e1` on `feature/composer-workspace-v2` (responsive inspector fixes preserved).
+- Canonical BlogDraft is unchanged by platform switching; capabilities and safe serializers project to supported copy formats.
+- Naver: explicit HTML + text clipboard payload, separate rich/plain buttons, exact export preview, and truthful fallback/denial feedback. External SmartEditor ONE fidelity remains NOT VERIFIED.
+- Existing Tistory/Blogger/WordPress/Other portable HTML and Brunch plain output preserved; title and tags remain separate.
+- Draft/image slots: actual section-anchor movement, display width/alignment metadata, original-file download.
+- Local IndexedDB stores draft identity, text/styles, selected platform and original Blob bytes per image slot; reload restores active workspace. No third-party uploads, crop editor, sync, or Naver account integration.
+- Storage failures reject without clearing prior saved data; unavailable/corrupt storage is surfaced. Old drafts are retained but there is not yet a history picker.
+- Local TypeScript, serializer/clipboard unit tests, storage unit tests, production build, deterministic mock, layout history, Blog DNA and request-ID regression checks: PASS before final browser run.
+- Exact-commit mock browser suites added for real dual-MIME clipboard, fallback failures, original image bytes after reload, platform retention, atomic quota rollback and responsive regression. CI verification pending publication.
+
 ## Environment contract refreeze — 2026-09-18
 
 - TORI 공통 canonical local env: `.env.example`(Git 추적) + `.env.local`(실제 로컬 값, Git 제외).

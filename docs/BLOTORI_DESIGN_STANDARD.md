@@ -134,7 +134,7 @@ Rules:
 
 Platform choice must materially change both generation and export behavior.
 
-- Naver: short mobile-friendly paragraphs, native-editor-friendly plain structure, images inserted separately using IMG slots, tags kept separate from body
+- Naver: short mobile-friendly paragraphs, portable inline HTML plus explicit plain-text copy, images inserted separately using IMG slots, tags kept separate from body. External SmartEditor ONE paste fidelity remains unverified. Cards simplify to basic paragraphs; preview the actual export before transfer.
 - Tistory: H2/H3-friendly information hierarchy and rich/HTML-oriented export
 - Blogger: conventional H2/H3 web-document flow, labels separate
 - WordPress: Gutenberg-friendly modular sections and block-oriented export
@@ -164,3 +164,9 @@ Required before final UI PASS:
 - representative Naver and WordPress content samples
 
 Actual rendered UI outranks static design intent when judging spacing, density, clipping, or hierarchy.
+
+## Platform export contract — 2026-10-14
+
+The canonical BlogDraft owns text, presentation metadata, image prompts and semantic anchors. Export capabilities and serializers are pure projections; switching a platform must not rewrite the source. lib/domain/platform-capabilities.ts describes implemented formats, manual image upload, and unverified external-editor fidelity. lib/application/platform-exporter.ts emits safely escaped, inline-styled HTML and plain text. lib/browser/copy-platform-content.ts owns browser clipboard behavior and returns the actual copied format or failure.
+
+The export preview renders that same serialized body. The editable composer is a working view; its richer card styling is not an external-editor compatibility promise. Title and summary are not in body export. Glossary is placed after the closing text. Existing generic platform serializers remain portable HTML; Brunch stays explicitly plain-only. Unsupported/new editors must not be advertised as verified integrations.

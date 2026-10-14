@@ -177,6 +177,7 @@ export interface ImagePlan {
   continuityGroup?: string | null;
   subjectProfile?: string;
   referenceImageId?: string | null;
+  display?: { widthPercent: 25 | 50 | 75 | 100; align: "left" | "center" | "right" };
 }
 
 export interface BlogSection {
@@ -221,4 +222,5 @@ export interface PlatformExport {
   tagsText: string;
   formattingGuide?: string;
   clipboardMode: "plain" | "rich";
+  capabilities: import("./platform-capabilities").PlatformCapabilities;
 }
