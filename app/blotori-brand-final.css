@@ -199,3 +199,28 @@
   font-size: 10.5px;
   line-height: 1.45;
 }
+
+/* Brand lockup spacing: keep logo/name clearly separate from the heading. */
+.workspaceV2 .brandIntro.compactBrand {
+  column-gap: clamp(16px, 2vw, 30px) !important;
+  min-width: 0;
+}
+.workspaceV2 .brandIntro.compactBrand > div:last-child {
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  .workspaceV2 .brandIntro.compactBrand {
+    column-gap: 18px !important;
+    align-items: center;
+  }
+  .workspaceV2 .blotoriBrandMark {
+    gap: 6px;
+  }
+  .workspaceV2 .blotoriBrandMark span {
+    font-size: 16px;
+  }
+  .workspaceV2 .compactBrand h1 {
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+  }
+}
