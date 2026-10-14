@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { normalizeModelUnavailable } from "./model-unavailable-error";
 import { buildPrompt } from "../application/build-prompt";
 import { GLOSSARY_GENERATION_INSTRUCTION } from "../domain/glossary";
 import {
@@ -133,8 +134,11 @@ export async function generateWithOpenAI(input: GenerateRequest): Promise<BlogDr
   const client = new OpenAI({ apiKey });
   const rag = resolveRagConfig(input);
   const referenceFiles = safeReferenceFiles(input.referenceFiles);
-  const response = await client.responses.create({
-    model: process.env.OPENAI_MODEL || "gpt-5.6-luna",
+  const model = process.env.OPENAI_MODEL || "gpt-5.6-luna";
+  let response: Awaited<ReturnType<typeof client.responses.create>>;
+  try {
+    response = await client.responses.create({
+    model,
     instructions:
       `사용자가 지정한 플랫폼, 주제, 카테고리, 문체, 글 구성과 조건을 정확히 반영해 실제 게시 가능한 한국어 블로그 원고를 작성하세요. Blotori, 생성기, API, 설정 화면, 샘플 모드, 프롬프트 사용법 등 도구 자체에 대한 설명은 사용자가 주제로 요청하지 않은 한 본문에 절대 포함하지 마세요. ${referenceFiles.length ? `사용자가 직접 첨부한 참고자료 ${referenceFiles.length}개를 우선 확인하고 사실·근거를 보강하되 원문을 길게 복제하지 마세요. ` : ""}출력은 JSON만 반환합니다.\n${GLOSSARY_GENERATION_INSTRUCTION}${rag ? KNOWLEDGE_GROUNDING_INSTRUCTION : ""}`,
     input: buildResponseInput(input) as never,
@@ -152,7 +156,10 @@ export async function generateWithOpenAI(input: GenerateRequest): Promise<BlogDr
           include: ["file_search_call.results" as const],
         }
       : {}),
-  });
+    });
+  } catch (error) {
+    throw normalizeModelUnavailable(error, model);
+  }
 
   const draft = JSON.parse(extractJson(response.output_text)) as BlogDraft;
   const knowledgeGrounding = extractKnowledgeGrounding(response, Boolean(rag));
