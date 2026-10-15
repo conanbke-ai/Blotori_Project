@@ -1,71 +1,65 @@
-/* Blotori derivative of the common TORI paw cursor.
- * The visual layer follows the pointer; native text cursors remain untouched.
- */
+/* Blotori — single TORI jelly-paw cursor renderer. */
 
 .toriPawCursor {
   position: fixed;
-  left: 0;
   top: 0;
-  width: 34px;
-  height: 34px;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  margin-left: -16.72px;
+  margin-top: -7.92px;
   z-index: 9999;
   pointer-events: none;
-  transform-origin: 50% 35%;
-  margin-left: -9px;
-  margin-top: -7px;
   will-change: transform;
 }
 
 .toriPawCursor img {
   display: block;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
-  filter: none;
-  transition: transform 80ms ease, filter 80ms ease;
+  transform-origin: 50% 82%;
+  transform: translateY(0) scaleX(1) scaleY(1);
+  transition:
+    transform 180ms cubic-bezier(.2, 1.5, .4, 1),
+    filter 180ms ease;
+  filter: drop-shadow(0 2px 3px rgba(49, 91, 122, .13));
   user-select: none;
 }
 
-.toriPawCursor.pressed img {
-  transform: translateY(3px) scaleX(1.08) scaleY(.82);
-  filter: none;
+.toriPawCursor.hovering img {
+  transform: translateY(-1px) scaleX(1.03) scaleY(1.04);
+}
+
+.toriPawCursor.pressed img,
+.toriPawCursor.hovering.pressed img {
+  transform: translateY(3px) scaleX(1.10) scaleY(.78);
+  filter: drop-shadow(0 1px 1px rgba(49, 91, 122, .10));
 }
 
 @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  body,
-  .appShell,
-  .panel,
-  .blogPaper,
-  .imageSlot,
-  button,
-  a,
-  [role='button'],
-  select,
-  input[type='checkbox'],
-  input[type='radio'],
-  input[type='range'] {
+  html.blotori-paw-active,
+  html.blotori-paw-active body,
+  html.blotori-paw-active body * {
     cursor: none !important;
   }
 
-  input[type='text'],
-  input:not([type]),
-  input[type='search'],
-  input[type='email'],
-  input[type='url'],
-  input[type='number'],
-  textarea,
-  [contenteditable='true'],
-  [role='textbox'],
-  .titleEdit,
-  .summaryEdit,
-  .sectionHeadingEdit,
-  .promptEdit,
-  .promptTextarea,
-  .tagsEditing input {
+  html.blotori-paw-active :is(
+    input[type='text'],
+    input[type='search'],
+    input[type='email'],
+    input[type='url'],
+    input[type='number'],
+    textarea,
+    [contenteditable='true'],
+    [role='textbox']
+  ) {
     cursor: text !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce), (pointer: coarse) {
-  .toriPawCursor { display: none !important; }
+  .toriPawCursor {
+    display: none !important;
+  }
 }

@@ -15,3 +15,6 @@ knowledge-base/**/*
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Local HTTPS certificates and private keys
+/certs/
