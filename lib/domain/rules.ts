@@ -1,4 +1,4 @@
-import type { BlogDraft, ImagePlan } from "./types";
+import type { BlogDraft, GenerateRequest, ImagePlan } from "./types";
 
 const riskyExpressions = [
   /100\s*%/gi,
@@ -71,6 +71,40 @@ export function findDraftQualityIssues(draft: BlogDraft): string[] {
   return issues;
 }
 
+function normalizedEvidence(value: string) {
+  return value.toLowerCase().replace(/[\s,]/g, "");
+}
+
+export function findUnsupportedFactSignals(draft: BlogDraft, input: GenerateRequest): string[] {
+  const evidence = [input.freeTopic, input.extraConditions, ...Object.values(input.attributes ?? {})]
+    .filter(Boolean).join("\n");
+  const evidenceNormalized = normalizedEvidence(evidence);
+  const fullText = [draft.title, ...draft.intro, ...draft.sections.flatMap((section) => [section.heading, ...section.paragraphs]), ...draft.closing].join("\n");
+  const issues: string[] = [];
+
+  const experienceClaim = /(다녀왔|방문했|먹어봤|먹었(?:어요|습니다)|써봤|사용했|구매했|예약했|체험했|숙박했|치료받았)/;
+  const experienceEvidence = /(후기|경험|방문|다녀|시식|먹어|사용|써본|구매|예약|체험|숙박|치료받)/;
+  if (experienceClaim.test(fullText) && !experienceEvidence.test(evidence)) {
+    issues.push("근거 확인: 입력에 없는 1인칭 방문·구매·사용 경험이 사실처럼 표현됐을 수 있습니다.");
+  }
+
+  const concreteValuePatterns = [
+    /(?:\d{1,3}(?:,\d{3})+|\d+)\s*원/g,
+    /\d+(?:\.\d+)?\s*(?:분|시간|일|주|개월|년)/g,
+    /(?:평점|별점)\s*\d+(?:\.\d+)?/g,
+  ];
+  const unsupportedValues = new Set<string>();
+  for (const pattern of concreteValuePatterns) {
+    for (const match of fullText.matchAll(pattern)) {
+      if (!evidenceNormalized.includes(normalizedEvidence(match[0]))) unsupportedValues.add(match[0]);
+    }
+  }
+  if (unsupportedValues.size) {
+    issues.push(`근거 확인: 입력에서 찾을 수 없는 구체값(${[...unsupportedValues].slice(0, 5).join(", ")})이 포함됐습니다.`);
+  }
+  return issues;
+}
+
 export function normalizeImagePlans(images: ImagePlan[], maxImages: number): ImagePlan[] {
   const roleOrder = ["HERO", "CONTEXT", "EXPLAINER", "PROCESS", "TIP", "CAUTION"];
   return images
@@ -82,9 +116,10 @@ export function normalizeImagePlans(images: ImagePlan[], maxImages: number): Ima
     }));
 }
 
-export function ensureWarnings(draft: BlogDraft): BlogDraft {
+export function ensureWarnings(draft: BlogDraft, input?: GenerateRequest): BlogDraft {
   const detected = findRiskyExpressions(draft);
   const qualityIssues = findDraftQualityIssues(draft);
-  const warnings = [...new Set([...(draft.warnings ?? []), ...detected.map((x) => `주의 표현 감지: “${x}”`), ...qualityIssues])];
+  const unsupportedFacts = input ? findUnsupportedFactSignals(draft, input) : [];
+  const warnings = [...new Set([...(draft.warnings ?? []), ...detected.map((x) => `주의 표현 감지: “${x}”`), ...qualityIssues, ...unsupportedFacts])];
   return { ...draft, warnings };
 }

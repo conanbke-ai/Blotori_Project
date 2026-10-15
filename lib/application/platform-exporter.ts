@@ -1,8 +1,10 @@
 import type { BlogDraft, BlogSection, ImagePlan, PlatformExport, PlatformId, TextAlign, TextEmphasis } from "../domain/types";
 import { getPlatformCapabilities } from "../domain/platform-capabilities";
 
-function imageMarker(image: ImagePlan) {
-  return `[${image.id} 삽입 · ${image.label} · ${image.placement} · ${image.size} · ${image.ratio}${image.display ? ` · 표시 너비 ${image.display.widthPercent}% · ${image.display.align === "left" ? "왼쪽" : image.display.align === "right" ? "오른쪽" : "가운데"} 정렬` : ""}]`;
+function imageDisplayGuide(image: ImagePlan) {
+  return image.display
+    ? `표시 너비 ${image.display.widthPercent}% · ${image.display.align === "left" ? "왼쪽" : image.display.align === "right" ? "오른쪽" : "가운데"} 정렬`
+    : "표시 너비·정렬은 게시 편집기에서 확인";
 }
 function escapeHtml(value: string) {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
@@ -57,7 +59,7 @@ function bodyParts(draft: BlogDraft): BodyPart[] {
 
 function buildPlainBody(parts: BodyPart[], draft: BlogDraft, platformId: PlatformId) {
   const lines = parts.flatMap((part) => part.kind === "paragraph" ? [part.text]
-    : part.kind === "image" ? [imageMarker(part.image)] : [part.section.heading, ...part.section.paragraphs]);
+    : part.kind === "image" ? [] : [part.section.heading, ...part.section.paragraphs]);
   if (platformId === "other") lines.push(`태그: ${draft.tags.map((tag) => `#${tag.replace(/^#/, "")}`).join(" ")}`);
   return lines.filter(Boolean).join("\n\n");
 }
@@ -83,15 +85,18 @@ function richSection(section: BlogSection, naver: boolean) {
 function buildRichHtml(parts: BodyPart[], draft: BlogDraft, platformId: PlatformId, naver: boolean) {
   const body = parts.map((part) => {
     if (part.kind === "section") return richSection(part.section, naver);
-    if (part.kind === "image") return `<p style="${paragraphStyle}text-align:center;font-weight:700;">${escapeHtml(imageMarker(part.image))}</p>`;
+    if (part.kind === "image") return "";
     return `<p style="${paragraphStyle}${alignStyle(part.align)}">${escapeHtml(part.text)}</p>`;
-  });
+  }).filter(Boolean);
   if (platformId === "other") body.push(`<p style="${paragraphStyle}">${draft.tags.map((tag) => `#${escapeHtml(tag.replace(/^#/, ""))}`).join(" ")}</p>`);
   return body.join("\n");
 }
 
 function naverFormattingGuide(draft: BlogDraft) {
-  const lines = ["기본 색상·강조·정렬은 서식 포함 복사로 전달합니다. 네이버에서 유지되는지는 붙여넣은 뒤 확인해 주세요."];
+  const lines = [
+    "기본 색상·강조·정렬은 서식 포함 복사로 전달합니다. 네이버에서 유지되는지는 붙여넣은 뒤 확인해 주세요.",
+    "이미지 위치·규격은 별도 이미지 가이드에서 확인하며 게시용 본문에는 포함되지 않습니다.",
+  ];
   if (draft.presentation?.titleAlign === "center") lines.push("제목 입력란: 가운데 정렬 권장");
   for (const section of draft.sections) {
     const treatments: string[] = [];
@@ -103,7 +108,31 @@ function naverFormattingGuide(draft: BlogDraft) {
     }
     if (treatments.length) lines.push(`${section.heading}: ${treatments.join(" · ")}`);
   }
-  for (const image of draft.images) lines.push(`${image.id}: ${image.placement} / ${image.size} / ${image.ratio} / 원본 파일 별도 업로드`);
+  return lines.join("\n");
+}
+
+function buildImageGuide(draft: BlogDraft) {
+  const sectionNames = new Map(draft.sections.map((section) => [section.id, section.heading]));
+  const lines = [
+    "이미지 가이드 (게시용 본문과 별도)",
+    "이 가이드는 편집자용이며 본문 복사에는 포함되지 않습니다.",
+    "원본 이미지 첨부 여부는 자동 판정하지 않습니다. 게시 편집기에서 직접 확인하고 업로드해 주세요.",
+  ];
+  if (!draft.images.length) return [...lines, "계획된 이미지 슬롯이 없습니다."].join("\n");
+  for (const [index, image] of draft.images.entries()) {
+    const anchor = image.afterSectionId === null
+      ? "도입 전(대표 이미지)"
+      : sectionNames.get(image.afterSectionId) ? `‘${sectionNames.get(image.afterSectionId)}’ 섹션 뒤` : `삭제되거나 찾을 수 없는 섹션(${image.afterSectionId}) 뒤`;
+    lines.push(
+      "",
+      `${index + 1}. ${image.label} · ${image.role}`,
+      `- 내부 슬롯: ${image.id}`,
+      `- 배치: ${image.placement} / 앵커: ${anchor}`,
+      `- 권장 규격: ${image.size} / 비율 ${image.ratio}`,
+      `- 표시: ${imageDisplayGuide(image)}`,
+      `- 이미지 제작 프롬프트: ${image.prompt}`,
+    );
+  }
   return lines.join("\n");
 }
 
@@ -116,6 +145,7 @@ export function buildPlatformExport(draft: BlogDraft, platformId: PlatformId): P
     plainText: buildPlainBody(parts, draft, platformId),
     html: capabilities.richText === "unsupported" ? undefined : buildRichHtml(parts, draft, platformId, capabilities.serializer === "naver"),
     tagsText: draft.tags.map((tag) => `#${tag.replace(/^#/, "")}`).join(" "),
+    imageGuideText: buildImageGuide(draft),
     formattingGuide: platformId === "naver" ? naverFormattingGuide(draft) : undefined,
     clipboardMode: capabilities.defaultCopyMode,
     capabilities,

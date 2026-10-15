@@ -15,6 +15,20 @@ function lengthGuide(length: GenerateRequest["length"]) {
   return "전체 본문 기준 약 2,000~3,000자. 도입 1~2개 문단, 본문 4~6개 섹션, 각 섹션 1~3개 문단.";
 }
 
+function contentPurposeGuide(input: GenerateRequest) {
+  const experienceLed = input.structureId === "review" || input.structureId === "story" || input.styleId === "honest-review";
+  const informationLed = ["information", "guide", "faq", "checklist", "comparison"].includes(input.structureId);
+  const purpose = experienceLed
+    ? "후기·경험형 후보: 사용자가 실제 경험을 제공한 범위 안에서 시간 흐름·관찰·판단 기준을 엮는다. 경험 근거가 없으면 후기처럼 꾸미지 말고 확인 항목과 선택 기준 중심으로 전환한다."
+    : informationLed
+      ? "정보형: 주장→근거/조건→설명→적용 순서를 우선하고, 실제 경험인 듯한 1인칭 장면을 덧붙이지 않는다."
+      : "자동 적응형: 주제와 사용자가 제공한 근거를 보고 정보형·후기형·에세이형 중 목적을 정하되, 단순히 이미지 수가 많다는 이유로 경험담을 만들어내지 않는다.";
+  const imageMode = input.imageCount >= 4
+    ? "사진이 많은 구성: 각 이미지는 장면 전환·과정·근거·디테일처럼 서로 다른 역할을 맡긴다. 사진 사이를 한 줄짜리 채움 문단이나 같은 감상으로 반복하지 않는다."
+    : "텍스트 중심 구성: 설명의 논리와 문단 연결을 우선하고, 이미지는 꼭 필요한 전환점과 이해 보조 지점에만 둔다.";
+  return `${purpose}\n- ${imageMode}`;
+}
+
 export function buildPrompt(input: GenerateRequest) {
   const platform = getPlatform(input.platformId);
   const platformStrategy = getPlatformStrategy(input.platformId);
@@ -80,6 +94,13 @@ ${clean(input.extraConditions) ? `- 기타 조건: ${clean(input.extraConditions
 - 이미지 제작 가이드 수: ${input.imageCount}
 - 글 구성: ${structureInstruction}
 
+[콘텐츠 목적·구성 적응]
+- ${contentPurposeGuide(input)}
+- 사용자가 방문·구매·사용·시식·숙박했다고 명시하지 않았다면 “다녀왔어요/먹어봤어요/써봤어요” 같은 1인칭 경험을 사실처럼 쓰지 않는다.
+- 가격·소요 시간·날짜·수량·평점 같은 구체값은 입력이나 허용된 참고자료에 있는 값만 사용한다. 근거가 없으면 확인 방법 또는 선택 기준으로 표현한다.
+- 모든 문단을 같은 문장 수와 비슷한 길이로 맞추지 않는다. 짧은 전환 문단과 충분한 설명 문단을 콘텐츠 흐름에 맞춰 섞는다.
+- 도입은 주제의 실제 질문·상황에서 시작하고, 소제목은 각 섹션의 고유 역할을 드러내며, 마무리는 앞 문장을 반복하지 않고 독자가 판단하거나 실행할 다음 기준을 남긴다.
+
 [문체 — 가장 높은 우선순위의 표현 규칙]
 ${styleInstruction}
 
@@ -116,7 +137,7 @@ ${titleInstruction}
 7. 비어 있는 선택 조건은 추측해서 핵심 사실로 만들지 않는다. 특히 연령대, 가격, 장소, 치료방법, 사용기간 같은 구체값을 임의 생성하지 않는다.
 8. 건강·의료 주제일 때만 의료광고성 과장 표현과 단정적 진단·치료 보장을 피한다. 다른 카테고리에는 불필요한 의료 경고를 넣지 않는다.
 9. 플랫폼 특성에 맞게 문단 길이, 소제목 호흡, 이미지 간격을 조정하되 선택 문체의 개성은 유지한다.
-10. 이미지 자체는 생성하지 않는다. 외부 이미지 생성기에 그대로 복사할 수 있는 상세 한국어 프롬프트를 만든다.
+10. 이미지 자체는 생성하지 않는다. 외부 이미지 생성기에 그대로 복사할 수 있는 상세 한국어 프롬프트를 만든다. ImagePlan은 편집자용 가이드이며 이미지가 실제 첨부되었다거나 게시 본문에 들어갔다고 표현하지 않는다.
 11. 이미지에는 한글 문구 생성을 요구하지 않는다. 정보 카드가 필요하면 텍스트 없는 그래픽 구성으로 요청한다.
 12. 첫 이미지는 HERO이며 afterSectionId=null이다. 나머지는 CONTEXT, EXPLAINER, PROCESS, TIP, CAUTION 중 내용에 맞는 역할을 고른다.
 13. 이미지는 연속 배치하지 않고 관련 섹션 뒤에 둔다. placement는 사람이 복붙 후 바로 찾을 수 있게 구체적으로 쓴다.

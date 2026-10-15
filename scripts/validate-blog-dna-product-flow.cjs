@@ -26,7 +26,7 @@ try {
   const { buildPrompt } = require(path.join(workspace, "lib/application/build-prompt.ts"));
   const { composeGenerationRequest } = require(path.join(workspace, "lib/application/compose-generation-request.ts"));
   const { buildPlatformExport } = require(path.join(workspace, "lib/application/platform-exporter.ts"));
-  const { ensureWarnings, findDraftQualityIssues } = require(path.join(workspace, "lib/domain/rules.ts"));
+  const { ensureWarnings, findDraftQualityIssues, findUnsupportedFactSignals } = require(path.join(workspace, "lib/domain/rules.ts"));
 
   assert.equal(CATEGORY_BLOG_DNA_LIBRARY_META.biasCorrected, false, "uncertified V2 must stay inactive");
   assert.equal(CATEGORY_BLOG_DNA_PRESETS.length, 45, "current V1/curated fallback must expose 45 presets");
@@ -66,6 +66,8 @@ try {
       preset.dna.visual.headingStyle,
       `variation nonce: fixture-${preset.id}`,
     ]) assert.ok(prompt.includes(expected), `${preset.id}: missing prompt DNA ${expected}`);
+    assert.match(prompt, /방문·구매·사용·시식·숙박했다고 명시하지 않았다면/);
+    assert.match(prompt, /ImagePlan은 편집자용 가이드/);
   }
 
   const selectedPreset = CATEGORY_BLOG_DNA_PRESETS.find((preset) => preset.categoryId === "food");
@@ -117,7 +119,11 @@ try {
   assert.equal(exported.titleText, "직접 고친 제목");
   assert.ok(exported.plainText.includes("첫 번째 관찰"));
   assert.ok(exported.plainText.includes("앞 문단과 다른 길이"));
-  assert.ok(exported.plainText.includes("제목 아래"));
+  assert.ok(!exported.plainText.includes("IMG-01-HERO"));
+  assert.ok(!exported.plainText.includes("제목 아래"));
+  assert.ok(!exported.html.includes("IMG-01-HERO"));
+  assert.ok(exported.imageGuideText.includes("IMG-01-HERO"));
+  assert.ok(exported.imageGuideText.includes("제목 아래"));
   assert.ok(exported.formattingGuide.includes("핵심 포인트"));
 
   const badDraft = {
@@ -136,6 +142,21 @@ try {
   assert.ok(issues.some((issue) => issue.includes("연결 방식")));
   assert.ok(ensureWarnings(badDraft).warnings.length >= 3);
 
+  const unsupportedDraft = {
+    ...baseDraft,
+    intro: ["어제 직접 방문했고 가격은 29,000원이었어요."],
+    sections: [{ id: "fact", heading: "소요 시간", paragraphs: ["준비에는 40분이 걸렸습니다."] }],
+    closing: ["제가 먹어봤을 때 가장 좋았어요."],
+  };
+  const evidenceInput = {
+    platformId: "naver", freeTopic: "가을 메뉴 선택법", attributes: {}, styleId: "friendly-info",
+    structureId: "information", length: "short", imageCount: 2,
+  };
+  const unsupported = findUnsupportedFactSignals(unsupportedDraft, evidenceInput);
+  assert.ok(unsupported.some((issue) => issue.includes("1인칭")));
+  assert.ok(unsupported.some((issue) => issue.includes("29,000원") && issue.includes("40분")));
+  assert.ok(ensureWarnings(unsupportedDraft, evidenceInput).warnings.some((warning) => warning.includes("근거 확인")));
+
   const studioSource = fs.readFileSync(path.join(workspace, "app/BlotoriAssetStudio.tsx"), "utf8");
   assert.doesNotMatch(studioSource, /window\.fetch\s*=/, "asset studio must not override global fetch");
   assert.match(studioSource, /onGenerationContextChange/, "asset studio must publish explicit generation context");
@@ -150,6 +171,7 @@ try {
     categories: new Set(CATEGORY_BLOG_DNA_PRESETS.map((preset) => preset.categoryId)).size,
     fallback: CATEGORY_BLOG_DNA_LIBRARY_META,
     qualityIssuesDetected: issues.length,
+    unsupportedFactSignalsDetected: unsupported.length,
     flows: ["generate-prompt", "edit", "preview-contract", "export", "pasted-text", "manual", "v1-curated-fallback"],
   }));
 } finally {

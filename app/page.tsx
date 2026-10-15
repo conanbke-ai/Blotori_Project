@@ -242,6 +242,11 @@ export default function Home() {
     await copyText(buildPlatformExport(draft, form.platformId).tagsText, "tags");
   }
 
+  async function copyImageGuide() {
+    if (!platformExport) return;
+    await copyText(platformExport.imageGuideText, "image-guide");
+  }
+
   function updateDraft<K extends keyof BlogDraft>(key: K, value: BlogDraft[K]) {
     setDraft((prev) => prev ? { ...prev, [key]: value } : prev);
   }
@@ -386,6 +391,7 @@ export default function Home() {
             <div className="previewActionBar"><button className="ghost" onClick={() => scrollPreview("top")}>↑ TOP</button><div>
               {platformExport.html && <button className="secondaryAction" data-copy-platform onClick={() => void copyPlatformDraft("rich")}>{copied === "platform-rich" ? "서식 복사됨 ✓" : "서식 포함 복사"}</button>}
               <button className="ghost" data-copy-plain onClick={() => void copyPlatformDraft("plain")}>{copied === "platform-plain" ? "텍스트 복사됨 ✓" : "텍스트만 복사"}</button>
+              <button className="ghost" data-copy-image-guide onClick={copyImageGuide}>{copied === "image-guide" ? "가이드 복사됨 ✓" : "이미지 가이드 복사"}</button>
               <button className="ghost" data-copy-tags onClick={copyTags}>{copied === "tags" ? "태그 복사됨 ✓" : "태그 복사"}</button>
             </div><button className="ghost" onClick={() => scrollPreview("bottom")}>↓ END</button></div>
             <PlatformExportPreview exported={platformExport} feedback={copyFeedback} />

@@ -43,7 +43,13 @@ try {
     assert.ok(!exported.plainText.includes(draft.summary));
     assert.ok(!exported.plainText.includes("PRIVATE_PROMPT"));
     assert.ok(exported.plainText.indexOf("마무리") < exported.plainText.indexOf("용어해설"));
-    for (const image of draft.images) assert.equal(exported.plainText.split(`[${image.id} 삽입`).length - 1, 1, `${platform}: preserve every slot`);
+    for (const image of draft.images) {
+      assert.ok(!exported.plainText.includes(image.id), `${platform}: internal slot id must not leak into reader body`);
+      assert.ok(exported.imageGuideText.includes(image.id), `${platform}: preserve every slot in the separate editor guide`);
+      assert.ok(exported.imageGuideText.includes(image.placement), `${platform}: preserve image placement in the separate guide`);
+    }
+    assert.ok(exported.imageGuideText.includes("PRIVATE_PROMPT_NEVER_IN_BODY"));
+    assert.ok(!exported.plainText.includes("삽입"));
     assert.equal(exported.capabilities.externalPaste, "unverified");
     assert.equal(exported.capabilities.images, "manual-upload");
     if (mode === "rich") {
@@ -59,7 +65,8 @@ try {
       assert.ok($.root().text().includes(draft.sections[0].paragraphs[0]));
       assert.ok(!exported.html.includes("PRIVATE_PROMPT"));
       assert.equal($("h2").length, platform === "naver" ? 0 : 3);
-      for (const image of draft.images) assert.ok($.root().text().includes(image.id));
+      for (const image of draft.images) assert.ok(!$.root().text().includes(image.id));
+      assert.ok(!$.root().text().includes("표시 너비"));
     } else assert.equal(exported.html, undefined);
   }
   assert.deepEqual(draft, before, "Every platform projection must preserve the canonical draft, styling, anchors and prompts");
@@ -86,7 +93,7 @@ try {
   const plain = await copyPlatformContent(firstNaver, "plain", { writeRich: async () => { assert.fail("Explicit plain copy must never write HTML"); }, writePlain: async () => {} });
   assert.deepEqual(plain, { status: "copied", format: "plain", fallback: false });
   assert.equal(typeof browserClipboard().writePlain, "function");
-  console.log("Platform export QA PASS: six existing platform outputs; safe inline HTML; canonical draft retention; every image anchor; rich/plain and truthful denied/fallback results. External editor paste fidelity NOT VERIFIED.");
+  console.log("Platform export QA PASS: six existing platform outputs; reader body/image guide separation; safe inline HTML; canonical draft retention; every image anchor; rich/plain and truthful denied/fallback results. External editor paste fidelity NOT VERIFIED.");
 } finally {
   if (originalTsLoader) Module._extensions[".ts"] = originalTsLoader;
   else delete Module._extensions[".ts"];

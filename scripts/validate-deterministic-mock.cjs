@@ -40,8 +40,16 @@ try {
 
   const foodA = makeMockDraft(inputFor(food));
   const foodB = makeMockDraft(inputFor(food));
+  const foodVariations = ["variation-a", "variation-b", "variation-c", "variation-d"]
+    .map((variationNonce) => makeMockDraft({ ...inputFor(food), variationNonce }));
   const educationDraft = makeMockDraft(inputFor(education));
   assert.deepEqual(foodA, foodB, "same seed and input must produce identical mock output");
+  const variationSignatures = new Set(foodVariations.map((draft) => JSON.stringify({
+    headings: draft.sections.map((section) => section.heading),
+    anchors: draft.images.map((image) => image.afterSectionId),
+    fingerprint: draft.layoutFingerprint,
+  })));
+  assert.ok(variationSignatures.size >= 2, "same style with new variation nonces must adapt its layout");
   assert.notDeepEqual(foodA.sections.map((section) => section.heading), educationDraft.sections.map((section) => section.heading));
   assert.notEqual(foodA.layoutFingerprint, educationDraft.layoutFingerprint);
   assert.notEqual(foodA.images[1].placement, educationDraft.images[1].placement);
@@ -57,6 +65,7 @@ try {
   console.log("DETERMINISTIC_MOCK_PASS", JSON.stringify({
     seed: "fixed-seed-42",
     deterministic: true,
+    adaptiveVariationCount: variationSignatures.size,
     differentiated: {
       food: foodA.sections.map((section) => section.heading),
       education: educationDraft.sections.map((section) => section.heading),

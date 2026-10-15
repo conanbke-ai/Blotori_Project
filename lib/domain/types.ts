@@ -220,6 +220,7 @@ export interface PlatformExport {
   plainText: string;
   html?: string;
   tagsText: string;
+  imageGuideText: string;
   formattingGuide?: string;
   clipboardMode: "plain" | "rich";
   capabilities: import("./platform-capabilities").PlatformCapabilities;
