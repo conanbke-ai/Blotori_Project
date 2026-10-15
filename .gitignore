@@ -18,3 +18,8 @@ knowledge-base/**/*
 
 # Local HTTPS certificates and private keys
 /certs/
+
+# Local QA output and source backups
+/artifacts/
+/visual-qa-artifacts/
+/app/*.bak-*
