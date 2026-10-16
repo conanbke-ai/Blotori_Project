@@ -36,7 +36,24 @@ try {
   await page.locator('.settingsRail textarea[placeholder*="주제"]').first().fill('품질 검수 UI 오프라인 테스트');
   const generate = page.locator('.settingsRail .generatePrimary');
   await generate.waitFor({ state: 'visible' });
-  await page.waitForFunction(() => !document.querySelector('.settingsRail .generatePrimary')?.disabled);
+  try {
+    await page.waitForFunction(() => {
+      const button = document.querySelector('.settingsRail .generatePrimary');
+      return !!button && !button.disabled;
+    }, null, { timeout: 8000 });
+  } catch (error) {
+    const state = await page.evaluate(() => ({
+      storage: document.querySelector('.draftStorageStatus')?.textContent,
+      storageState: document.querySelector('.draftStorageStatus')?.getAttribute('data-state'),
+      platform: document.querySelector('.settingsRail select:has(option[value="naver"])')?.value,
+      topic: document.querySelector('.settingsRail textarea[placeholder*="주제"]')?.value,
+      buttonDisabled: document.querySelector('.settingsRail .generatePrimary')?.disabled,
+      buttonText: document.querySelector('.settingsRail .generatePrimary')?.textContent,
+      requirements: document.querySelector('.settingsRail .inputRequirement')?.textContent,
+      pageErrors: document.querySelector('.errorBox')?.textContent,
+    }));
+    throw new Error('GENERATION_BUTTON_NOT_READY ' + JSON.stringify(state) + ' (' + String(error) + ')');
+  }
   await generate.click();
   await page.getByRole('tab', { name: '검수' }).click();
   const inspector = page.locator('.qualityInspector');
