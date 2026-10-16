@@ -73,7 +73,20 @@ function richSection(section: BlogSection, naver: boolean) {
   const heading = naver ? `<p style="${headingStyle}"><strong>${escapeHtml(section.heading)}</strong></p>`
     : `<h2 style="${headingStyle}">${escapeHtml(section.heading)}</h2>`;
   const paragraphs = section.paragraphs.map((text) => `<p style="${paragraphStyle}${alignStyle(presentation?.bodyAlign)}${glossary ? "font-size:11px;color:#7b8794;" : ""}">${applyHtmlEmphasis(text, presentation?.emphasis)}</p>`).join("\n");
-  if (naver) return `${heading}\n${paragraphs}`;
+  if (naver) {
+    // Conservative inline formatting: no app CSS dependency. Actual SmartEditor
+    // paste fidelity still requires real-editor acceptance testing.
+    const treatments: Record<string, string> = {
+      "key-point": "background-color:#edf8f7;border-left:3px solid #62aab0;padding:14px 16px;",
+      callout: "background-color:#fff7ed;border-left:3px solid #c29b65;padding:14px 16px;",
+      quote: "border-top:1px solid #d8e0e2;border-bottom:1px solid #d8e0e2;padding:14px 10px;",
+    };
+    const decoration = treatments[presentation?.visualStyle ?? ""];
+    if (!decoration) return `${heading}\n${paragraphs}`;
+    // Keep heading and text as editable paragraphs instead of a nonportable div/card.
+    const accentedHeading = `<p style="${headingStyle}${decoration}"><strong>${escapeHtml(section.heading)}</strong></p>`;
+    return `${accentedHeading}\n${paragraphs}`;
+  }
   const styles: Record<string, string> = {
     "key-point": "padding:20px;background-color:#f0fafb;border:1px solid #cfe8ec;",
     callout: "padding:20px;background-color:#fff7f3;border-left:4px solid #c9ad7d;",
@@ -102,7 +115,7 @@ function naverFormattingGuide(draft: BlogDraft) {
     const treatments: string[] = [];
     const p = section.presentation;
     if (p?.headingAlign === "center") treatments.push("소제목 가운데 정렬");
-    if (p?.visualStyle && !["standard", "glossary"].includes(p.visualStyle)) treatments.push(`${p.visualStyle === "key-point" ? "핵심 포인트 카드" : p.visualStyle === "callout" ? "안내 박스" : "인용"} 장식은 기본 문단으로 변환됨; 필요하면 네이버 서식 적용`);
+    if (p?.visualStyle && !["standard", "glossary"].includes(p.visualStyle)) treatments.push(`${p.visualStyle === "key-point" ? "핵심 포인트" : p.visualStyle === "callout" ? "안내" : "인용"} 강조는 인라인 서식으로 복사됨; 네이버 편집기에 붙인 후 보존 여부 확인`);
     for (const emphasis of p?.emphasis ?? []) {
       if (section.paragraphs.some((text) => text.includes(emphasis.phrase))) treatments.push(`${emphasis.kind === "bold" ? "굵게" : emphasis.kind === "accent" ? "포인트색" : "하이라이트"}: “${emphasis.phrase}”`);
     }
