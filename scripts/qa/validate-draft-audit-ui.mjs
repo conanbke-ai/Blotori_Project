@@ -30,7 +30,7 @@ try {
   const page = await context.newPage();
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
   await page.locator('.workspaceV2').waitFor();
-  await page.locator('.settingsRail select option[value="naver"]').first().waitFor();
+  await page.locator('.settingsRail select option[value="naver"]').first().waitFor({ state: 'attached' });
   const platform = page.locator('.settingsRail select').filter({ has: page.locator('option[value="naver"]') }).first();
   await platform.selectOption('naver');
   await page.locator('.settingsRail textarea[placeholder*="주제"]').first().fill('품질 검수 UI 오프라인 테스트');
