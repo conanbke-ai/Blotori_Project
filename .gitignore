@@ -23,3 +23,6 @@ knowledge-base/**/*
 /artifacts/
 /visual-qa-artifacts/
 /app/*.bak-*
+
+# Local development HTTPS certificates and private keys
+/certificates/
