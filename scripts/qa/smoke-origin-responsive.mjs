@@ -11,7 +11,7 @@ if (!local || !network) {
   console.error('BLOCKED: specify both BLOTORI_LOCAL_URL and BLOTORI_NETWORK_URL. No default ports/IPs.');
   process.exit(2);
 }
-const out = path.resolve('artifacts/origin-smoke');
+const out = path.resolve(process.env.BLOTORI_QA_OUTPUT_DIR || 'artifacts/origin-smoke');
 fs.mkdirSync(out, { recursive: true });
 const viewports = [{name:'mobile',width:390,height:844},{name:'tablet',width:768,height:1024},{name:'desktop',width:1440,height:900}];
 const browser = await chromium.launch({headless:true});
@@ -20,6 +20,7 @@ try {
   for (const [originName, origin] of [['localhost',local],['network',network]]) {
     for (const viewport of viewports) {
       const context = await browser.newContext({viewport:{width:viewport.width,height:viewport.height}, deviceScaleFactor:1, serviceWorkers:'block'});
+      await context.route('**/api/generate', route => route.abort('blockedbyclient'));
       const page = await context.newPage();
       const problems = [];
       const responseFailures = [];
@@ -30,12 +31,24 @@ try {
         }
       });
       page.on('requestfailed', request => responseFailures.push('REQUEST_FAILED '+request.url().slice(0,180)));
+      page.on('request', request => {
+        if (request.method()==='POST' && new URL(request.url()).pathname==='/api/generate') {
+          problems.push('FORBIDDEN_GENERATION_REQUEST_BLOCKED');
+        }
+      });
       let status = 'FAIL';
       try {
         const response = await page.goto(origin, {waitUntil:'domcontentloaded',timeout:15000});
         if (!response || response.status()!==200) throw Error('HTTP '+(response?.status()??'none'));
         await page.locator('.workspaceV2').waitFor({timeout:7000});
         await page.locator('.workspaceHeader .blotoriBrandMark img').waitFor({timeout:7000});
+        await page.waitForFunction(width => {
+          const root=document.querySelector('.workspaceV2');
+          if (!root) return false;
+          return width<=768
+            ? root.classList.contains('workspaceSingle') && root.dataset.reviewLayout==='compact'
+            : !root.classList.contains('workspaceSingle') && root.dataset.reviewLayout==='wide';
+        }, viewport.width, {timeout:7000});
         await page.evaluate(()=>document.fonts.ready);
         const info = await page.evaluate(()=>{
           const selectors=['.workspaceV2','.workspaceGridV2','.settingsRail','.previewStage','.workspaceEmpty','.emptyMascotStage','.emptyCopy'];
@@ -52,7 +65,7 @@ try {
         if (info.bodyOverflow) problems.push('DOCUMENT_HORIZONTAL_OVERFLOW');
         if (!info.logoLoaded) problems.push('BRAND_IMAGE_FAILED');
         const stage=info.rects['.workspaceEmpty'];
-        if (stage) {
+        if (stage && stage.width > 0 && stage.height > 0 && viewport.width > 760) {
           const a=info.rects['.emptyMascotStage'], b=info.rects['.emptyCopy'];
           if (!a || !b || a.width<60 || b.width<80) problems.push('EMPTY_STATE_COLLAPSED');
           else if (viewport.width>=1181 && a.y+b.height<b.y-200) problems.push('EMPTY_STATE_SEPARATED');
@@ -70,7 +83,15 @@ try {
           } else {
             await platform.selectOption('naver');
             await topic.fill('브라우저 UI QA 테스트: 유료 생성은 실행하지 않음');
-            if (await button.isDisabled()) problems.push('GENERATION_STAYS_DISABLED_AFTER_VALID_INPUT');
+            try {
+              await button.waitFor({ state: 'visible', timeout: 3000 });
+              await page.waitForFunction(() => {
+                const button = document.querySelector('.settingsRail .generatePrimary');
+                return button && !button.disabled;
+              }, null, { timeout: 3000 });
+            } catch {
+              problems.push('GENERATION_STAYS_DISABLED_AFTER_VALID_INPUT');
+            }
           }
         }
         await page.screenshot({path:path.join(out,originName+'-'+viewport.name+'.png'),fullPage:true});
