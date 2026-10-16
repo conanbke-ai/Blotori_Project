@@ -179,6 +179,9 @@ export default function BlotoriAssetStudio({
   const [styles, setStyles] = useState<StyleProfile[]>([]);
   const [materials, setMaterials] = useState<MaterialRecord[]>([]);
   const [selectedMaterialIds, setSelectedMaterialIds] = useState<string[]>([]);
+  const [packComposerOpen, setPackComposerOpen] = useState(false);
+  const [packStyleIds, setPackStyleIds] = useState<string[]>([]);
+  const [packMaterialIds, setPackMaterialIds] = useState<string[]>([]);
   const [selectedStyleId, setSelectedStyleId] = useState("");
   const [selectedCategoryPresetId, setSelectedCategoryPresetId] = useState("");
   const [sourceType, setSourceType] = useState<StyleSourceType>("post");
@@ -382,30 +385,48 @@ export default function BlotoriAssetStudio({
     if (selectedStyleId === id) chooseSavedStyle("");
   }
 
+  function openPackComposer() {
+    setPackStyleIds(selectedStyleId ? [selectedStyleId] : selectedCategoryPresetId ? [`category:${selectedCategoryPresetId}`] : []);
+    setPackMaterialIds(selectedMaterialIds.filter(id => materials.some(item => item.id === id)));
+    setPackComposerOpen(true);
+  }
+
   async function exportPack() {
-    const chosenMaterials = materials.filter((item) => selectedMaterialIds.includes(item.id));
-    const manifest: PackManifest = {
-      kind: "blotori-pack",
-      version: 1,
-      name: "내 블로토리 팩",
-      exportedAt: new Date().toISOString(),
-      styles,
-      materials: await Promise.all(chosenMaterials.map(async (item) => ({
-        id: item.id,
-        name: item.name,
-        type: item.type,
-        size: item.size,
-        updatedAt: item.updatedAt,
-        dataUrl: await readAsDataUrl(item.blob),
-      }))),
-    };
-    const blob = new Blob([JSON.stringify(manifest)], { type: "application/vnd.blotori+json" });
-    const href = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = href;
-    anchor.download = `blotori-pack-${new Date().toISOString().slice(0, 10)}.blotori`;
-    anchor.click();
-    URL.revokeObjectURL(href);
+    const now = new Date().toISOString();
+    const chosenStyles: StyleProfile[] = [
+      ...styles.filter(item => packStyleIds.includes(item.id)),
+      ...categoryPresets.filter(item => packStyleIds.includes(`category:${item.id}`)).map(item => ({
+        id: `category:${item.id}`, name: item.label, sourceType: "preset" as const,
+        signature: item.dna.signature, blogDNA: item.dna,
+        defaultIntensity: styleIntensity, createdAt: now, updatedAt: now,
+      })),
+    ];
+    const chosenMaterials = materials.filter(item => packMaterialIds.includes(item.id));
+    if (!chosenStyles.length && !chosenMaterials.length) {
+      setNotice("내보낼 문체나 참고자료를 하나 이상 선택해 주세요.");
+      return;
+    }
+    try {
+      const manifest: PackManifest = {
+        kind: "blotori-pack", version: 1, name: "내 블로토리 팩", exportedAt: now,
+        styles: chosenStyles,
+        materials: await Promise.all(chosenMaterials.map(async item => ({
+          id: item.id, name: item.name, type: item.type, size: item.size,
+          updatedAt: item.updatedAt, dataUrl: await readAsDataUrl(item.blob),
+        }))),
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: "application/vnd.blotori+json" });
+      const href = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = href;
+      anchor.download = `blotori-pack-${now.slice(0, 10)}.blotori`;
+      anchor.click();
+      window.setTimeout(() => URL.revokeObjectURL(href), 1000);
+      setPackComposerOpen(false);
+      setNotice(`문체 ${chosenStyles.length}개와 자료 ${chosenMaterials.length}개를 팩으로 내보냈어요.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "팩 내보내기에 실패했어요.");
+    }
   }
 
   async function importPack(event: ChangeEvent<HTMLInputElement>) {
@@ -413,25 +434,41 @@ export default function BlotoriAssetStudio({
     if (!file) return;
     try {
       if (file.size > 50 * 1024 * 1024) throw new Error("팩 파일은 50MB 이하만 가져올 수 있어요.");
-      const pack = JSON.parse(await file.text()) as PackManifest;
-      if (pack.kind !== "blotori-pack" || pack.version !== 1 || !Array.isArray(pack.styles) || !Array.isArray(pack.materials)) throw new Error("지원하지 않는 블로토리 팩이에요.");
-      const importedStyles = pack.styles.map((item) => ({ ...item, id: uid("style"), updatedAt: new Date().toISOString() }));
+      const pack: unknown = JSON.parse(await file.text());
+      if (!pack || typeof pack !== "object") throw new Error("지원하지 않는 블로토리 팩이에요.");
+      const parsed = pack as PackManifest;
+      if (parsed.kind !== "blotori-pack" || parsed.version !== 1 || !Array.isArray(parsed.styles) || !Array.isArray(parsed.materials))
+        throw new Error("지원하지 않는 블로토리 팩이에요.");
+      if (!parsed.styles.length && !parsed.materials.length) throw new Error("빈 팩이에요. 내보내기에서 문체나 자료를 선택해 주세요.");
+      if (parsed.styles.length > 100 || parsed.materials.length > 100) throw new Error("팩에 포함된 항목 수가 너무 많아요.");
+      if (parsed.styles.some(item => !item || typeof item.name !== "string" || !item.name.trim() ||
+        typeof item.signature !== "string" || !item.signature.trim() ||
+        ![1, 2, 3, 4, 5].includes(item.defaultIntensity))) throw new Error("팩의 문체 정보가 올바르지 않아요.");
+      if (parsed.materials.some(item => !item || typeof item.name !== "string" || !item.name.trim() ||
+        typeof item.dataUrl !== "string" || !/^data:[^;]+;base64,/.test(item.dataUrl) ||
+        !Number.isFinite(item.size) || item.size < 1 || item.size > MAX_FILE_BYTES))
+        throw new Error("팩의 참고자료 정보가 올바르지 않아요.");
+      const now = new Date().toISOString();
+      const importedStyles = parsed.styles.map(item => ({
+        ...item, id: uid("style"), updatedAt: now,
+      }));
+      const importedMaterials = parsed.materials.map(item => {
+        const blob = dataUrlToBlob(item.dataUrl);
+        if (blob.size !== item.size || blob.size > MAX_FILE_BYTES) throw new Error(`${item.name}: 파일 크기 검증 실패`);
+        return { id: uid("material"), name: item.name, type: item.type || blob.type,
+          size: blob.size, updatedAt: now, blob };
+      });
+      // Validate the full pack before performing any writes.
+      for (const item of importedMaterials) await putMaterial(item);
       const nextStyles = [...importedStyles, ...styles];
-      saveStyles(nextStyles);
-      setStyles(nextStyles);
-      for (const item of pack.materials) {
-        if (!item.dataUrl || item.size > MAX_FILE_BYTES) continue;
-        await putMaterial({
-          id: uid("material"),
-          name: item.name,
-          type: item.type,
-          size: item.size,
-          updatedAt: new Date().toISOString(),
-          blob: dataUrlToBlob(item.dataUrl),
-        });
+      if (importedStyles.length) {
+        const storage = browserStorage();
+        if (!storage) throw new Error("문체를 저장할 브라우저 저장소를 사용할 수 없어요.");
+        storage.setItem(STYLE_KEY, JSON.stringify(nextStyles));
+        setStyles(nextStyles);
       }
       setMaterials(await listMaterials());
-      setNotice(`문체 ${importedStyles.length}개와 자료 ${pack.materials.length}개를 가져왔어요.`);
+      setNotice(`문체 ${importedStyles.length}개와 자료 ${importedMaterials.length}개를 가져왔어요. 사용할 문체를 선택하면 다음 글에 적용돼요.`);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "팩을 가져오지 못했어요.");
     } finally {
@@ -473,7 +510,7 @@ export default function BlotoriAssetStudio({
   ["structure", "글 구성"],
   ["imageRhythm", "사진 배치"],
   ["visual", "꾸밈"],
-] as const).map(([key, label]) => <label key={key}><input type="checkbox" checked={blogDNAApply[key]} onChange={(event) => setBlogDNAApply((current) => ({ ...current, [key]: event.target.checked }))} /><span>{label}</span></label>)}</div><small>카테고리 대표 패턴을 현재 콘텐츠에 맞춰 변주합니다. 실측 데이터가 있으면 전수분석 프리셋을 우선 사용합니다.</small></div></div>}
+] as const).map(([key, label]) => <label key={key}><input type="checkbox" checked={blogDNAApply[key]} onChange={(event) => setBlogDNAApply((current) => ({ ...current, [key]: event.target.checked }))} /><span>{label}</span></label>)}</div></div></div>}
         {selectedStyle && <div className="selectedStyleCard"><div><strong>{selectedStyle.name}</strong><span>{sourceLabel[selectedStyle.sourceType]} · 저장 기본 강도 {selectedStyle.defaultIntensity}/5{selectedStyle.blogDNA ? ` · Blog DNA ${selectedStyle.blogDNA.confidence}` : " · 기존 문체 프로필"}</span></div><button type="button" className="assetMiniButton danger" onClick={() => removeStyle(selectedStyle.id)}>삭제</button><p>{selectedStyle.signature}</p>{selectedStyle.blogDNA && <div className="dnaApplyPanel"><strong>이번 글에 적용</strong><div className="dnaToggleGrid">{([
   ["voice", "문체"],
   ["mood", "분위기"],
@@ -510,8 +547,10 @@ export default function BlotoriAssetStudio({
 
     <section className="assetUtilityGroup">
       <div className="assetUtilityCopy"><strong>블로토리 팩</strong><span>블로그 스타일과 선택한 자료를 .blotori 파일 하나로 묶어 다른 사용자에게 전달하거나 다시 가져올 수 있어요.</span></div>
-      <div className="packActions"><input ref={packInput} className="assetHiddenInput" type="file" accept=".blotori,application/json" onChange={importPack} /><button type="button" className="ghost" onClick={() => packInput.current?.click()}>팩 가져오기</button><button type="button" className="ghost" onClick={() => void exportPack()}>팩 내보내기</button></div>
+      <div className="packActions"><input ref={packInput} className="assetHiddenInput" type="file" accept=".blotori,application/json" onChange={importPack} /><button type="button" className="ghost" onClick={() => packInput.current?.click()}>팩 가져오기</button><button type="button" className="ghost" onClick={openPackComposer}>팩 내보내기</button></div>
     </section>
+
+    {packComposerOpen && <section className="packComposer" aria-label="블로토리 팩 구성" style={{ border: "1px solid var(--border, #cbd5e1)", borderRadius: 12, padding: 16, marginTop: 12, display: "grid", gap: 12, minWidth: 0 }}><strong>팩에 담을 항목 선택</strong><p>선택한 문체와 참고자료만 내보내요.</p><div style={{ display: "grid", gap: 8 }}><strong>문체</strong>{[...categoryPresets.map(item => ({ id: `category:${item.id}`, name: `${item.label} · 카테고리 스타일` })), ...styles.map(item => ({ id: item.id, name: item.name }))].map(item => <label key={item.id} style={{ display: "flex", alignItems: "start", gap: 8, minWidth: 0, overflowWrap: "anywhere" }}><input type="checkbox" checked={packStyleIds.includes(item.id)} onChange={event => setPackStyleIds(current => event.target.checked ? [...current, item.id] : current.filter(id => id !== item.id))}/><span>{item.name}</span></label>)}</div><div style={{ display: "grid", gap: 8 }}><strong>참고자료</strong>{materials.map(item => <label key={item.id} style={{ display: "flex", alignItems: "start", gap: 8, minWidth: 0, overflowWrap: "anywhere" }}><input type="checkbox" checked={packMaterialIds.includes(item.id)} onChange={event => setPackMaterialIds(current => event.target.checked ? [...current, item.id] : current.filter(id => id !== item.id))}/><span>{item.name}</span></label>)}</div><span>선택: 문체 {packStyleIds.length}개 · 자료 {packMaterialIds.length}개</span><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}><button type="button" className="ghost" onClick={() => setPackComposerOpen(false)}>취소</button><button type="button" className="ghost" disabled={!packStyleIds.length && !packMaterialIds.length} onClick={() => void exportPack()}>선택한 항목 저장</button></div></section>}
 
     {notice && <div className="assetNotice" role="status"><span>{notice}</span><button type="button" onClick={() => setNotice("")}>×</button></div>}
   </>;
