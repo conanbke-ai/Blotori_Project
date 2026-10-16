@@ -67,14 +67,15 @@ try {
   await page.getByRole('tab', { name: '검수' }).click();
   const inspector = page.locator('.qualityInspector');
   await inspector.getByText('게시 전 초안 품질 확인', { exact: false }).waitFor();
-  await inspector.getByText('같은 소제목이 반복됩니다.', { exact: false }).waitFor();
+  await inspector.getByText('같은 소제목이 반복됩니다.', { exact: true }).waitFor();
   assert.equal(generationCount, 1, 'Only one intercepted draft request is allowed');
 
   await page.getByRole('button', { name: '직접 편집' }).click();
   const headings = page.locator('.sectionHeadingEdit');
   assert.ok(await headings.count() >= 2, 'Editable section headings must exist');
   await headings.nth(1).fill('고유한 제목');
-  await inspector.getByText('같은 소제목이 반복됩니다.', { exact: false }).waitFor({ state: 'detached' });
+  await inspector.getByText('같은 소제목이 반복됩니다.', { exact: true }).waitFor({ state: 'detached' });
+  await inspector.getByText('품질 확인: 동일하거나 거의 같은 소제목이 반복됩니다.', { exact: true }).waitFor({ state: 'detached' });
   assert.equal(generationCount, 1, 'Editing must not call the generator');
   console.log('DRAFT_AUDIT_UI_E2E PASS: intercepted generation, audit visible, edit refresh, zero paid calls');
 } finally {
