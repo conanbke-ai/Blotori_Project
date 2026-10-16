@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { composeGenerationRequest } from "../lib/application/compose-generation-request";
+import { auditDraftBeforePublish } from "../lib/application/audit-draft-before-publish";
 import { buildPlatformExport } from "../lib/application/platform-exporter";
 import { copyPlatformContent, copyResultMessage } from "../lib/browser/copy-platform-content";
 import PlatformExportPreview from "./PlatformExportPreview";
@@ -404,7 +405,7 @@ export default function Home() {
           </div>
         }>
           <div id="inspector-content" role="tabpanel" aria-labelledby={`inspector-tab-${inspectorTab}`} tabIndex={0}>
-          {!draft ? <div className="inspectorEmpty"><span className="inspectorEmptyIcon">✓</span><strong>게시 전 마지막 점검 공간이에요.</strong><p>글을 만들면 아래 항목이 자동으로 채워져요.</p><div className="inspectorEmptyGuide"><div><b>01</b><span><strong>이미지</strong><small>프롬프트와 삽입 위치</small></span></div><div><b>02</b><span><strong>근거자료</strong><small>참고한 자료와 용어</small></span></div><div><b>03</b><span><strong>표현 검수</strong><small>주의 표현과 게시 전 확인</small></span></div></div></div> : inspectorTab === "images" ? <div className="guideRailContent"><div className="guideTitle"><strong>이미지 제작 가이드</strong><span>{draft.images.length}개</span></div>{draft.images.map((image) => <PromptCard key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} onLocate={locateImage} />)}</div> : <QualityInspector draft={draft} />}
+          {!draft ? <div className="inspectorEmpty"><span className="inspectorEmptyIcon">✓</span><strong>게시 전 마지막 점검 공간이에요.</strong><p>글을 만들면 아래 항목이 자동으로 채워져요.</p><div className="inspectorEmptyGuide"><div><b>01</b><span><strong>이미지</strong><small>프롬프트와 삽입 위치</small></span></div><div><b>02</b><span><strong>근거자료</strong><small>참고한 자료와 용어</small></span></div><div><b>03</b><span><strong>표현 검수</strong><small>주의 표현과 게시 전 확인</small></span></div></div></div> : inspectorTab === "images" ? <div className="guideRailContent"><div className="guideTitle"><strong>이미지 제작 가이드</strong><span>{draft.images.length}개</span></div>{draft.images.map((image) => <PromptCard key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} onLocate={locateImage} />)}</div> : <QualityInspector draft={draft} input={{ ...form, platformId: form.platformId || "naver" }} />}
           </div>
         </ResponsiveInspector>
       </div>
@@ -419,7 +420,8 @@ function SettingGroup({ index, title, description, optional = false, children }:
   return <section className="settingGroup"><div className="settingGroupHeader"><span>{index}</span><div><div className="settingGroupTitle"><h3>{title}</h3>{optional && <em>선택</em>}</div><p>{description}</p></div></div><div className="settingGroupBody">{children}</div></section>;
 }
 
-function QualityInspector({ draft }: { draft: BlogDraft }) {
+function QualityInspector({ draft, input }: { draft: BlogDraft; input: GenerateRequest }) {
+  const auditFindings = auditDraftBeforePublish(draft, input);
   const grounding = draft.knowledgeGrounding;
   const glossarySection = draft.sections.find((section) => section.presentation?.visualStyle === "glossary");
   const glossaryCount = glossarySection?.paragraphs.length ?? 0;
@@ -430,6 +432,7 @@ function QualityInspector({ draft }: { draft: BlogDraft }) {
       <QaRow status={glossaryCount > 0 ? "ok" : "neutral"} title="전문용어 해설" description={glossaryCount > 0 ? `${glossaryCount}개 용어 해설이 포함되어 있어요.` : "추가된 용어해설이 없어요."} />
       <QaRow status={draft.warnings.length ? "warn" : "ok"} title="표현 안전성" description={draft.warnings.length ? "아래 주의 표현을 게시 전에 확인해 주세요." : "현재 감지된 주의 표현이 없어요."} />
     </div>
+    {auditFindings.length > 0 && <div className="warningList"><strong>게시 전 초안 품질 확인 ({auditFindings.length}건)</strong>{auditFindings.map((finding, index) => <div key={`${finding.code}-${index}`}><span>{finding.severity === "error" ? "!" : "·"}</span><p>{finding.message}</p></div>)}</div>}
     {draft.warnings.length > 0 && <div className="warningList"><strong>주의 표현</strong>{draft.warnings.map((warning, index) => <div key={`${warning}-${index}`}><span>!</span><p>{warning}</p></div>)}</div>}
     {grounding?.used && grounding.sourceNames.length > 0 && <details className="sourceDetails"><summary>참고 자료 보기</summary><ul>{grounding.sourceNames.map((source) => <li key={source}>{source}</li>)}</ul></details>}
   </div>;
