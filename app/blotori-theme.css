@@ -449,3 +449,59 @@ body {
   }
   .blotoriMascotEmpty { width: 120px; height: 165px; }
 }
+
+/* Editorial rhythm for intentionally structured article sections.
+   Pure presentation: draft storage, editing, and exported data are unchanged. */
+.articleSection.visual-key-point,
+.articleSection.visual-callout,
+.articleSection.visual-quote {
+  margin-block: 26px;
+  padding: clamp(15px, 2vw, 24px);
+  border-radius: 15px;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.articleSection.visual-key-point {
+  border: 1px solid #c9e7e6;
+  background: linear-gradient(150deg, #edf9f6 0%, #fbfffd 100%);
+  box-shadow: 0 5px 18px rgba(51, 124, 125, .06);
+}
+.articleSection.visual-callout {
+  border: 1px solid #f1dac9;
+  border-left: 4px solid #d5a276;
+  background: linear-gradient(150deg, #fff5eb 0%, #fffdfa 100%);
+}
+.articleSection.visual-quote {
+  border: 0;
+  border-top: 1px solid #d9e5e8;
+  border-bottom: 1px solid #d9e5e8;
+  border-radius: 0;
+  background: #fbfcfd;
+  box-shadow: none;
+}
+.articleSection.visual-key-point h3,
+.articleSection.visual-callout h3,
+.articleSection.visual-quote h3 {
+  margin-block: 0 12px;
+  line-height: 1.45;
+  letter-spacing: -.025em;
+}
+.articleSection.visual-key-point .sectionBody p,
+.articleSection.visual-callout .sectionBody p,
+.articleSection.visual-quote .sectionBody p {
+  line-height: 1.85;
+  margin-block: 0 10px;
+}
+.articleSection.visual-key-point .sectionBody p:last-child,
+.articleSection.visual-callout .sectionBody p:last-child,
+.articleSection.visual-quote .sectionBody p:last-child { margin-bottom: 0; }
+@media (max-width: 760px) {
+  .articleSection.visual-key-point,
+  .articleSection.visual-callout,
+  .articleSection.visual-quote {
+    padding: 15px 13px;
+    margin-block: 20px;
+  }
+}
