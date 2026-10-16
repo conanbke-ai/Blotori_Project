@@ -10,7 +10,7 @@ import type { ModelState, RecoveryStore } from "./model-recovery";
  * select a model in memory.
  */
 export interface ParameterizedSql {
-  query<T extends Record<string, unknown>>(
+  query<T extends object>(
     sql: string,
     values: readonly (string | number)[],
   ): Promise<{ rows: T[] }>;
