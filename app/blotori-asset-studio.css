@@ -56,3 +56,52 @@
 .writingSectionAdjust,.writingSectionCreate { margin-top:5px; }
 .unifiedWritingGroup .selectedStyleCard { margin-top:-2px; }
 .unifiedWritingGroup .styleBuilder { margin-top:-2px; }
+
+/* Category DNA card: readable narrow-column alignment and natural wrapping. */
+.unifiedWritingGroup .categoryPresetCard {
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  text-align: left;
+  align-content: start;
+  gap: 10px;
+}
+.unifiedWritingGroup .categoryPresetCard > div,
+.unifiedWritingGroup .categoryPresetCard > p {
+  min-width: 0;
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
+.unifiedWritingGroup .categoryPresetCard > p {
+  max-height: none;
+  overflow: visible;
+  white-space: normal;
+  line-height: 1.6;
+}
+.unifiedWritingGroup .categoryPresetCard .dnaApplyPanel {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+.unifiedWritingGroup .categoryPresetCard .dnaToggleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 8px 10px;
+}
+.unifiedWritingGroup .categoryPresetCard .dnaToggleGrid label {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+.unifiedWritingGroup .categoryPresetCard .dnaToggleGrid input {
+  flex: none;
+  margin: 2px 0 0;
+}
+@media (max-width: 350px) {
+  .unifiedWritingGroup .categoryPresetCard .dnaToggleGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
