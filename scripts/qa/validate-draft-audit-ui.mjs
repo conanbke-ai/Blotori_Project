@@ -32,8 +32,17 @@ try {
   await page.locator('.workspaceV2').waitFor();
   await page.locator('.settingsRail select option[value="naver"]').first().waitFor({ state: 'attached' });
   const platform = page.locator('.settingsRail select').filter({ has: page.locator('option[value="naver"]') }).first();
+  // Wait for React hydration before interacting with controlled form elements.
+  await page.waitForFunction(() => {
+    const root = document.querySelector('.workspaceV2');
+    return root && root.dataset.reviewLayout === 'wide' &&
+      document.querySelector('.draftStorageStatus')?.getAttribute('data-state') === 'ready';
+  });
   await platform.selectOption('naver');
+  await page.waitForTimeout(100);
+  assert.equal(await platform.inputValue(), 'naver', 'Platform must remain selected after React render');
   await page.locator('.settingsRail textarea[placeholder*="주제"]').first().fill('품질 검수 UI 오프라인 테스트');
+  assert.equal(await platform.inputValue(), 'naver', 'Platform selection was reset after topic input');
   const generate = page.locator('.settingsRail .generatePrimary');
   await generate.waitFor({ state: 'visible' });
   try {
