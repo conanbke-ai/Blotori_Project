@@ -1,5 +1,3 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
@@ -34,14 +32,14 @@ function knowledgeStatus() {
 }
 
 function diagnostics() {
-  const cwd = process.cwd();
-  const envFiles = [".env.local", ".env", ".env.development.local", ".env.development", ".env.local.txt", ".env.txt"];
-  const envFileStatus = Object.fromEntries(envFiles.map((name) => [name, existsSync(join(cwd, name))]));
+  // Do not inspect local .env files in an HTTP handler: dynamic filesystem
+  // access makes Turbopack trace the entire project into the server bundle.
+  // Environment variable presence is the reliable runtime diagnostic.
   const openAiVariableNames = Object.keys(process.env)
     .filter((name) => /OPENAI|GPT|BLOTORI_RAG/i.test(name))
     .sort();
 
-  return { cwd, envFileStatus, openAiVariableNames };
+  return { openAiVariableNames };
 }
 
 export async function GET(request: Request) {
