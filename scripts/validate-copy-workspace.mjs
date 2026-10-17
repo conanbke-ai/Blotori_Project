@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { chromium } from 'playwright';
+import { getLocalQaURL } from './browser-qa-targets.mjs';
 
-const baseURL = process.env.BLOTORI_QA_URL || 'http://127.0.0.1:3000';
+const baseURL = getLocalQaURL();
 const artifacts = 'visual-qa-artifacts';
 fs.mkdirSync(artifacts, { recursive: true });
 const browser = await chromium.launch({ headless: true });
@@ -80,7 +81,8 @@ try {
   }
 
   await page.locator('[data-copy-platform]').click();
-  await page.getByText('서식을 포함해 복사했어요. 붙여넣은 편집기에서 최종 서식을 확인해 주세요.', { exact: true }).waitFor();
+  await page.locator('[data-copy-result]').filter({ hasText: '이미지 1/4개만 포함됐어요' }).waitFor();
+  assert.doesNotMatch(await page.locator('[data-copy-platform]').textContent(), /복사됨|✓/, 'Partial image copy must not show complete success');
   const clipboard = await page.evaluate(async () => {
     const [item] = await navigator.clipboard.read();
     return { types: item.types, html: await (await item.getType('text/html')).text(), text: await (await item.getType('text/plain')).text() };
@@ -88,18 +90,34 @@ try {
   assert.ok(clipboard.types.includes('text/html') && clipboard.types.includes('text/plain'));
   assert.ok(clipboard.html.includes('&lt;script&gt;'));
   assert.ok(clipboard.text.includes(edited));
-  assert.ok(clipboard.text.includes('표시 너비 50% · 오른쪽 정렬'));
+  assert.ok(!clipboard.text.includes('표시 너비 50% · 오른쪽 정렬'));
+  assert.ok(!clipboard.text.includes(image.id));
+  assert.ok(!clipboard.html.includes(image.id));
   assert.ok(!clipboard.html.includes('blob:'), 'Local image URLs must never escape as external image embeds');
-  await page.locator('.platformExportDetails > summary').click();
+  const embeddedSources = [...clipboard.html.matchAll(/<img[^>]+src="(data:image\/png;base64,[^"]+)"/g)].map((match) => match[1]);
+  assert.equal(embeddedSources.length, 1, 'Only the uploaded image must be embedded');
+  assert.deepEqual(Buffer.from(embeddedSources[0].split(',')[1], 'base64'), imageBytes, 'Embedded image must preserve original bytes');
+  assert.ok(clipboard.html.indexOf(section.paragraphs.at(-1).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')) < clipboard.html.indexOf(embeddedSources[0]), 'Moved image must follow its selected section');
+  assert.match(clipboard.html, /<p style="margin:24px 0;text-align:right;"><img[^>]+width:50%/);
+  await page.locator('.platformExportDetails > summary').first().click();
   assert.equal(await page.locator('[data-export-preview] script').count(), 0);
   assert.ok((await page.locator('[data-export-preview]').textContent()).includes(edited));
-  results.push({ name: 'actual browser dual-MIME clipboard', status: 'passed' });
+  assert.ok(!(await page.locator('[data-export-preview]').textContent()).includes(image.id));
+  await page.locator('.platformExportDetails > summary').nth(1).click();
+  const imageGuidePreview = await page.locator('[data-image-guide-preview]').textContent();
+  assert.ok(imageGuidePreview.includes(image.id));
+  assert.ok(imageGuidePreview.includes('표시 너비 50% · 오른쪽 정렬'));
+  await page.locator('[data-copy-image-guide]').click();
+  const copiedGuide = await page.evaluate(() => navigator.clipboard.readText());
+  assert.ok(copiedGuide.includes(image.id));
+  assert.ok(copiedGuide.includes('표시 너비 50% · 오른쪽 정렬'));
+  results.push({ name: 'actual browser dual-MIME reader body and separate image guide', status: 'passed' });
 
   await page.locator('[data-copy-plain]').click();
   assert.ok((await page.evaluate(() => navigator.clipboard.readText())).includes(edited));
   await page.evaluate(() => { Object.defineProperty(navigator.clipboard, 'write', { configurable: true, value: async () => { throw new DOMException('fixture denied', 'NotAllowedError'); } }); });
   await page.locator('[data-copy-platform]').click();
-  await page.getByText('텍스트만 복사됐어요. 이 환경에서는 서식 복사를 완료하지 못했어요.', { exact: true }).waitFor();
+  await page.getByText('텍스트만 복사됐어요. 이 환경에서는 서식·이미지 복사를 완료하지 못했어요.', { exact: true }).waitFor();
   assert.ok((await page.evaluate(() => navigator.clipboard.readText())).includes(edited));
   await page.evaluate(() => { Object.defineProperty(navigator.clipboard, 'writeText', { configurable: true, value: async () => { throw new DOMException('fixture denied', 'NotAllowedError'); } }); });
   await page.locator('[data-copy-platform]').click();
@@ -120,7 +138,7 @@ try {
   await page.screenshot({ path: `${artifacts}/copy-workspace-persisted.png`, fullPage: true });
   await page.setViewportSize({ width: 320, height: 740 });
   await page.waitForFunction(() => document.querySelector('.workspaceV2')?.dataset.reviewLayout === 'compact');
-  for (const selector of ['[data-copy-platform]', '[data-copy-plain]', '[data-copy-tags]']) {
+  for (const selector of ['[data-copy-platform]', '[data-copy-plain]', '[data-copy-image-guide]', '[data-copy-tags]']) {
     const control = page.locator(selector);
     await control.scrollIntoViewIfNeeded();
     const box = await control.evaluate((node) => ({ width: node.clientWidth, content: node.scrollWidth, height: node.getBoundingClientRect().height, whiteSpace: getComputedStyle(node).whiteSpace }));

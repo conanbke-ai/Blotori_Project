@@ -1,6 +1,14 @@
 import type { BlogDraft, BlogSection, ImagePlan, PlatformExport, PlatformId, TextAlign, TextEmphasis } from "../domain/types";
 import { getPlatformCapabilities } from "../domain/platform-capabilities";
 
+export type EmbeddedImageMime = "image/png" | "image/jpeg" | "image/webp";
+export interface EmbeddedImage {
+  imageId: string;
+  src: string;
+  mimeType: EmbeddedImageMime;
+  byteLength: number;
+}
+
 function imageDisplayGuide(image: ImagePlan) {
   return image.display
     ? `표시 너비 ${image.display.widthPercent}% · ${image.display.align === "left" ? "왼쪽" : image.display.align === "right" ? "오른쪽" : "가운데"} 정렬`
@@ -95,10 +103,22 @@ function richSection(section: BlogSection, naver: boolean) {
   };
   return `<section style="margin:28px 0;${styles[presentation?.visualStyle ?? ""] ?? ""}">${heading}\n${paragraphs}</section>`;
 }
-function buildRichHtml(parts: BodyPart[], draft: BlogDraft, platformId: PlatformId, naver: boolean) {
+const embeddedSourcePattern = /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]*={0,2}$/;
+function richImage(image: ImagePlan, embedded?: EmbeddedImage) {
+  if (!embedded || embedded.imageId !== image.id || embedded.byteLength <= 0
+    || !["image/png", "image/jpeg", "image/webp"].includes(embedded.mimeType)
+    || !embedded.src.startsWith(`data:${embedded.mimeType};base64,`)
+    || !embeddedSourcePattern.test(embedded.src)) return "";
+  const width = [25, 50, 75, 100].includes(image.display?.widthPercent ?? 100) ? image.display?.widthPercent ?? 100 : 100;
+  const align = ["left", "center", "right"].includes(image.display?.align ?? "center") ? image.display?.align ?? "center" : "center";
+  const alt = image.label.trim() || "본문 이미지";
+  return `<p style="margin:24px 0;text-align:${align};"><img src="${escapeHtml(embedded.src)}" alt="${escapeHtml(alt)}" style="display:inline-block;width:${width}%;max-width:100%;height:auto;vertical-align:middle;" /></p>`;
+}
+function buildRichHtml(parts: BodyPart[], draft: BlogDraft, platformId: PlatformId, naver: boolean, embeddedImages: readonly EmbeddedImage[]) {
+  const embeddedById = new Map(embeddedImages.map((image) => [image.imageId, image]));
   const body = parts.map((part) => {
     if (part.kind === "section") return richSection(part.section, naver);
-    if (part.kind === "image") return "";
+    if (part.kind === "image") return richImage(part.image, embeddedById.get(part.image.id));
     return `<p style="${paragraphStyle}${alignStyle(part.align)}">${escapeHtml(part.text)}</p>`;
   }).filter(Boolean);
   if (platformId === "other") body.push(`<p style="${paragraphStyle}">${draft.tags.map((tag) => `#${escapeHtml(tag.replace(/^#/, ""))}`).join(" ")}</p>`);
@@ -108,7 +128,7 @@ function buildRichHtml(parts: BodyPart[], draft: BlogDraft, platformId: Platform
 function naverFormattingGuide(draft: BlogDraft) {
   const lines = [
     "기본 색상·강조·정렬은 서식 포함 복사로 전달합니다. 네이버에서 유지되는지는 붙여넣은 뒤 확인해 주세요.",
-    "이미지 위치·규격은 별도 이미지 가이드에서 확인하며 게시용 본문에는 포함되지 않습니다.",
+    "이 브라우저에 원본이 저장된 이미지는 서식 포함 복사의 HTML에 함께 넣습니다. 네이버 스마트에디터의 Base64/인라인 이미지 수용 여부는 확인되지 않았으므로 붙여넣은 뒤 반드시 확인해 주세요.",
   ];
   if (draft.presentation?.titleAlign === "center") lines.push("제목 입력란: 가운데 정렬 권장");
   for (const section of draft.sections) {
@@ -129,7 +149,8 @@ function buildImageGuide(draft: BlogDraft) {
   const lines = [
     "이미지 가이드 (게시용 본문과 별도)",
     "이 가이드는 편집자용이며 본문 복사에는 포함되지 않습니다.",
-    "원본 이미지 첨부 여부는 자동 판정하지 않습니다. 게시 편집기에서 직접 확인하고 업로드해 주세요.",
+    "서식 포함 복사는 이 브라우저에 저장된 지원 형식·크기의 원본만 HTML에 포함합니다. 파일이 없는 슬롯과 제한을 넘는 파일은 포함하지 않습니다.",
+    "게시 편집기가 Base64/인라인 이미지를 받지 않으면 보관된 원본을 직접 업로드해 주세요.",
   ];
   if (!draft.images.length) return [...lines, "계획된 이미지 슬롯이 없습니다."].join("\n");
   for (const [index, image] of draft.images.entries()) {
@@ -149,14 +170,14 @@ function buildImageGuide(draft: BlogDraft) {
   return lines.join("\n");
 }
 
-export function buildPlatformExport(draft: BlogDraft, platformId: PlatformId): PlatformExport {
+export function buildPlatformExport(draft: BlogDraft, platformId: PlatformId, embeddedImages: readonly EmbeddedImage[] = []): PlatformExport {
   const capabilities = getPlatformCapabilities(platformId);
   const labels: Record<PlatformId, string> = { naver: "네이버 본문", tistory: "티스토리용 본문", blogger: "Blogger용 본문", wordpress: "WordPress용 본문", brunch: "브런치스토리용 본문", other: "범용 본문" };
   const parts = bodyParts(draft);
   return {
     platformId, label: labels[platformId], titleText: draft.title,
     plainText: buildPlainBody(parts, draft, platformId),
-    html: capabilities.richText === "unsupported" ? undefined : buildRichHtml(parts, draft, platformId, capabilities.serializer === "naver"),
+    html: capabilities.richText === "unsupported" ? undefined : buildRichHtml(parts, draft, platformId, capabilities.serializer === "naver", embeddedImages),
     tagsText: draft.tags.map((tag) => `#${tag.replace(/^#/, "")}`).join(" "),
     imageGuideText: buildImageGuide(draft),
     formattingGuide: platformId === "naver" ? naverFormattingGuide(draft) : undefined,

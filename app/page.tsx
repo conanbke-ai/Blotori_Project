@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { composeGenerationRequest } from "../lib/application/compose-generation-request";
 import { auditDraftBeforePublish } from "../lib/application/audit-draft-before-publish";
 import { buildPlatformExport } from "../lib/application/platform-exporter";
-import { copyPlatformContent, copyResultMessage } from "../lib/browser/copy-platform-content";
+import { copyPlatformContent, copyResultMessage, prepareClipboardImages } from "../lib/browser/copy-platform-content";
+import { loadDraftImages } from "../lib/infrastructure/draft-workspace-storage";
 import PlatformExportPreview from "./PlatformExportPreview";
 import DraftImageControl from "./DraftImageControl";
 import { useDraftWorkspace } from "./useDraftWorkspace";
@@ -230,11 +231,24 @@ export default function Home() {
 
   async function copyPlatformDraft(mode: "rich" | "plain") {
     if (!platformExport) return;
-    const result = await copyPlatformContent(platformExport, mode);
-    setCopyFeedback(copyResultMessage(result));
+    const platformId = form.platformId;
+    const prepareRich = mode === "rich" && draft && platformId
+      ? async () => {
+        if (!draftId) throw new Error("Draft image storage is not ready");
+        const assets = await loadDraftImages(draftId);
+        const prepared = await prepareClipboardImages(draft.images, assets);
+        const exported = buildPlatformExport(draft, platformId, prepared.embeddedImages);
+        if (!exported.html) throw new Error("Rich export unavailable");
+        return { html: exported.html, images: prepared.report };
+      }
+      : undefined;
+    const result = await copyPlatformContent(platformExport, mode, undefined, prepareRich);
+    setCopyFeedback(copyResultMessage(result, platformId || undefined));
     if (result.status === "copied") {
-      setCopied(result.format === "rich" ? "platform-rich" : "platform-plain");
-      window.setTimeout(() => setCopied(""), 1200);
+      const completeRich = result.format === "rich" && (!result.images || result.images.omitted.length === 0);
+      const key = result.format === "plain" ? "platform-plain" : completeRich ? "platform-rich" : "";
+      setCopied(key);
+      if (key) window.setTimeout(() => setCopied(""), 1200);
     } else setCopied("");
   }
 
@@ -390,7 +404,7 @@ export default function Home() {
 
           {platformExport && <>
             <div className="previewActionBar"><button className="ghost" onClick={() => scrollPreview("top")}>↑ TOP</button><div>
-              {platformExport.html && <button className="secondaryAction" data-copy-platform onClick={() => void copyPlatformDraft("rich")}>{copied === "platform-rich" ? "서식 복사됨 ✓" : "서식 포함 복사"}</button>}
+              {platformExport.html && <button className="secondaryAction" data-copy-platform onClick={() => void copyPlatformDraft("rich")}>{copied === "platform-rich" ? "서식·이미지 복사됨 ✓" : "서식 포함 복사 (이미지)"}</button>}
               <button className="ghost" data-copy-plain onClick={() => void copyPlatformDraft("plain")}>{copied === "platform-plain" ? "텍스트 복사됨 ✓" : "텍스트만 복사"}</button>
               <button className="ghost" data-copy-image-guide onClick={copyImageGuide}>{copied === "image-guide" ? "가이드 복사됨 ✓" : "이미지 가이드 복사"}</button>
               <button className="ghost" data-copy-tags onClick={copyTags}>{copied === "tags" ? "태그 복사됨 ✓" : "태그 복사"}</button>

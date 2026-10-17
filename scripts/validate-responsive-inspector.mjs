@@ -2,13 +2,21 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright';
+import { getQaDeviceScaleFactor, getQaTargets } from './browser-qa-targets.mjs';
 
 // Run against the production build with BLOTORI_MOCK_MODE=true and no API key.
 // This uses the real generation endpoint and React state, not a synthetic DOM.
-const baseURL = process.env.BLOTORI_QA_URL || 'http://127.0.0.1:3000';
-const outputDir = 'visual-qa-artifacts';
+const targets = getQaTargets();
+const deviceScaleFactor = getQaDeviceScaleFactor();
+const coreFlowOnly = process.env.BLOTORI_QA_CORE_FLOW === 'true';
+const ignoreHTTPSErrors = process.env.BLOTORI_QA_IGNORE_HTTPS_ERRORS === 'true';
+const outputDir = process.env.BLOTORI_QA_OUTPUT_DIR || 'visual-qa-artifacts';
 const modalWindowScroll = new WeakMap();
-const scenarios = [
+const scenarios = coreFlowOnly ? [
+  { name: 'mobile-390x844', width: 390, height: 844, layout: 'compact', single: true },
+  { name: 'tablet-768x1024', width: 768, height: 1024, layout: 'compact', single: true },
+  { name: 'desktop-1440x900', width: 1440, height: 900, layout: 'wide', single: false },
+] : [
   { name: 'desktop', width: 1440, height: 1100, layout: 'wide', single: false },
   { name: 'tablet', width: 1024, height: 1100, layout: 'compact', single: false },
   { name: 'narrow', width: 900, height: 900, layout: 'compact', single: true },
@@ -27,6 +35,9 @@ async function settle(page) {
 async function screenshot(page, name) {
   await settle(page);
   await page.screenshot({ path: path.join(outputDir, `responsive-${name}.png`), fullPage: true });
+  if (coreFlowOnly) {
+    await page.screenshot({ path: path.join(outputDir, `responsive-${name}-viewport.png`), fullPage: false });
+  }
 }
 
 async function assertLayout(page, layout, single) {
@@ -189,8 +200,10 @@ async function testTabs(page, imageCount) {
   }
 }
 
-async function prepareDraft(page, scenario, platform) {
-  await page.goto(baseURL, { waitUntil: 'networkidle' });
+async function prepareDraft(page, scenario, platform, target) {
+  const navigationResponse = await page.goto(target.baseURL, { waitUntil: 'networkidle' });
+  assert.ok(navigationResponse?.ok(), `${target.name}: HTTP response must be successful`);
+  await page.locator('.workspaceV2').waitFor({ state: 'visible' });
   await assertLayout(page, scenario.layout, scenario.single);
   await page.evaluate(() => { window.__responsiveQaInspector = document.querySelector('.inspectorRail'); });
   await assertDialogState(page, { open: scenario.layout === 'wide', modal: false });
@@ -198,7 +211,7 @@ async function prepareDraft(page, scenario, platform) {
     assert.equal(await page.locator('.inspectorRail').evaluate((node) => node.contains(document.activeElement)), false,
       'The persistent inspector must not steal initial focus from the document');
   }
-  const health = await page.request.get(`${baseURL}/api/health`);
+  const health = await page.request.get(`${target.baseURL}/api/health`);
   assert.equal(health.ok(), true, 'Mock server health endpoint must be reachable');
   assert.equal((await health.json()).keyDetected, false, 'Do not run mock regression with a real API key configured');
 
@@ -262,6 +275,58 @@ async function assertEditsPreserved(page, values, checkPreviewScroll = true) {
 
 async function assertInspectorScroll(page, expected) {
   await page.waitForFunction((top) => Math.abs(document.querySelector('.inspectorBody').scrollTop - top) <= 2, expected);
+}
+
+async function testCopyActions(page) {
+  const feedback = page.locator('[data-copy-result]');
+  const evidence = { secureContext: await page.evaluate(() => window.isSecureContext), messages: [] };
+  for (const [selector, label] of [
+    ['[data-copy-platform]', 'rich'],
+    ['[data-copy-plain]', 'plain'],
+    ['[data-copy-image-guide]', 'image-guide'],
+  ]) {
+    const button = page.locator(selector);
+    if (!await button.count()) continue;
+    await button.click();
+    await feedback.waitFor({ state: 'visible' });
+    const message = (await feedback.innerText()).trim();
+    assert.doesNotMatch(message, /복사하지 못했어요/, `${label} copy failed despite isolated clipboard permission: ${message}`);
+    if (label === 'rich') {
+      assert.match(message, /이미지 0\/\d+개만 포함됐어요/, 'Rich copy without uploaded assets must report omission');
+      assert.doesNotMatch(await button.innerText(), /✓/, 'Missing images must not appear fully copied');
+    } else {
+      await page.waitForFunction((buttonSelector) => document.querySelector(buttonSelector)?.textContent?.includes('✓'), selector);
+    }
+    evidence.messages.push({ label, message });
+  }
+  assert.equal(evidence.messages.length, 3, 'Rich, plain and image-guide copy actions must all be reachable');
+  return evidence;
+}
+
+async function assertSavedAndReloaded(page, scenario, platform, values, imageCount, name) {
+  const storage = page.locator('.draftStorageStatus');
+  await page.waitForFunction(() => document.querySelector('.draftStorageStatus')?.getAttribute('data-state') === 'saved');
+  const savedMessage = (await storage.innerText()).trim();
+  assert.match(savedMessage, /저장됨/, 'Edited draft must reach the browser auto-saved state');
+  await screenshot(page, `${name}-saved`);
+
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.locator('.workspaceV2').waitFor({ state: 'visible' });
+  await page.locator('.blogPaper').waitFor({ state: 'visible' });
+  await assertLayout(page, scenario.layout, scenario.single);
+  await page.evaluate(() => { window.__responsiveQaInspector = document.querySelector('.inspectorRail'); });
+  assert.equal(await page.locator('select').filter({ has: page.locator('option[value="naver"]') }).first().inputValue(), platform,
+    'Reload must restore the selected platform');
+  assert.equal((await page.locator('.previewTitle').innerText()).trim(), values.title, 'Reload must restore the edited title');
+  assert.equal(await page.locator('.imageSlot').count(), imageCount, 'Reload must restore every image slot exactly once');
+
+  await page.getByRole('button', { name: '직접 편집', exact: true }).click();
+  await assertEditsPreserved(page, values, false);
+  if (scenario.layout === 'compact') await openInspector(page);
+  assert.equal(await page.locator('.promptTextarea').first().inputValue(), values.prompt, 'Reload must restore edited image guidance');
+  await assertNoHorizontalOverflow(page, `${name} reloaded`);
+  await screenshot(page, `${name}-reloaded`);
+  return { savedMessage, restoredMessage: (await storage.innerText()).trim() };
 }
 
 async function testImageJump(page) {
@@ -336,10 +401,11 @@ async function testSettingsSpace(page, values, imageCount) {
   await assertNoHorizontalOverflow(page, 'tablet-settings-expanded');
 }
 
-async function runScenario(page, scenario, platform) {
-  const name = `${platform}-${scenario.name}`;
-  const draft = await prepareDraft(page, scenario, platform);
+async function runScenario(page, scenario, platform, target) {
+  const name = `${target.name}-${platform}-${scenario.name}`;
+  const draft = await prepareDraft(page, scenario, platform, target);
   await screenshot(page, `${name}-${scenario.layout === 'wide' ? 'persistent' : 'closed'}`);
+  const copyEvidence = coreFlowOnly ? await testCopyActions(page) : null;
 
   if (scenario.layout === 'wide') {
     await testTabs(page, draft.images.length);
@@ -349,7 +415,10 @@ async function runScenario(page, scenario, platform) {
     await page.locator('.promptTextarea').first().fill(values.prompt);
     await assertEditsPreserved(page, values);
     await assertNoHorizontalOverflow(page, `${name} edited`);
-    return;
+    const storageEvidence = coreFlowOnly
+      ? await assertSavedAndReloaded(page, scenario, platform, values, draft.images.length, name)
+      : null;
+    return { copyEvidence, storageEvidence };
   }
 
   let launcher = await openInspector(page);
@@ -391,23 +460,34 @@ async function runScenario(page, scenario, platform) {
     await testResize(page, values, draft.images.length);
     await testSettingsSpace(page, values, draft.images.length);
   }
+  const storageEvidence = coreFlowOnly
+    ? await assertSavedAndReloaded(page, scenario, platform, values, draft.images.length, name)
+    : null;
+  return { copyEvidence, storageEvidence };
 }
 
 const results = [];
 const browser = await chromium.launch({ headless: true });
 try {
-  for (const platform of ['naver', 'wordpress']) {
+  for (const target of targets) {
+   for (const platform of coreFlowOnly ? ['naver'] : ['naver', 'wordpress']) {
     for (const scenario of scenarios) {
-      const name = `${platform}-${scenario.name}`;
-      const context = await browser.newContext({ viewport: { width: scenario.width, height: scenario.height }, reducedMotion: 'reduce' });
+      const name = `${target.name}-${platform}-${scenario.name}`;
+      const context = await browser.newContext({
+        viewport: { width: scenario.width, height: scenario.height },
+        deviceScaleFactor,
+        reducedMotion: 'reduce',
+        permissions: coreFlowOnly ? ['clipboard-read', 'clipboard-write'] : [],
+        ignoreHTTPSErrors,
+      });
       const page = await context.newPage();
       page.setDefaultTimeout(12_000);
       const errors = [];
       page.on('pageerror', (error) => errors.push(error.message));
       try {
-        await runScenario(page, scenario, platform);
+        const evidence = await runScenario(page, scenario, platform, target);
         assert.deepEqual(errors, [], `${name}: unexpected browser errors`);
-        results.push({ name, status: 'passed' });
+        results.push({ name, status: 'passed', viewport: { width: scenario.width, height: scenario.height }, evidence });
         console.log(`PASS responsive inspector: ${name}`);
       } catch (error) {
         results.push({ name, status: 'failed', error: error.stack || String(error), pageErrors: errors });
@@ -417,6 +497,7 @@ try {
         await context.close();
       }
     }
+   }
   }
 } finally {
   await browser.close();
