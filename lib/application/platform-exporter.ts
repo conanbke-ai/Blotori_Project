@@ -38,6 +38,13 @@ function applyHtmlEmphasis(text: string, emphasis: TextEmphasis[] = []) {
   return html;
 }
 
+/** Remove machine-only image slot tokens without changing the canonical draft. */
+function publicationText(value: string): string {
+  return value.split(/\r?\n/).filter((line) =>
+    !/^\s*(?:IMG[-_](?:HERO|CONTEXT|EXPLAINER|PROCESS|DETAIL|TIP|CAUTION)(?:[-_][A-Z0-9]+)?)\s*$/i.test(line)
+  ).join("\n").trim();
+}
+
 type BodyPart = { kind: "paragraph"; text: string; align?: TextAlign }
   | { kind: "section"; section: BlogSection }
   | { kind: "image"; image: ImagePlan };
@@ -52,13 +59,13 @@ function bodyParts(draft: BlogDraft): BodyPart[] {
     }
   };
   addImages(null);
-  for (const text of draft.intro) result.push({ kind: "paragraph", text, align: draft.presentation?.introAlign });
+  for (const text of draft.intro) result.push({ kind: "paragraph", text: publicationText(text), align: draft.presentation?.introAlign });
   for (const section of draft.sections.filter((item) => item.presentation?.visualStyle !== "glossary")) {
-    result.push({ kind: "section", section }); addImages(section.id);
+    result.push({ kind: "section", section: { ...section, paragraphs: section.paragraphs.map(publicationText).filter(Boolean) } }); addImages(section.id);
   }
-  for (const text of draft.closing) result.push({ kind: "paragraph", text });
+  for (const text of draft.closing) result.push({ kind: "paragraph", text: publicationText(text) });
   for (const section of draft.sections.filter((item) => item.presentation?.visualStyle === "glossary")) {
-    result.push({ kind: "section", section }); addImages(section.id);
+    result.push({ kind: "section", section: { ...section, paragraphs: section.paragraphs.map(publicationText).filter(Boolean) } }); addImages(section.id);
   }
   // Preserve a slot even if an imported draft references a section that no longer exists.
   for (const image of draft.images.filter((item) => !placed.has(item.id))) result.push({ kind: "image", image });
@@ -80,7 +87,7 @@ function richSection(section: BlogSection, naver: boolean) {
   // Naver receives simple paragraph/span styles. It does not receive app-specific card CSS.
   const heading = naver ? `<p style="${headingStyle}"><strong>${escapeHtml(section.heading)}</strong></p>`
     : `<h2 style="${headingStyle}">${escapeHtml(section.heading)}</h2>`;
-  const paragraphs = section.paragraphs.map((text) => `<p style="${paragraphStyle}${alignStyle(presentation?.bodyAlign)}${glossary ? "font-size:11px;color:#7b8794;" : ""}">${applyHtmlEmphasis(text, presentation?.emphasis)}</p>`).join("\n");
+  const paragraphs = section.paragraphs.filter(Boolean).map((text) => `<p style="${paragraphStyle}${alignStyle(presentation?.bodyAlign)}${glossary ? "font-size:11px;color:#7b8794;" : ""}">${applyHtmlEmphasis(text, presentation?.emphasis)}</p>`).join("\n");
   if (naver) {
     // Conservative inline formatting: no app CSS dependency. Actual SmartEditor
     // paste fidelity still requires real-editor acceptance testing.
