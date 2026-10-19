@@ -54,16 +54,34 @@ try {
       const imported = await styleSelect.locator('option[value^="saved:"]').evaluateAll(options => options.map(o => ({ value: o.value, text: o.textContent })));
       assert.equal(imported.length, 1);
       await styleSelect.selectOption(imported[0].value);
+      await page.waitForFunction(expected => document.querySelector('.unifiedWritingGroup select option:checked')?.value === expected, imported[0].value, { timeout: 8000 });
       const platform = page.locator('.settingsRail select').filter({ has: page.locator('option[value="naver"]') }).first();
       await platform.selectOption('naver');
       await page.locator('.settingsRail textarea[placeholder*="주제"]').first().fill('오프라인 팩 적용 검증');
+      await page.waitForFunction(() => {
+        const p = document.querySelector('.settingsRail select option[value="naver"]')?.parentElement;
+        const text = document.querySelector('.settingsRail textarea[placeholder*="주제"]');
+        return p?.value === 'naver' && text?.value === '오프라인 팩 적용 검증';
+      }, null, { timeout: 8000 });
       await page.waitForFunction(() => {
         const button = document.querySelector('.settingsRail .generatePrimary');
         return Boolean(button && !button.disabled);
       }, null, { timeout: 10000 });
       const posted = page.waitForRequest(request => request.method() === 'POST' && new URL(request.url()).pathname === '/api/generate', { timeout: 10000 });
       await page.locator('.settingsRail .generatePrimary').click();
-      await posted;
+      try { await posted; } catch (error) {
+        const state = await page.evaluate(() => ({
+          platform: document.querySelector('.settingsRail select option[value="naver"]')?.parentElement?.value,
+          topic: document.querySelector('.settingsRail textarea[placeholder*="주제"]')?.value,
+          style: document.querySelector('.unifiedWritingGroup select option:checked')?.value,
+          buttonDisabled: document.querySelector('.settingsRail .generatePrimary')?.disabled,
+          buttonText: document.querySelector('.settingsRail .generatePrimary')?.textContent,
+          errorText: document.querySelector('.settingsRail .errorBox')?.textContent,
+          storage: document.querySelector('.draftStorageStatus')?.textContent,
+          layout: document.querySelector('.workspaceV2')?.dataset.reviewLayout,
+        }));
+        throw new Error('NO_GENERATE_POST ' + JSON.stringify(state) + ' ' + String(error));
+      }
       await page.waitForFunction(() => document.querySelector('.settingsRail .errorBox'), null, { timeout: 10000 });
       assert.equal(payloads.length, 1, name + ': intercepted generation count');
       assert.equal(payloads[0].styleId, 'custom');
