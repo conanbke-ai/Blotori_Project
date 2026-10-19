@@ -204,7 +204,7 @@ export default function Home() {
     try {
       const base: GenerateRequest = { ...form, platformId: form.platformId };
       const variationNonce = generationContext.variationPrefix
-        ? `${generationContext.variationPrefix}-${crypto.randomUUID()}`
+        ? `${generationContext.variationPrefix}-${typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`}`
         : undefined;
       const payload = composeGenerationRequest(base, generationContext, variationNonce);
       const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
