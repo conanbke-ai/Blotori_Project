@@ -1,0 +1,256 @@
+
+/* Approved Blotori brand identity - final overrides */
+
+.workspaceV2 .compactBrand::before,
+.workspaceV2 .emptyMascotStage::after,
+.generationOverlay .blotoriStateCard::before,
+.blotoriCharacterMotion::before {
+  content: none !important;
+  display: none !important;
+  background-image: none !important;
+}
+
+.workspaceV2 .blotoriBrandMark {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.workspaceV2 .blotoriBrandMark img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.workspaceV2 .blotoriBrandMark span {
+  color: #315b7a;
+  font-size: 22px;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.workspaceV2 .blotoriMascotEmpty,
+.generationOverlay .loadingMascot,
+.blotoriCharacterMotion .loadingMascot {
+  display: block !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+
+.workspaceV2 .blotoriMascotEmpty {
+  height: 286px !important;
+  margin: 0 auto !important;
+}
+
+.generationOverlay .loadingMascot {
+  height: 168px !important;
+}
+
+@media (max-width: 760px) {
+  .workspaceV2 .blotoriBrandMark img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .workspaceV2 .blotoriBrandMark span {
+    font-size: 17px;
+  }
+
+  .workspaceV2 .blotoriMascotEmpty {
+    height: 196px !important;
+  }
+
+  .generationOverlay .loadingMascot {
+    height: 128px !important;
+  }
+}
+
+/* Desktop workspace owns the viewport; each rail and the preview scrolls on its
+ * own. Mobile deliberately keeps the document flow for step-by-step screens. */
+@media (min-width: 761px) {
+  body:has(.workspaceV2) {
+    overflow: hidden;
+  }
+
+  .workspaceV2 {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .workspaceV2 .workspaceHeader {
+    position: relative;
+  }
+
+  .workspaceV2 .workspaceGridV2 {
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .workspaceV2 .settingsRail,
+  .workspaceV2 .inspectorRail,
+  .workspaceV2 .previewStage {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  .workspaceV2 .workspaceHeader {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .workspaceV2 .compactBrand,
+  .workspaceV2 .compactBrand > div:last-child {
+    min-width: 0;
+  }
+
+  .workspaceV2 .compactBrand {
+    gap: 9px;
+  }
+
+  .workspaceV2 .blotoriBrandMark img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .workspaceV2 .blotoriBrandMark span {
+    font-size: 18px;
+  }
+
+  .workspaceV2 .compactBrand h1 {
+    font-size: 19px;
+    line-height: 1.25;
+  }
+
+  .workspaceV2 .compactBrand p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .workspaceV2 .workspaceTopActions {
+    max-width: 250px;
+  }
+
+  .workspaceV2 .workspaceTopActions > .iconGhost {
+    display: inline-flex !important;
+  }
+}
+
+.workspaceV2 .connectionSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.workspaceV2 .connectionSummary i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e69a62;
+  box-shadow: 0 0 0 3px rgba(230, 154, 98, .14);
+}
+
+.workspaceV2 .connectionSummary.ok i {
+  background: #3fa986;
+  box-shadow: 0 0 0 3px rgba(63, 169, 134, .14);
+}
+
+.workspaceV2 .connectionSummary.checking i {
+  background: #6aaec0;
+}
+
+.workspaceV2 .diagnosticTitle {
+  display: block;
+  margin-bottom: 8px;
+  color: #315b7a;
+  font-size: 12px;
+}
+
+.workspaceV2 .apiStatusMessage {
+  margin: 8px 0 10px;
+  color: #667984;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.workspaceV2 .apiWarning,
+.workspaceV2 .inputRequirement {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fff8ec;
+  color: #8a633e;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+/* Give the identity and introduction separate breathing room. Phrase groups
+ * wrap only when needed; Korean words never split just to fill a line. */
+.workspaceV2 .brandIntro.compactBrand {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: clamp(24px, 3vw, 40px) !important;
+  align-items: center;
+  min-width: 0;
+}
+.workspaceV2 .brandIntro.compactBrand::after {
+  content: none;
+}
+.workspaceV2 .compactBrand .brandCopy {
+  min-width: 0;
+}
+.workspaceV2 .compactBrand h1 {
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+.workspaceV2 .compactBrand p {
+  margin-top: 6px;
+  line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+.workspaceV2 .compactBrand .brandPhrase {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+}
+@media (max-width: 760px) {
+  .workspaceV2 .workspaceTopActions {
+    display: none;
+  }
+  .workspaceV2 .blotoriBrandMark {
+    gap: 8px;
+  }
+  .workspaceV2 .blotoriBrandMark span {
+    font-size: 17px;
+  }
+}
+@media (max-width: 600px) {
+  .workspaceV2 .brandIntro.compactBrand {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 16px;
+    width: 100%;
+  }
+  .workspaceV2 .compactBrand .eyebrow {
+    font-size: 10px;
+    letter-spacing: .15em;
+    margin-bottom: 6px;
+  }
+}
