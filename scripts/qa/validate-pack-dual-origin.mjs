@@ -50,6 +50,7 @@ try {
       const packInput = page.locator('input[type="file"][accept*=".blotori"]');
       await packInput.setInputFiles({ name: 'offline-qa.blotori', mimeType: 'application/json', buffer: Buffer.from(raw) });
       await page.getByText(/문체 1개와 자료 0개를 가져왔어요/).waitFor({ timeout: 8000 });
+      await page.waitForFunction(() => document.querySelectorAll('.unifiedWritingGroup select option[value^="saved:"]').length === 1, null, { timeout: 8000 });
       const imported = await styleSelect.locator('option[value^="saved:"]').evaluateAll(options => options.map(o => ({ value: o.value, text: o.textContent })));
       assert.equal(imported.length, 1);
       await styleSelect.selectOption(imported[0].value);
@@ -60,9 +61,11 @@ try {
         const button = document.querySelector('.settingsRail .generatePrimary');
         return Boolean(button && !button.disabled);
       }, null, { timeout: 10000 });
+      const posted = page.waitForRequest(request => request.method() === 'POST' && new URL(request.url()).pathname === '/api/generate', { timeout: 10000 });
       await page.locator('.settingsRail .generatePrimary').click();
+      await posted;
       await page.waitForFunction(() => document.querySelector('.settingsRail .errorBox'), null, { timeout: 10000 });
-      assert.equal(payloads.length, 1);
+      assert.equal(payloads.length, 1, name + ': intercepted generation count');
       assert.equal(payloads[0].styleId, 'custom');
       assert.ok(payloads[0].blogDNA?.voice, 'Imported pack DNA must reach generation request');
       assert.equal(payloads[0].blogDNAApply?.visual, true);
