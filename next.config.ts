@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const qaLanIp = process.env.BLOTORI_QA_LAN_IP;
-const safeQaLanIp = qaLanIp && /^(?:\\d{1,3}\\.){3}\\d{1,3}$/.test(qaLanIp) ? qaLanIp : undefined;
+const safeQaLanIp = qaLanIp && /^(?:\d{1,3}\.){3}\d{1,3}$/.test(qaLanIp) ? qaLanIp : undefined;
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
