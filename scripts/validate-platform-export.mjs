@@ -179,6 +179,19 @@ try {
   assert.equal(clipboardFallback.richFailure, "clipboard");
   assert.match(copyResultMessage(clipboardFallback, "naver"), /텍스트만 복사됐어요/);
   assert.equal(typeof browserClipboard().writePlain, "function");
+  const markersDraft = {
+    ...draft,
+    intro: ["방문 후기", "IMG-HERO", "IMG_CONTEXT", "IMG-EXPLAINER"],
+    sections: draft.sections.map((s, i) => ({ ...s, paragraphs: i === 0 ? ["정상 본문", "IMG-DETAIL", "후속 문장"] : i === 1 ? ["IMG-TIP", "용어 유지"] : s.paragraphs })),
+    closing: ["IMG_CAUTION", "마무리 본문"],
+  };
+  const cleaned = buildPlatformExport(markersDraft, "naver");
+  assert.doesNotMatch(cleaned.plainText, /IMG[-_](?:HERO|CONTEXT|EXPLAINER|DETAIL|TIP|CAUTION)/);
+  assert.doesNotMatch(cleaned.html, /IMG[-_](?:HERO|CONTEXT|EXPLAINER|DETAIL|TIP|CAUTION)/);
+  assert.match(cleaned.plainText, /정상 본문/);
+  assert.match(cleaned.html, /정상 본문/);
+  assert.equal(markersDraft.intro[1], "IMG-HERO", "original draft remains unchanged");
+
   console.log("Platform export QA PASS: safe inline PNG/JPEG/WebP bytes; image anchors/order/width/alignment; missing/limited/read/clipboard failures; synchronous ClipboardItem start; existing six-platform text/export behavior. Naver SmartEditor paste fidelity UNVERIFIED.");
 } finally {
   if (originalTsLoader) Module._extensions[".ts"] = originalTsLoader;
