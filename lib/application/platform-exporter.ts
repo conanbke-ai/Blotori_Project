@@ -41,7 +41,7 @@ function applyHtmlEmphasis(text: string, emphasis: TextEmphasis[] = []) {
 /** Remove machine-only image slot tokens without changing the canonical draft. */
 function publicationText(value: string): string {
   return value.split(/\r?\n/).filter((line) =>
-    !/^\\s*(?:IMG[-_](?:HERO|CONTEXT|EXPLAINER|PROCESS|DETAIL|TIP|CAUTION)(?:[-_][A-Z0-9]+)?)\\s*$/i.test(line)
+    !/^\s*(?:IMG[-_](?:HERO|CONTEXT|EXPLAINER|PROCESS|DETAIL|TIP|CAUTION)(?:[-_][A-Z0-9]+)?)\s*$/i.test(line)
   ).join("\n").trim();
 }
 
@@ -65,7 +65,7 @@ function bodyParts(draft: BlogDraft): BodyPart[] {
   }
   for (const text of draft.closing) result.push({ kind: "paragraph", text: publicationText(text) });
   for (const section of draft.sections.filter((item) => item.presentation?.visualStyle === "glossary")) {
-    result.push({ kind: "section", section }); addImages(section.id);
+    result.push({ kind: "section", section: { ...section, paragraphs: section.paragraphs.map(publicationText).filter(Boolean) } }); addImages(section.id);
   }
   // Preserve a slot even if an imported draft references a section that no longer exists.
   for (const image of draft.images.filter((item) => !placed.has(item.id))) result.push({ kind: "image", image });
