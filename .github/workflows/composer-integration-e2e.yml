@@ -1,6 +1,14 @@
 name: Composer integration browser QA
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'lib/**'
+      - 'public/**'
+      - 'scripts/qa/validate-*'
+      - '.github/workflows/composer-integration-e2e.yml'
   pull_request:
     paths:
       - 'app/**'
