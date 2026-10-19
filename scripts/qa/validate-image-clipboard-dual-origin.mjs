@@ -56,9 +56,16 @@ try {
       await page.waitForFunction(()=>window.__clipboardQA?.length>0,null,{timeout:15000});
       const item=await page.evaluate(()=>window.__clipboardQA[0]);
       assert.ok(item.types.includes('text/html'));
-      assert.ok(item.html.includes('data:image/png;base64,'),'Missing embedded original PNG');
+      const encoded = item.html.match(/src="data:image\/png;base64,([^"]+)"/)?.[1];
+      assert.ok(encoded, 'Missing embedded original PNG');
+      assert.deepEqual(Buffer.from(encoded, 'base64'), png, 'Clipboard PNG bytes must match uploaded source');
       assert.ok(item.html.includes('img'),'Missing IMG element');
       assert.ok(item.html.includes('본문 첫 번째 문장'),'Missing document text');
+      const sectionAt = item.html.indexOf('본문 첫 번째 문장');
+      const imageAt = item.html.indexOf('data:image/png;base64,');
+      assert.ok(imageAt > sectionAt, 'Image should remain after selected section');
+      assert.match(item.html, /width\s*:\s*50%/, 'Copied HTML should retain 50% width');
+      assert.match(item.html, /text-align\s*:\s*right/, 'Copied HTML should retain right alignment');
       assert.ok(item.plain.includes('본문 첫 번째 문장'),'Missing plain fallback text');
       assert.equal(apiCalls,1);
       results.push({origin:name,status:'PASS',images:1,rich:true,paidApiCalls:0});
