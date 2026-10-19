@@ -1,0 +1,133 @@
+/* Container-measured panel minimums, shared with useWorkspaceLayout.
+ * 560px keeps the preview header, article and copy actions readable; the rails
+ * retain their existing 300px / 292px Korean-content minimums. */
+.workspaceV2 .workspaceGridV2 {
+  --workspace-settings-min: 300px;
+  --workspace-preview-min: 560px;
+  --workspace-inspector-min: 292px;
+  grid-template-columns: minmax(var(--workspace-settings-min), 312px) minmax(0, 1fr) minmax(var(--workspace-inspector-min), 304px) !important;
+  column-gap: 14px !important;
+  padding: 14px;
+}
+.workspaceV2 .workspaceGridV2.settingsClosed {
+  grid-template-columns: minmax(0, 1fr) minmax(var(--workspace-inspector-min), 304px) !important;
+}
+.workspaceV2 .workspaceGridV2.guideClosed {
+  grid-template-columns: minmax(var(--workspace-settings-min), 312px) minmax(0, 1fr) !important;
+}
+.workspaceV2 .workspaceGridV2.settingsClosed.guideClosed {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+.workspaceV2 .workspaceGridV2 .inspectorRail {
+  position: static;
+  inset: auto;
+  margin: 0;
+  padding: 0 14px 14px;
+  width: auto;
+  max-width: none;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  color: inherit;
+  overflow: hidden;
+}
+.workspaceV2 .workspaceGridV2 .inspectorRail[open] { display: flex; flex-direction: column; }
+.workspaceV2 .workspaceGridV2 .inspectorRail:not([open]) { display: none; }
+.workspaceV2 .inspectorHeading, .workspaceV2 .inspectorTabs { flex-shrink: 0; }
+.workspaceV2 .inspectorHeading > div { width: auto; flex: 1; }
+.workspaceV2 .inspectorClose { flex: 0 0 auto; min-width: 44px; }
+.workspaceV2 .inspectorBody { min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.workspaceV2 .workspaceGridV2 .inspectorDialog {
+  position: fixed;
+  background: #fffdf9;
+  inset: 16px 16px 16px auto;
+  margin: auto 0;
+  width: min(520px, calc(100% - 32px));
+  height: calc(100dvh - 32px);
+  max-height: calc(100dvh - 32px);
+  box-shadow: 0 20px 55px rgba(49, 91, 122, .2);
+}
+.inspectorDialog::backdrop { background: rgba(32, 55, 66, .36); }
+.workspaceV2 .reviewLauncher { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; }
+.workspaceV2 .workspacePreviewHeader { flex-wrap: wrap; }
+.workspaceV2 .workspacePreviewHeader > div:first-child { flex: 1 1 190px; }
+.workspaceV2 .workspacePreviewHeader .headerActions { flex: 0 1 auto; }
+.workspaceV2 .workspacePreviewHeader h2 { word-break: keep-all; }
+.workspaceV2 .workspacePreviewHeader .headerActions { align-items: center; }
+.workspaceV2 .workspacePreviewHeader .headerActions > button { flex: 0 0 auto; white-space: nowrap; }
+.workspaceV2 .segmentedMode { flex-shrink: 0; }
+.workspaceV2 .segmentedMode button { white-space: nowrap; }
+.workspaceV2 .previewActionBar { display: flex; flex-wrap: wrap; }
+.workspaceV2 .previewActionBar > div { flex: 1; flex-wrap: wrap; }
+.workspaceV2 .previewActionBar button { min-height: 44px; }
+.workspaceV2 .blogPaper { overflow-wrap: anywhere; }
+.workspaceV2 .workspaceEmpty { overflow: auto; }
+.workspaceV2[data-review-layout="compact"] .workspaceEmpty { grid-template-columns: minmax(0, 1fr); }
+.workspaceV2 .emptyCopy, .workspaceV2 .emptyMascotStage { min-width: 0; max-width: 100%; }
+.workspaceV2 .locateImageButton { margin-top: 8px; width: 100%; }
+.workspaceV2 .imageSlot:focus, .workspaceV2 button:focus-visible, .workspaceV2 [role="tabpanel"]:focus-visible {
+  outline: 3px solid #2d8fa0;
+  outline-offset: 2px;
+}
+
+/* Below the two-column content minimum, keep the existing step navigation.
+ * Review opens above either step and never changes the underlying selection. */
+body:has(.workspaceSingle) { overflow: auto; }
+.workspaceV2.workspaceSingle {
+  display: block;
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible;
+}
+.workspaceSingle .workspaceHeader { position: static; }
+.workspaceV2.workspaceSingle .workspaceGridV2 {
+  display: block;
+  height: auto;
+  min-height: 0;
+  padding: 14px;
+  overflow: visible;
+}
+.workspaceV2.workspaceSingle .settingsRail, .workspaceV2.workspaceSingle .previewStage {
+  height: calc(100dvh - 100px);
+  min-height: 400px;
+}
+.workspaceV2.workspaceSingle [data-mobile-panel] { display: none; }
+.workspaceV2.workspaceSingle.mobile-settings [data-mobile-panel="settings"] { display: block; }
+.workspaceV2.workspaceSingle.mobile-preview [data-mobile-panel="preview"] { display: flex; }
+.workspaceSingle .mobileWorkspaceTabs {
+  position: sticky;
+  top: 0;
+  z-index: 28;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  padding: 8px 10px;
+  background: rgba(255, 253, 249, .96);
+}
+.workspaceSingle .mobileWorkspaceTabs button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(49, 91, 122, .05);
+  color: #6a7c89;
+  font-weight: 800;
+}
+.workspaceSingle .mobileWorkspaceTabs button.active { background: rgba(105, 199, 213, .17); color: #2d8fa0; }
+.workspaceV2.workspaceSingle .workspaceTopActions > .iconGhost,
+.workspaceV2.workspaceSingle .workspaceTopActions > .reviewLauncher { display: none !important; }
+.workspaceSingle .workspacePreviewHeader { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+.workspaceSingle .composerWorkflowEnhancer { flex-basis: auto; }
+.workspaceSingle .workspacePreviewHeader > div:first-child { flex: 0 0 auto; }
+.workspaceSingle .workspacePreviewHeader .headerActions { flex-shrink: 0; }
+
+@media (max-width: 560px) {
+  .workspaceV2 .workspaceGridV2 .inspectorDialog {
+    inset: auto 0 0;
+    margin: 0;
+    width: 100%;
+    height: calc(100dvh - 12px);
+    max-height: calc(100dvh - 12px);
+    border-radius: 22px 22px 0 0;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
