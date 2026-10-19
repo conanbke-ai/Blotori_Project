@@ -1,4 +1,5 @@
 import type { PlatformId } from "./types";
+import { getPlatformCapabilities } from "./platform-capabilities";
 
 export type ClipboardMode = "plain" | "rich";
 
@@ -15,11 +16,11 @@ export interface PlatformStrategy {
 const strategies: Record<PlatformId, PlatformStrategy> = {
   naver: {
     id: "naver",
-    clipboardMode: "plain",
+    clipboardMode: getPlatformCapabilities("naver").defaultCopyMode,
     headingRule: "소제목은 스마트에디터 ONE에서 별도 텍스트 블록으로 옮기기 쉽게 짧은 한글 문장형으로 작성한다. Markdown(#, ##)이나 HTML 태그를 본문에 쓰지 않는다.",
     paragraphRule: "모바일 가독성을 우선해 한 문단을 대체로 2~4문장으로 끊고, 긴 문단이 연속되지 않게 한다. 소제목-설명-이미지-추가설명의 리듬을 만든다.",
     imageRule: "대표 이미지는 제목 아래 첫 시각요소로 두고, 나머지 이미지는 관련 설명 직후에 둔다. 이미지는 본문 복붙에 포함시키지 않고 IMG 라벨로 위치만 표시해 네이버 포토업로더로 따로 넣을 수 있게 한다.",
-    metadataRule: "제목과 태그는 본문과 분리한다. SmartEditor ONE 붙여넣기에는 숨은 HTML 서식 대신 일반 텍스트 본문을 사용하고, 굵게·색상·정렬 같은 표현은 별도 서식 가이드로 안내한다.",
+    metadataRule: "제목과 태그는 본문과 분리한다. SmartEditor ONE용 기본 서식 포함 복사와 일반 텍스트 복사를 제공한다. 굵게·색상·정렬은 presentation metadata에 보관하고, 외부 편집기에서 유지되는지는 별도 확인한다.",
     generationRules: [
       "네이버 블로그에서 읽는 실제 포스트처럼 도입부가 너무 논문식이지 않게 자연스럽게 시작한다.",
       "정보형 글도 소제목만 나열하지 말고 각 소제목 아래 충분한 설명을 넣되 모바일에서 숨이 막히지 않도록 문단을 나눈다.",

@@ -1,0 +1,52 @@
+name: Composer integration browser QA
+
+on:
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'lib/**'
+      - 'public/**'
+      - 'scripts/qa/validate-*'
+      - '.github/workflows/composer-integration-e2e.yml'
+  workflow_dispatch:
+
+jobs:
+  browser-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BLOTORI_MOCK_MODE: 'true'
+      BLOTORI_RAG_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Start isolated keyless server
+        run: |
+          unset OPENAI_API_KEY
+          export BLOTORI_QA_LAN_IP=$(hostname -I | cut -d' ' -f1)
+          npm run dev -- --hostname 0.0.0.0 --port 3100 > /tmp/blotori-next.log 2>&1 &
+          echo $! > /tmp/blotori-next.pid
+          for i in $(seq 1 75); do
+            if curl -fsS http://127.0.0.1:3100 >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/blotori-next.log
+          exit 1
+      - name: Localhost and Network Mock E2E
+        run: |
+          set -euo pipefail
+          LAN_IP=$(hostname -I | awk '{print $1}')
+          test -n "$LAN_IP"
+          export BLOTORI_LOCAL_URL="http://127.0.0.1:3100"
+          export BLOTORI_NETWORK_URL="http://$LAN_IP:3100"
+          node scripts/qa/validate-dual-origin-draft-storage.mjs
+          node scripts/qa/validate-pack-dual-origin.mjs
+          node scripts/qa/validate-editorial-visual-dual-origin.mjs
+      - name: Server diagnostics on failure
+        if: failure()
+        run: tail -120 /tmp/blotori-next.log || true

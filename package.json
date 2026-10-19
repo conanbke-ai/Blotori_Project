@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "qa:platform": "node scripts/validate-platform-export.mjs",
+    "qa:browser:dual": "node scripts/validate-dual-browser-parity.mjs",
     "qa:rag": "node scripts/validate-rag-response.mjs",
     "qa:rag:strict": "node scripts/validate-rag-response.mjs --require-rag --strict",
     "knowledge:organize:plan": "node scripts/organize-knowledge-base.mjs",
@@ -21,6 +22,7 @@
     "knowledge:append": "node scripts/audit-knowledge-base.mjs --strict && node scripts/sync-knowledge-base.mjs --append --profile=commercial"
   },
   "dependencies": {
+    "cheerio": "1.1.2",
     "next": "16.3.4",
     "openai": "7.10.0",
     "react": "19.2.8",
@@ -30,6 +32,7 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "playwright": "1.64.0",
     "typescript": "^5.9.0"
   }
 }

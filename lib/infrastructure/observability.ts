@@ -1,3 +1,5 @@
+import { ModelUnavailableError } from "./model-unavailable-error";
+
 type LogLevel = "info" | "warn" | "error";
 
 type LogEvent = {
@@ -26,6 +28,7 @@ export function createRequestId() {
 }
 
 export function classifyError(error: unknown) {
+  if (error instanceof ModelUnavailableError) return { code: "MODEL_UNAVAILABLE", message: "설정된 OpenAI 모델을 사용할 수 없습니다." };
   if (!(error instanceof Error)) return { code: "UNKNOWN_ERROR", message: "Unknown error" };
   const message = error.message || "Unknown error";
   const lower = message.toLowerCase();

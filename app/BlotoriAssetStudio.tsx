@@ -1,0 +1,557 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { STRUCTURE_DEFINITIONS, STYLE_DEFINITIONS } from "../lib/domain/content-config";
+import { getCategoryBlogDNAPreset, getCategoryBlogDNAPresets } from "../lib/domain/category-blog-dna";
+import {
+  categoryPresetLayoutHistoryKey,
+  loadLayoutHistory,
+  savedStyleLayoutHistoryKey,
+} from "../lib/domain/layout-history";
+import type { BlogDNAApplyOptions, BlogDNAProfile, GenerationContext, ReferenceFileInput, StructureId, StyleId, StyleIntensity } from "../lib/domain/types";
+
+type StyleSourceType = "preset" | "blog" | "post" | "pasted_text" | "manual";
+type StyleProfile = {
+  id: string;
+  name: string;
+  sourceType: StyleSourceType;
+  sourceUrl?: string;
+  signature: string;
+  blogDNA?: BlogDNAProfile;
+  defaultIntensity: StyleIntensity;
+  createdAt: string;
+  updatedAt: string;
+};
+type MaterialRecord = {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  updatedAt: string;
+  blob: Blob;
+};
+type AnalysisEvidence = {
+  rendered: boolean;
+  renderedPageCount: number;
+  screenshotsUsed: number;
+  webSearchSupplement: boolean;
+  limitation?: string;
+};
+
+type PackManifest = {
+  kind: "blotori-pack";
+  version: 1;
+  name: string;
+  exportedAt: string;
+  styles: StyleProfile[];
+  materials: Array<{ id: string; name: string; type: string; size: number; updatedAt: string; dataUrl: string }>;
+};
+
+type Props = {
+  categoryId?: string;
+  styleId: StyleId;
+  styleIntensity: StyleIntensity;
+  customStyle: string;
+  structureId: StructureId;
+  customStructure: string;
+  recommendedStyleIds: StyleId[];
+  recommendedStructureIds: StructureId[];
+  onStyleIdChange: (value: StyleId) => void;
+  onStyleIntensityChange: (value: StyleIntensity) => void;
+  onCustomStyleChange: (value: string) => void;
+  onStructureIdChange: (value: StructureId) => void;
+  onCustomStructureChange: (value: string) => void;
+  onGenerationContextChange: (value: GenerationContext) => void;
+};
+
+const STYLE_KEY = "blotori.style-profiles.v1";
+const SELECTED_STYLE_KEY = "blotori.selected-style.v1";
+const DB_NAME = "blotori-assets-v1";
+const STORE = "materials";
+const MAX_FILE_BYTES = 12 * 1024 * 1024;
+const ACCEPTED = ["application/pdf", "text/plain", "text/markdown", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+const intensityLabel: Record<StyleIntensity, string> = {
+  1: "절제됨",
+  2: "부드러움",
+  3: "자연스러움",
+  4: "적극적",
+  5: "개성 강함",
+};
+const DEFAULT_DNA_APPLY: BlogDNAApplyOptions = {
+  voice: true,
+  mood: true,
+  structure: true,
+  imageRhythm: true,
+  visual: true,
+};
+
+const sourceLabel: Record<StyleSourceType, string> = {
+  preset: "블로토리 프리셋",
+  blog: "블로그 전체",
+  post: "포스팅 1개",
+  pasted_text: "붙여넣은 글",
+  manual: "직접 설정",
+};
+
+function uid(prefix: string) {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+}
+function browserStorage() {
+  try { return window.localStorage; } catch { return null; }
+}
+function loadStyles(): StyleProfile[] {
+  try { return JSON.parse(browserStorage()?.getItem(STYLE_KEY) || "[]") as StyleProfile[]; } catch { return []; }
+}
+function saveStyles(styles: StyleProfile[]) { try { browserStorage()?.setItem(STYLE_KEY, JSON.stringify(styles)); } catch { /* storage is optional */ } }
+function openDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE, { keyPath: "id" });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function listMaterials(): Promise<MaterialRecord[]> {
+  const db = await openDb();
+  return await new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, "readonly");
+    const req = tx.objectStore(STORE).getAll();
+    req.onsuccess = () => resolve((req.result as MaterialRecord[]).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)));
+    req.onerror = () => reject(req.error);
+  });
+}
+async function putMaterial(record: MaterialRecord) {
+  const db = await openDb();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).put(record);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function deleteMaterial(id: string) {
+  const db = await openDb();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+function readAsDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+function dataUrlToBlob(dataUrl: string) {
+  const [meta, base64] = dataUrl.split(",");
+  const mime = /data:([^;]+)/.exec(meta)?.[1] || "application/octet-stream";
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  return new Blob([bytes], { type: mime });
+}
+function formatBytes(size: number) {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
+export default function BlotoriAssetStudio({
+  categoryId,
+  styleId,
+  styleIntensity,
+  customStyle,
+  structureId,
+  customStructure,
+  recommendedStyleIds,
+  recommendedStructureIds,
+  onStyleIdChange,
+  onStyleIntensityChange,
+  onCustomStyleChange,
+  onStructureIdChange,
+  onCustomStructureChange,
+  onGenerationContextChange,
+}: Props) {
+  const [styles, setStyles] = useState<StyleProfile[]>([]);
+  const [materials, setMaterials] = useState<MaterialRecord[]>([]);
+  const [selectedMaterialIds, setSelectedMaterialIds] = useState<string[]>([]);
+  const [packComposerOpen, setPackComposerOpen] = useState(false);
+  const [packStyleIds, setPackStyleIds] = useState<string[]>([]);
+  const [packMaterialIds, setPackMaterialIds] = useState<string[]>([]);
+  const [selectedStyleId, setSelectedStyleId] = useState("");
+  const [selectedCategoryPresetId, setSelectedCategoryPresetId] = useState("");
+  const [sourceType, setSourceType] = useState<StyleSourceType>("post");
+  const [source, setSource] = useState("");
+  const [styleName, setStyleName] = useState("");
+  const [signature, setSignature] = useState("");
+  const [analyzedDNA, setAnalyzedDNA] = useState<BlogDNAProfile | null>(null);
+  const [analysisEvidence, setAnalysisEvidence] = useState<AnalysisEvidence | null>(null);
+  const [blogDNAApply, setBlogDNAApply] = useState<BlogDNAApplyOptions>(DEFAULT_DNA_APPLY);
+  const [builderIntensity, setBuilderIntensity] = useState<StyleIntensity>(3);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [referenceFiles, setReferenceFiles] = useState<ReferenceFileInput[]>([]);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const packInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const loaded = loadStyles();
+    let remembered = "";
+    try { remembered = browserStorage()?.getItem(SELECTED_STYLE_KEY) || ""; } catch { /* storage is optional */ }
+    setStyles(loaded);
+    if (remembered && loaded.some((item) => item.id === remembered)) {
+      setSelectedStyleId(remembered);
+    } else if (remembered) {
+      try { browserStorage()?.removeItem(SELECTED_STYLE_KEY); } catch { /* storage is optional */ }
+    }
+    void listMaterials().then(setMaterials);
+  }, []);
+
+  const selectedStyle = useMemo(() => styles.find((item) => item.id === selectedStyleId), [styles, selectedStyleId]);
+  const categoryPresets = useMemo(() => getCategoryBlogDNAPresets(categoryId), [categoryId]);
+  const selectedCategoryPreset = useMemo(() => {
+    const candidate = getCategoryBlogDNAPreset(selectedCategoryPresetId);
+    return candidate?.categoryId === categoryId ? candidate : undefined;
+  }, [categoryId, selectedCategoryPresetId]);
+  const styleChoice = selectedStyleId
+    ? `saved:${selectedStyleId}`
+    : selectedCategoryPresetId
+      ? `category:${selectedCategoryPresetId}`
+      : `builtin:${styleId}`;
+
+  useEffect(() => {
+    if (selectedCategoryPresetId && !selectedCategoryPreset) setSelectedCategoryPresetId("");
+  }, [selectedCategoryPreset, selectedCategoryPresetId]);
+
+  useEffect(() => {
+    let active = true;
+    const chosen = materials.filter((item) => selectedMaterialIds.includes(item.id));
+    void Promise.all(chosen.map(async (item) => ({
+      id: item.id,
+      name: item.name,
+      mimeType: item.type,
+      size: item.size,
+      dataUrl: await readAsDataUrl(item.blob),
+    }))).then((files) => {
+      if (active) setReferenceFiles(files);
+    }).catch(() => {
+      if (active) {
+        setReferenceFiles([]);
+        setNotice("선택한 참고자료를 생성 요청에 준비하지 못했어요.");
+      }
+    });
+    return () => { active = false; };
+  }, [materials, selectedMaterialIds]);
+
+  useEffect(() => {
+    const overrides: GenerationContext["overrides"] = referenceFiles.length ? { referenceFiles } : {};
+    let layoutHistoryKey: string | undefined;
+    let variationPrefix: string | undefined;
+
+    if (selectedStyle) {
+      overrides.styleId = "custom";
+      overrides.customStyle = `${selectedStyle.signature}\n\n원문 문장을 복제하지 말고 분석된 특성만 적용한다.`;
+      overrides.styleIntensity = styleIntensity;
+      overrides.styleProfileName = selectedStyle.name;
+      if (selectedStyle.blogDNA) {
+        overrides.blogDNA = selectedStyle.blogDNA;
+        overrides.blogDNAApply = blogDNAApply;
+        layoutHistoryKey = savedStyleLayoutHistoryKey(selectedStyle.id);
+        overrides.recentLayoutFingerprints = loadLayoutHistory(browserStorage(), layoutHistoryKey);
+        variationPrefix = "variation";
+      }
+    } else if (selectedCategoryPreset) {
+      overrides.styleId = "custom";
+      overrides.customStyle = `${selectedCategoryPreset.dna.signature}\n\n카테고리 기본 Blog DNA를 고정 템플릿처럼 복사하지 말고 현재 콘텐츠에 맞게 자연스럽게 적용한다.`;
+      overrides.styleIntensity = styleIntensity;
+      overrides.styleProfileName = selectedCategoryPreset.label;
+      overrides.blogDNA = selectedCategoryPreset.dna;
+      overrides.blogDNAApply = blogDNAApply;
+      layoutHistoryKey = categoryPresetLayoutHistoryKey(selectedCategoryPreset.id);
+      overrides.recentLayoutFingerprints = loadLayoutHistory(browserStorage(), layoutHistoryKey);
+      variationPrefix = "category-variation";
+    }
+
+    onGenerationContextChange({ overrides, layoutHistoryKey, variationPrefix });
+  }, [blogDNAApply, onGenerationContextChange, referenceFiles, selectedCategoryPreset, selectedStyle, styleIntensity]);
+
+  async function addFiles(event: ChangeEvent<HTMLInputElement>) {
+    const files = [...(event.target.files ?? [])];
+    for (const file of files) {
+      if (file.size > MAX_FILE_BYTES) { setNotice(`${file.name}: 12MB 이하 파일만 등록할 수 있어요.`); continue; }
+      if (!ACCEPTED.includes(file.type) && !/\.(pdf|txt|md|docx)$/i.test(file.name)) { setNotice(`${file.name}: PDF, DOCX, TXT, MD만 지원해요.`); continue; }
+      const record: MaterialRecord = {
+        id: uid("material"),
+        name: file.name,
+        type: file.type || "application/octet-stream",
+        size: file.size,
+        updatedAt: new Date().toISOString(),
+        blob: file,
+      };
+      await putMaterial(record);
+      setMaterials((current) => [record, ...current]);
+      setSelectedMaterialIds((current) => [...current, record.id]);
+    }
+    event.target.value = "";
+  }
+
+  async function analyzeStyle() {
+    if (!source.trim()) { setNotice("참고할 링크나 글을 입력해 주세요."); return; }
+    setAnalyzing(true);
+    setNotice("");
+    try {
+      const response = await fetch("/api/style/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sourceType, source: source.trim() }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "문체 분석에 실패했습니다.");
+      setSignature(data.signature || "");
+      setAnalyzedDNA(data.blogDNA || null);
+      setAnalysisEvidence(data.analysisEvidence || null);
+      if (!styleName) setStyleName(data.suggestedName || "새 문체");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "문체 분석에 실패했습니다.");
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  function chooseSavedStyle(id: string) {
+    setSelectedStyleId(id);
+    if (!id) {
+      try { browserStorage()?.removeItem(SELECTED_STYLE_KEY); } catch { /* storage is optional */ }
+      return;
+    }
+    try { browserStorage()?.setItem(SELECTED_STYLE_KEY, id); } catch { /* storage is optional */ }
+    const profile = styles.find((item) => item.id === id);
+    if (profile) {
+      onStyleIntensityChange(profile.defaultIntensity);
+      setBlogDNAApply(DEFAULT_DNA_APPLY);
+    }
+  }
+
+  function handleStyleChoice(value: string) {
+    if (value.startsWith("saved:")) {
+      setSelectedCategoryPresetId("");
+      chooseSavedStyle(value.slice(6));
+      onStyleIdChange("auto");
+      onCustomStyleChange("");
+      return;
+    }
+    if (value.startsWith("category:")) {
+      chooseSavedStyle("");
+      setSelectedCategoryPresetId(value.slice(9));
+      setBlogDNAApply(DEFAULT_DNA_APPLY);
+      onStyleIdChange("auto");
+      onCustomStyleChange("");
+      return;
+    }
+    chooseSavedStyle("");
+    setSelectedCategoryPresetId("");
+    onStyleIdChange(value.replace(/^builtin:/, "") as StyleId);
+  }
+
+  function saveStyle() {
+    if (!styleName.trim() || !signature.trim()) { setNotice("문체 이름과 분석 결과가 필요해요."); return; }
+    const now = new Date().toISOString();
+    const profile: StyleProfile = {
+      id: uid("style"),
+      name: styleName.trim(),
+      sourceType,
+      sourceUrl: sourceType === "blog" || sourceType === "post" ? source.trim() : undefined,
+      signature: signature.trim(),
+      blogDNA: analyzedDNA ?? undefined,
+      defaultIntensity: builderIntensity,
+      createdAt: now,
+      updatedAt: now,
+    };
+    const next = [profile, ...styles];
+    saveStyles(next);
+    setStyles(next);
+    chooseSavedStyle(profile.id);
+    setNotice(`'${profile.name}' 블로그 스타일을 저장했어요.`);
+  }
+
+  function removeStyle(id: string) {
+    const next = styles.filter((item) => item.id !== id);
+    saveStyles(next);
+    setStyles(next);
+    if (selectedStyleId === id) chooseSavedStyle("");
+  }
+
+  function openPackComposer() {
+    setPackStyleIds(selectedStyleId ? [selectedStyleId] : selectedCategoryPresetId ? [`category:${selectedCategoryPresetId}`] : []);
+    setPackMaterialIds(selectedMaterialIds.filter(id => materials.some(item => item.id === id)));
+    setPackComposerOpen(true);
+  }
+
+  async function exportPack() {
+    const now = new Date().toISOString();
+    const chosenStyles: StyleProfile[] = [
+      ...styles.filter(item => packStyleIds.includes(item.id)),
+      ...categoryPresets.filter(item => packStyleIds.includes(`category:${item.id}`)).map(item => ({
+        id: `category:${item.id}`, name: item.label, sourceType: "preset" as const,
+        signature: item.dna.signature, blogDNA: item.dna,
+        defaultIntensity: styleIntensity, createdAt: now, updatedAt: now,
+      })),
+    ];
+    const chosenMaterials = materials.filter(item => packMaterialIds.includes(item.id));
+    if (!chosenStyles.length && !chosenMaterials.length) {
+      setNotice("내보낼 문체나 참고자료를 하나 이상 선택해 주세요.");
+      return;
+    }
+    try {
+      const manifest: PackManifest = {
+        kind: "blotori-pack", version: 1, name: "내 블로토리 팩", exportedAt: now,
+        styles: chosenStyles,
+        materials: await Promise.all(chosenMaterials.map(async item => ({
+          id: item.id, name: item.name, type: item.type, size: item.size,
+          updatedAt: item.updatedAt, dataUrl: await readAsDataUrl(item.blob),
+        }))),
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: "application/vnd.blotori+json" });
+      const href = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = href;
+      anchor.download = `blotori-pack-${now.slice(0, 10)}.blotori`;
+      anchor.click();
+      window.setTimeout(() => URL.revokeObjectURL(href), 1000);
+      setPackComposerOpen(false);
+      setNotice(`문체 ${chosenStyles.length}개와 자료 ${chosenMaterials.length}개를 팩으로 내보냈어요.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "팩 내보내기에 실패했어요.");
+    }
+  }
+
+  async function importPack(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      if (file.size > 50 * 1024 * 1024) throw new Error("팩 파일은 50MB 이하만 가져올 수 있어요.");
+      const pack: unknown = JSON.parse(await file.text());
+      if (!pack || typeof pack !== "object") throw new Error("지원하지 않는 블로토리 팩이에요.");
+      const parsed = pack as PackManifest;
+      if (parsed.kind !== "blotori-pack" || parsed.version !== 1 || !Array.isArray(parsed.styles) || !Array.isArray(parsed.materials))
+        throw new Error("지원하지 않는 블로토리 팩이에요.");
+      if (!parsed.styles.length && !parsed.materials.length) throw new Error("빈 팩이에요. 내보내기에서 문체나 자료를 선택해 주세요.");
+      if (parsed.styles.length > 100 || parsed.materials.length > 100) throw new Error("팩에 포함된 항목 수가 너무 많아요.");
+      if (parsed.styles.some(item => !item || typeof item.name !== "string" || !item.name.trim() ||
+        typeof item.signature !== "string" || !item.signature.trim() ||
+        ![1, 2, 3, 4, 5].includes(item.defaultIntensity))) throw new Error("팩의 문체 정보가 올바르지 않아요.");
+      if (parsed.materials.some(item => !item || typeof item.name !== "string" || !item.name.trim() ||
+        typeof item.dataUrl !== "string" || !/^data:[^;]+;base64,/.test(item.dataUrl) ||
+        !Number.isFinite(item.size) || item.size < 1 || item.size > MAX_FILE_BYTES))
+        throw new Error("팩의 참고자료 정보가 올바르지 않아요.");
+      const now = new Date().toISOString();
+      const importedStyles = parsed.styles.map(item => ({
+        ...item, id: uid("style"), updatedAt: now,
+      }));
+      const importedMaterials = parsed.materials.map(item => {
+        const blob = dataUrlToBlob(item.dataUrl);
+        if (blob.size !== item.size || blob.size > MAX_FILE_BYTES) throw new Error(`${item.name}: 파일 크기 검증 실패`);
+        return { id: uid("material"), name: item.name, type: item.type || blob.type,
+          size: blob.size, updatedAt: now, blob };
+      });
+      // Validate the full pack before performing any writes.
+      for (const item of importedMaterials) await putMaterial(item);
+      const nextStyles = [...importedStyles, ...styles];
+      if (importedStyles.length) {
+        const storage = browserStorage();
+        if (!storage) throw new Error("문체를 저장할 브라우저 저장소를 사용할 수 없어요.");
+        storage.setItem(STYLE_KEY, JSON.stringify(nextStyles));
+        setStyles(nextStyles);
+      }
+      setMaterials(await listMaterials());
+      setNotice(`문체 ${importedStyles.length}개와 자료 ${importedMaterials.length}개를 가져왔어요. 사용할 문체를 선택하면 다음 글에 적용돼요.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "팩을 가져오지 못했어요.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  return <>
+    <section className="settingGroup assetStudioGroup referenceMaterialGroup">
+      <div className="settingGroupHeader"><span>3</span><div><div className="settingGroupTitle"><h3>참고자료 · 내 자료함</h3><em>선택</em></div><p>이번 글에서 실제로 참고할 파일을 올리거나, 저장해 둔 자료에서 골라요.</p></div></div>
+      <div className="settingGroupBody assetStudioBody">
+        <input ref={fileInput} className="assetHiddenInput" type="file" multiple accept=".pdf,.docx,.txt,.md" onChange={addFiles} />
+        <button type="button" className="assetDropzone" onClick={() => fileInput.current?.click()}><strong>＋ 파일 올리기</strong><span>PDF · DOCX · TXT · MD · 파일당 12MB 이하</span></button>
+        {materials.length > 0 && <div className="assetList">{materials.map((item) => <label key={item.id} className={`assetRow ${selectedMaterialIds.includes(item.id) ? "selected" : ""}`}><input type="checkbox" checked={selectedMaterialIds.includes(item.id)} onChange={() => setSelectedMaterialIds((current) => current.includes(item.id) ? current.filter((id) => id !== item.id) : [...current, item.id])} /><span><strong>{item.name}</strong><small>{formatBytes(item.size)} · 내 자료함</small></span><button type="button" className="assetMiniButton danger" onClick={(event) => { event.preventDefault(); void deleteMaterial(item.id).then(() => { setMaterials((current) => current.filter((x) => x.id !== item.id)); setSelectedMaterialIds((current) => current.filter((materialId) => materialId !== item.id)); }); }}>삭제</button></label>)}</div>}
+        <p className="assetHint">체크한 자료만 이번 글에 사용해요. 올린 자료는 내 자료함에 남아 다음 글에서도 다시 선택할 수 있어요.</p>
+      </div>
+    </section>
+
+    <section className="settingGroup assetStudioGroup unifiedWritingGroup">
+      <div className="settingGroupHeader"><span>4</span><div><div className="settingGroupTitle"><h3>내 블로그 스타일 · 글 구성</h3></div><p>말투뿐 아니라 분위기·구성·사진 리듬·꾸밈까지 저장하고, 새 글에서는 자연스럽게 변주해요.</p></div></div>
+      <div className="settingGroupBody assetStudioBody">
+        <div className="writingSectionLabel"><span>이번 글에 적용할 스타일</span><small>저장한 Blog DNA 또는 블로토리 기본 문체를 선택해요.</small></div>
+        <label className="field"><span>스타일 선택</span><select value={styleChoice} onChange={(event) => handleStyleChoice(event.target.value)}>
+          <option value="builtin:auto">자동 추천</option>
+          {categoryPresets.length > 0 && <optgroup label="이 카테고리 기본 스타일">{categoryPresets.map((item) => <option key={item.id} value={`category:${item.id}`}>{item.label}</option>)}</optgroup>}
+          {styles.length > 0 && <optgroup label="내 블로그 스타일">{styles.map((item) => <option key={item.id} value={`saved:${item.id}`}>{item.name}</option>)}</optgroup>}
+          <optgroup label="블로토리 기본 문체">
+            {recommendedStyleIds.length > 0 && recommendedStyleIds.map((id) => { const item = STYLE_DEFINITIONS.find((candidate) => candidate.id === id); return item ? <option key={`recommended-${id}`} value={`builtin:${id}`}>★ {item.label}</option> : null; })}
+            {STYLE_DEFINITIONS.filter((item) => !recommendedStyleIds.includes(item.id)).map((item) => <option key={item.id} value={`builtin:${item.id}`}>{item.label}</option>)}
+          </optgroup>
+          <option value="builtin:custom">직접 설정</option>
+        </select></label>
+
+        {selectedCategoryPreset && <div className="selectedStyleCard categoryPresetCard"><div><strong>{selectedCategoryPreset.label}</strong><span>{selectedCategoryPreset.sourceMeta.kind === "blogchart-top10-full-corpus"
+  ? `실측 TOP10 전수분석 · ${selectedCategoryPreset.sourceMeta.blogCount}개 블로그 · ${selectedCategoryPreset.sourceMeta.analyzedPosts.toLocaleString()}개 포스팅`
+  : "출시용 curated 기본 스타일"} · {selectedCategoryPreset.tags.join(" · ")}</span></div><p>{selectedCategoryPreset.description}</p>{selectedCategoryPreset.sourceMeta.kind === "blogchart-top10-full-corpus" && <div className="categoryEvidenceBadge"><b>전수분석 근거</b><span>관측 성공률 {Math.round(selectedCategoryPreset.sourceMeta.successRate * 1000) / 10}%</span>{selectedCategoryPreset.sourceMeta.textCoverageRate != null && <span>텍스트 분석률 {Math.round(selectedCategoryPreset.sourceMeta.textCoverageRate * 1000) / 10}%</span>}{selectedCategoryPreset.sourceMeta.visualCoverageRate != null && <span>비주얼 분석률 {Math.round(selectedCategoryPreset.sourceMeta.visualCoverageRate * 1000) / 10}%</span>}{selectedCategoryPreset.sourceMeta.visualOnlyRate != null && <span>비주얼 전용 {Math.round(selectedCategoryPreset.sourceMeta.visualOnlyRate * 1000) / 10}%</span>}<span>실제 접근 실패 {selectedCategoryPreset.sourceMeta.failedPosts.toLocaleString()}건</span></div>}<div className="dnaApplyPanel"><strong>이번 글에 적용</strong><div className="dnaToggleGrid">{([
+  ["voice", "문체"],
+  ["mood", "분위기"],
+  ["structure", "글 구성"],
+  ["imageRhythm", "사진 배치"],
+  ["visual", "꾸밈"],
+] as const).map(([key, label]) => <label key={key}><input type="checkbox" checked={blogDNAApply[key]} onChange={(event) => setBlogDNAApply((current) => ({ ...current, [key]: event.target.checked }))} /><span>{label}</span></label>)}</div></div></div>}
+        {selectedStyle && <div className="selectedStyleCard"><div><strong>{selectedStyle.name}</strong><span>{sourceLabel[selectedStyle.sourceType]} · 저장 기본 강도 {selectedStyle.defaultIntensity}/5{selectedStyle.blogDNA ? ` · Blog DNA ${selectedStyle.blogDNA.confidence}` : " · 기존 문체 프로필"}</span></div><button type="button" className="assetMiniButton danger" onClick={() => removeStyle(selectedStyle.id)}>삭제</button><p>{selectedStyle.signature}</p>{selectedStyle.blogDNA && <div className="dnaApplyPanel"><strong>이번 글에 적용</strong><div className="dnaToggleGrid">{([
+  ["voice", "문체"],
+  ["mood", "분위기"],
+  ["structure", "글 구성"],
+  ["imageRhythm", "사진 배치"],
+  ["visual", "꾸밈"],
+] as const).map(([key, label]) => <label key={key}><input type="checkbox" checked={blogDNAApply[key]} onChange={(event) => setBlogDNAApply((current) => ({ ...current, [key]: event.target.checked }))} /><span>{label}</span></label>)}</div><small>고정 템플릿 복사가 아니라 콘텐츠와 사진 수에 맞춰 변주합니다.</small></div>}</div>}
+
+        {!selectedStyle && styleId === "custom" && <label className="field"><span>직접 문체</span><input value={customStyle} onChange={(event) => onCustomStyleChange(event.target.value)} placeholder="예: 친절한 해요체, 짧은 문단, 소제목 자주 사용" /></label>}
+
+        <div className="writingSectionLabel writingSectionAdjust"><span>이번 글 세부조정</span><small>저장된 문체는 그대로 두고 현재 원고만 조정합니다.</small></div>
+        <label className="field"><span>문체 강도</span><select value={styleIntensity} onChange={(event) => onStyleIntensityChange(Number(event.target.value) as StyleIntensity)}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {intensityLabel[level]}</option>)}</select><small className="hint">저장 문체를 선택해도 이번 글에서만 강도를 바꿀 수 있어요. 저장된 기본값은 바뀌지 않습니다.</small></label>
+
+        <div className="writingDivider" />
+
+        <label className="field"><span>글 구성</span><select value={structureId} onChange={(event) => onStructureIdChange(event.target.value as StructureId)}>
+          <option value="auto">자동 추천</option>
+          {recommendedStructureIds.length > 0 && <optgroup label="이 주제 추천">{recommendedStructureIds.map((id) => { const item = STRUCTURE_DEFINITIONS.find((candidate) => candidate.id === id); return item ? <option key={`recommended-${id}`} value={id}>★ {item.label}</option> : null; })}</optgroup>}
+          <optgroup label="전체 구성">{STRUCTURE_DEFINITIONS.filter((item) => !recommendedStructureIds.includes(item.id)).map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</optgroup>
+          <option value="custom">직접 설정</option>
+        </select></label>
+        {structureId === "custom" && <label className="field"><span>직접 구성</span><input value={customStructure} onChange={(event) => onCustomStructureChange(event.target.value)} placeholder="예: 문제 제기 → 원인 → 실천 팁 → 요약" /></label>}
+
+        <div className="writingSectionLabel writingSectionCreate"><span>새 블로그 스타일 저장하기</span><small>문체·분위기·구성·사진 리듬·꾸밈을 Blog DNA로 분석해 반복 사용해요.</small></div>
+        <details className="styleBuilder"><summary>＋ 새 블로그 스타일 만들기</summary><div className="styleBuilderBody">
+          <p className="assetBuilderLead">링크나 글에서 말투뿐 아니라 분위기·구성·이미지 리듬·꾸밈과 변주 폭까지 추출합니다. 링크에서 시각 정보를 충분히 확인하지 못하면 해당 항목의 신뢰도를 낮춰 과도하게 적용하지 않습니다.</p>
+          <div className="sourceTabs">{([['blog', '블로그 전체'], ['post', '포스팅 1개'], ['pasted_text', '글 붙여넣기'], ['manual', '직접 설정']] as const).map(([id, label]) => <button key={id} type="button" className={sourceType === id ? "active" : ""} onClick={() => { setSourceType(id); setSource(""); setSignature(""); setAnalyzedDNA(null); setAnalysisEvidence(null); }}>{label}</button>)}</div>
+          <label className="field"><span>{sourceType === "blog" ? "블로그 주소" : sourceType === "post" ? "포스팅 주소" : sourceType === "pasted_text" ? "참고할 글" : "원하는 문체 설명"}</span>{sourceType === "pasted_text" || sourceType === "manual" ? <textarea rows={5} value={source} onChange={(event) => setSource(event.target.value)} placeholder={sourceType === "pasted_text" ? "참고하고 싶은 글 일부를 붙여넣으세요." : "예: 짧은 문단, 부드러운 해요체, 공감 질문으로 시작"} /> : <input value={source} onChange={(event) => setSource(event.target.value)} placeholder="https://..." />}</label>
+          <button type="button" className="ghost assetAnalyze" disabled={analyzing} onClick={analyzeStyle}>{analyzing ? "Blog DNA 분석 중…" : "Blog DNA 분석"}</button>
+          {signature && <>{analyzedDNA && <div className="dnaAnalysisCard"><div><strong>Blog DNA · {analyzedDNA.confidence}</strong><span>{analyzedDNA.evidenceSummary}</span>{analysisEvidence && <div className={`dnaEvidenceRow ${analysisEvidence.rendered ? "rendered" : "fallback"}`}><b>{analysisEvidence.rendered ? "실제 화면 분석" : "검색 기반 fallback"}</b><span>{analysisEvidence.rendered ? `${analysisEvidence.renderedPageCount}페이지 렌더 · 스크린샷 ${analysisEvidence.screenshotsUsed}장` : "렌더링 증거 없음"}</span>{analysisEvidence.webSearchSupplement && <span>웹 검색 보조</span>}{analysisEvidence.limitation && <small>{analysisEvidence.limitation}</small>}</div>}</div><div className="dnaSummaryGrid"><span><b>문체</b>{analyzedDNA.voice.summary}</span><span><b>분위기</b>{analyzedDNA.mood.summary}</span><span><b>구성</b>{analyzedDNA.structure.summary}</span><span><b>사진 리듬</b>{analyzedDNA.imageRhythm.summary}</span><span><b>꾸밈</b>{analyzedDNA.visual.summary}</span><span><b>변주</b>정체성 {Math.round(analyzedDNA.variation.identityFidelity * 100)}% · 구조 자유도 {Math.round(analyzedDNA.variation.structureFreedom * 100)}%</span></div></div>}<label className="field"><span>핵심 스타일 요약</span><textarea rows={6} value={signature} onChange={(event) => setSignature(event.target.value)} /></label><label className="field"><span>스타일 이름</span><input value={styleName} onChange={(event) => setStyleName(event.target.value)} placeholder="예: 따뜻한 사진형 맛집 블로그" /></label><label className="field"><span>저장 기본 강도</span><select value={builderIntensity} onChange={(event) => setBuilderIntensity(Number(event.target.value) as StyleIntensity)}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {intensityLabel[level]}</option>)}</select></label><button type="button" className="secondaryAction assetSaveStyle" onClick={saveStyle}>내 블로그 스타일로 저장</button></>}
+        </div></details>
+      </div>
+    </section>
+
+    <section className="assetUtilityGroup">
+      <div className="assetUtilityCopy"><strong>블로토리 팩</strong><span>블로그 스타일과 선택한 자료를 .blotori 파일 하나로 묶어 다른 사용자에게 전달하거나 다시 가져올 수 있어요.</span></div>
+      <div className="packActions"><input ref={packInput} className="assetHiddenInput" type="file" accept=".blotori,application/json" onChange={importPack} /><button type="button" className="ghost" onClick={() => packInput.current?.click()}>팩 가져오기</button><button type="button" className="ghost" onClick={openPackComposer}>팩 내보내기</button></div>
+    </section>
+
+    {packComposerOpen && <section className="packComposer" aria-label="블로토리 팩 구성" style={{ border: "1px solid var(--border, #cbd5e1)", borderRadius: 12, padding: 16, marginTop: 12, display: "grid", gap: 12, minWidth: 0 }}><strong>팩에 담을 항목 선택</strong><p>선택한 문체와 참고자료만 내보내요.</p><div style={{ display: "grid", gap: 8 }}><strong>문체</strong>{[...categoryPresets.map(item => ({ id: `category:${item.id}`, name: `${item.label} · 카테고리 스타일` })), ...styles.map(item => ({ id: item.id, name: item.name }))].map(item => <label key={item.id} style={{ display: "flex", alignItems: "start", gap: 8, minWidth: 0, overflowWrap: "anywhere" }}><input type="checkbox" checked={packStyleIds.includes(item.id)} onChange={event => setPackStyleIds(current => event.target.checked ? [...current, item.id] : current.filter(id => id !== item.id))}/><span>{item.name}</span></label>)}</div><div style={{ display: "grid", gap: 8 }}><strong>참고자료</strong>{materials.map(item => <label key={item.id} style={{ display: "flex", alignItems: "start", gap: 8, minWidth: 0, overflowWrap: "anywhere" }}><input type="checkbox" checked={packMaterialIds.includes(item.id)} onChange={event => setPackMaterialIds(current => event.target.checked ? [...current, item.id] : current.filter(id => id !== item.id))}/><span>{item.name}</span></label>)}</div><span>선택: 문체 {packStyleIds.length}개 · 자료 {packMaterialIds.length}개</span><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}><button type="button" className="ghost" onClick={() => setPackComposerOpen(false)}>취소</button><button type="button" className="ghost" disabled={!packStyleIds.length && !packMaterialIds.length} onClick={() => void exportPack()}>선택한 항목 저장</button></div></section>}
+
+    {notice && <div className="assetNotice" role="status"><span>{notice}</span><button type="button" onClick={() => setNotice("")}>×</button></div>}
+  </>;
+}

@@ -1,11 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { composeGenerationRequest } from "../lib/application/compose-generation-request";
+import { auditDraftBeforePublish } from "../lib/application/audit-draft-before-publish";
 import { buildPlatformExport } from "../lib/application/platform-exporter";
+import { copyPlatformContent, copyResultMessage, prepareClipboardImages } from "../lib/browser/copy-platform-content";
+import { loadDraftImages } from "../lib/infrastructure/draft-workspace-storage";
+import PlatformExportPreview from "./PlatformExportPreview";
+import DraftImageControl from "./DraftImageControl";
+import { useDraftWorkspace } from "./useDraftWorkspace";
+import { rememberLayoutFingerprint } from "../lib/domain/layout-history";
+import BlotoriAssetStudio from "./BlotoriAssetStudio";
+import ResponsiveInspector, { useWorkspaceLayout } from "./ResponsiveInspector";
 import type {
   BlogDraft,
   BlogSection,
   GenerateRequest,
+  GenerationContext,
   ImagePlan,
   Length,
   PlatformId,
@@ -18,8 +29,6 @@ import {
   CATEGORY_DEFINITIONS,
   FIELD_DEFINITIONS,
   PLATFORM_PROFILES,
-  STRUCTURE_DEFINITIONS,
-  STYLE_DEFINITIONS,
   getCategory,
   getPreset,
 } from "../lib/domain/content-config";
@@ -33,6 +42,8 @@ type ApiHealth = {
   message: string;
   sample?: string;
 };
+type InspectorTab = "images" | "qa";
+type MobilePanel = "settings" | "preview";
 
 const initialForm: ComposerForm = {
   platformId: "",
@@ -52,19 +63,18 @@ const initialForm: ComposerForm = {
 };
 
 const lengthLabel: Record<Length, string> = { short: "짧게", medium: "보통", long: "길게" };
-const styleIntensityLabel: Record<StyleIntensity, string> = {
-  1: "절제됨",
-  2: "부드러움",
-  3: "자연스러움",
-  4: "적극적",
-  5: "개성 강함",
-};
 const loadingStages = [
   "주제와 플랫폼 조건을 정리하고 있어요.",
   "제목·본문 구성과 문체를 맞추고 있어요.",
   "강조 포인트와 이미지 위치를 정리하고 있어요.",
   "최종 미리보기를 정돈하고 있어요.",
 ];
+
+const emptyGenerationContext: GenerationContext = { overrides: {} };
+
+function browserStorage() {
+  try { return window.localStorage; } catch { return null; }
+}
 
 function emphasizedText(text: string, emphasis: TextEmphasis[] = []) {
   const valid = emphasis
@@ -87,19 +97,46 @@ function emphasizedText(text: string, emphasis: TextEmphasis[] = []) {
 
 export default function Home() {
   const [form, setForm] = useState<ComposerForm>(initialForm);
-  const [draft, setDraft] = useState<BlogDraft | null>(null);
+  const { draft, setDraft, draftId, restoredPlatform, ready: storageReady, status: storageStatus, message: storageMessage, startDraft } = useDraftWorkspace(form.platformId);
+  useEffect(() => { if (restoredPlatform) { setForm((current) => ({ ...current, platformId: current.platformId || restoredPlatform })); setMobilePanel("preview"); } }, [restoredPlatform]);
   const [loading, setLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
   const [successVisible, setSuccessVisible] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<"mock" | "api" | null>(null);
   const [copied, setCopied] = useState("");
+  const [copyFeedback, setCopyFeedback] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [guideOpen, setGuideOpen] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [apiHealth, setApiHealth] = useState<ApiHealth | null>(null);
   const [healthLoading, setHealthLoading] = useState(false);
+  const [inspectorTab, setInspectorTab] = useState<InspectorTab>("images");
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>("settings");
+  const [generationContext, setGenerationContext] = useState<GenerationContext>(emptyGenerationContext);
   const previewScrollRef = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  const { compact, single } = useWorkspaceLayout(workspaceRef, settingsOpen);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  useEffect(() => { if (!compact) setReviewOpen(false); }, [compact]);
+
+  function locateImage(id: string) {
+    setReviewOpen(false);
+    setMobilePanel("preview");
+    requestAnimationFrame(() => {
+      const slot = previewScrollRef.current?.querySelector<HTMLElement>(`[data-image-id="${CSS.escape(id)}"]`);
+      slot?.scrollIntoView({ block: "center", behavior: "instant" });
+      slot?.focus({ preventScroll: true });
+    });
+  }
+
+  function handleInspectorKeys(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const tab = event.key === "Home" ? "images" : event.key === "End" ? "qa" : inspectorTab === "images" ? "qa" : "images";
+    setInspectorTab(tab);
+    document.getElementById(`inspector-tab-${tab}`)?.focus();
+  }
 
   useEffect(() => { void loadApiHealth(false); }, []);
   useEffect(() => {
@@ -126,11 +163,26 @@ export default function Home() {
     return map;
   }, [draft]);
 
-  const hasTopic = Boolean(form.presetId || form.freeTopic?.trim());
-  const canGenerate = Boolean(form.platformId) && (form.platformId !== "other" || Boolean(form.otherPlatform?.trim())) && hasTopic;
-  const platformClass = form.platformId ? `platform-${form.platformId}` : "platform-generic";
+  const platformExport = useMemo(() => draft && form.platformId ? buildPlatformExport(draft, form.platformId) : null, [draft, form.platformId]);
 
-  function patch(next: Partial<ComposerForm>) { setForm((prev) => ({ ...prev, ...next })); }
+  const hasTopic = Boolean(form.presetId || form.freeTopic?.trim());
+  const canGenerate = storageReady && Boolean(form.platformId) && (form.platformId !== "other" || Boolean(form.otherPlatform?.trim())) && hasTopic;
+  const platformClass = form.platformId ? `platform-${form.platformId}` : "platform-generic";
+  const connectionLabel = healthLoading
+    ? "연결 확인 중"
+    : !apiHealth
+      ? "연결 상태 확인 전"
+      : apiHealth.verified && apiHealth.ok
+        ? "API 연결 확인됨"
+        : apiHealth.keyDetected
+          ? "API 키 감지됨"
+          : "API 설정 필요";
+  const connectionTone = healthLoading ? "checking" : apiHealth?.ok ? "ok" : "bad";
+
+  function patch(next: Partial<ComposerForm>) {
+    setForm((prev) => ({ ...prev, ...next }));
+    if (error) setError("");
+  }
   function setAttribute(id: string, value: string) { setForm((prev) => ({ ...prev, attributes: { ...prev.attributes, [id]: value } })); }
 
   async function loadApiHealth(verify: boolean) {
@@ -150,45 +202,64 @@ export default function Home() {
 
     setLoading(true); setLoadingStage(0); setSuccessVisible(false); setError("");
     try {
-      const payload: GenerateRequest = { ...form, platformId: form.platformId };
+      const base: GenerateRequest = { ...form, platformId: form.platformId };
+      const variationNonce = generationContext.variationPrefix
+        ? `${generationContext.variationPrefix}-${typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`}`
+        : undefined;
+      const payload = composeGenerationRequest(base, generationContext, variationNonce);
       const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "생성 실패");
-      setDraft(data.draft); setMode(data.mode); setEditMode(false); setSuccessVisible(true);
+      const data = await res.json().catch(() => ({ error: "서버 응답을 읽지 못했습니다." }));
+      if (!res.ok) throw new Error(data.error || (res.status === 503 ? "API 연결 설정을 확인해 주세요." : "생성 요청에 실패했습니다."));
+      startDraft(data.draft); setMode(data.mode); setEditMode(false); setSuccessVisible(true); setMobilePanel("preview");
+      if (generationContext.layoutHistoryKey) {
+        rememberLayoutFingerprint(browserStorage(), generationContext.layoutHistoryKey, data?.draft?.layoutFingerprint);
+      }
       requestAnimationFrame(() => previewScrollRef.current?.scrollTo({ top: 0 }));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "오류가 발생했습니다.");
+      setError(e instanceof TypeError ? "생성 서버에 연결하지 못했습니다. 네트워크와 개발 서버 상태를 확인한 뒤 다시 시도해 주세요." : e instanceof Error ? e.message : "오류가 발생했습니다.");
       void loadApiHealth(false);
     } finally { setLoading(false); }
   }
 
   async function copyText(text: string, key: string) {
-    await navigator.clipboard.writeText(text);
-    setCopied(key); window.setTimeout(() => setCopied(""), 1200);
+    const result = await copyPlatformContent({ plainText: text }, "plain");
+    if (result.status === "copied") {
+      setCopied(key); window.setTimeout(() => setCopied(""), 1200);
+    } else setCopied("");
+    setCopyFeedback(copyResultMessage(result));
   }
 
-  async function copyPlatformDraft() {
-    if (!draft || !form.platformId) return;
-    const exported = buildPlatformExport(draft, form.platformId);
-    try {
-      if (exported.clipboardMode === "rich" && exported.html && "ClipboardItem" in window) {
-        const item = new ClipboardItem({
-          "text/plain": new Blob([exported.plainText], { type: "text/plain" }),
-          "text/html": new Blob([exported.html], { type: "text/html" }),
-        });
-        await navigator.clipboard.write([item]);
-      } else {
-        await navigator.clipboard.writeText(exported.plainText);
+  async function copyPlatformDraft(mode: "rich" | "plain") {
+    if (!platformExport) return;
+    const platformId = form.platformId;
+    const prepareRich = mode === "rich" && draft && platformId
+      ? async () => {
+        if (!draftId) throw new Error("Draft image storage is not ready");
+        const assets = await loadDraftImages(draftId);
+        const prepared = await prepareClipboardImages(draft.images, assets);
+        const exported = buildPlatformExport(draft, platformId, prepared.embeddedImages);
+        if (!exported.html) throw new Error("Rich export unavailable");
+        return { html: exported.html, images: prepared.report };
       }
-      setCopied("platform"); window.setTimeout(() => setCopied(""), 1200);
-    } catch {
-      await copyText(exported.plainText, "platform");
-    }
+      : undefined;
+    const result = await copyPlatformContent(platformExport, mode, undefined, prepareRich);
+    setCopyFeedback(copyResultMessage(result, platformId || undefined));
+    if (result.status === "copied") {
+      const completeRich = result.format === "rich" && (!result.images || result.images.omitted.length === 0);
+      const key = result.format === "plain" ? "platform-plain" : completeRich ? "platform-rich" : "";
+      setCopied(key);
+      if (key) window.setTimeout(() => setCopied(""), 1200);
+    } else setCopied("");
   }
 
   async function copyTags() {
     if (!draft || !form.platformId) return;
     await copyText(buildPlatformExport(draft, form.platformId).tagsText, "tags");
+  }
+
+  async function copyImageGuide() {
+    if (!platformExport) return;
+    await copyText(platformExport.imageGuideText, "image-guide");
   }
 
   function updateDraft<K extends keyof BlogDraft>(key: K, value: BlogDraft[K]) {
@@ -211,81 +282,178 @@ export default function Home() {
     el.scrollTo({ top: where === "top" ? 0 : el.scrollHeight, behavior: "smooth" });
   }
 
+  function focusSettings(selector: string) {
+    setSettingsOpen(true);
+    setMobilePanel("settings");
+    window.setTimeout(() => {
+      document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+  }
+
   return (
-    <main className="shell appShell" aria-busy={loading}>
-      <header className="topbar blotoriTopbar">
-        <div className="brandIntro">
-          <img className="blotoriMascotTop" src="/blotori-canonical-mini.webp" alt="블로토리" />
-          <div><div className="eyebrow">MULTI-PLATFORM BLOG COMPOSER</div><h1>플랫폼과 주제에 맞춰 블로그를 구성하세요.</h1><p>목적·문체·제목·본문·시각 강조·이미지 위치까지 한 번에 설계합니다.</p></div>
+    <main className={`shell appShell workspaceV2 mobile-${mobilePanel} ${single ? "workspaceSingle" : ""}`} data-review-layout={compact ? "compact" : "wide"} aria-busy={loading}>
+      <header className="topbar blotoriTopbar workspaceHeader">
+        <div className="brandIntro compactBrand">
+          <div className="blotoriBrandMark" aria-label="BLOTORI"><img src="/blotori-feather-mark.png" alt="" /><span>BLOTORI</span></div>
+          <div className="brandCopy">
+            <div className="eyebrow">BLOTORI · BLOG STUDIO</div>
+            <h1><span className="brandPhrase">글과 이미지를 엮어,</span>{" "}<span className="brandPhrase">이야기를 완성해요.</span></h1>
+            <p><span className="brandPhrase">자료를 넣고 문체를 고르면,</span>{" "}<span className="brandPhrase">게시할 수 있는 블로그 초안과 이미지 가이드까지</span>{" "}<span className="brandPhrase">한 흐름으로 완성해요.</span></p>
+          </div>
         </div>
-        <div className="topActions">
-          <div className={`apiStatus ${apiHealth?.ok ? "ok" : "bad"}`} title={apiHealth?.message ?? "API 상태 확인 중"}><span className="apiDot" /><span>{apiHealth ? (apiHealth.keyDetected ? "API 키 감지" : "API 키 미감지") : "API 확인 중"}</span>{apiHealth?.model && <small>{apiHealth.model}</small>}</div>
-          <button className="ghost" onClick={() => void loadApiHealth(true)} disabled={healthLoading}>{healthLoading ? "확인 중…" : "연결 테스트"}</button>
-          <button className="ghost" onClick={() => setSettingsOpen((v) => !v)}>{settingsOpen ? "설정 접기" : "설정 열기"}</button>
-          <button className="ghost" onClick={() => setGuideOpen((v) => !v)}>{guideOpen ? "가이드 접기" : "가이드 열기"}</button>
-          <div className="costBadge"><span>AI 기본 호출</span><strong>1회 / 글</strong></div>
+        <div className="topActions workspaceTopActions">
+          {platformProfile && <span className="platformChip">{platformProfile.label}</span>}
+          <button className="ghost iconGhost" onClick={() => setSettingsOpen((v) => !v)} aria-label="작성 설정 열기 또는 접기">{settingsOpen ? "설정 숨기기" : "설정 열기"}</button>
+          <button className="ghost reviewLauncher" onClick={() => compact ? setReviewOpen(true) : setGuideOpen((v) => !v)} aria-label={compact ? "이미지·검수 열기" : "이미지·검수 패널 열기 또는 접기"} aria-haspopup={compact ? "dialog" : undefined} aria-controls="image-review-panel" aria-expanded={compact ? reviewOpen : guideOpen}>{compact ? "이미지·검수" : guideOpen ? "검수 숨기기" : "검수 열기"}</button>
+          <details className="devStatusMenu">
+            <summary aria-label={`연결 상태: ${connectionLabel}`}><span className={`connectionSummary ${connectionTone}`}><i />{connectionLabel}</span></summary>
+            <div className="devStatusPopover">
+              <strong className="diagnosticTitle">연결 상세 진단</strong>
+              <div className={`apiStatus ${apiHealth?.ok ? "ok" : "bad"}`} title={apiHealth?.message ?? "API 상태 확인 중"}><span className="apiDot" /><span>{apiHealth ? (apiHealth.keyDetected ? "API 키 감지" : "API 키 미감지") : "API 확인 중"}</span>{apiHealth?.model && <small>{apiHealth.model}</small>}</div>
+              <p className="apiStatusMessage">{apiHealth?.message ?? "서버 설정을 확인하고 있습니다."}</p>
+              <button className="ghost" onClick={() => void loadApiHealth(true)} disabled={healthLoading}>{healthLoading ? "확인 중…" : "연결 테스트"}</button>
+              <div className="costBadge"><span>AI 기본 호출</span><strong>1회 / 글</strong></div>
+            </div>
+          </details>
         </div>
       </header>
 
-      <div className={`workspace workspaceApp ${settingsOpen ? "" : "settingsClosed"}`}>
-        {settingsOpen && <aside className="panel controls scrollPanel">
-          <div className="panelHeader"><div><span className="step">01</span><h2>콘텐츠 설정</h2></div><span className="subtle">플랫폼 + 주제 필수</span></div>
-          <Field label="게시 플랫폼 *"><select value={form.platformId} onChange={(e) => patch({ platformId: e.target.value as PlatformId | "", otherPlatform: "" })}><option value="">플랫폼 선택</option>{PLATFORM_PROFILES.map((platform) => <option key={platform.id} value={platform.id}>{platform.label}</option>)}</select></Field>
-          {platformProfile && <p className="hint platformHint">{platformProfile.description} · {platformProfile.exportHint}</p>}
-          {form.platformId === "other" && <Field label="기타 플랫폼명 *"><input value={form.otherPlatform ?? ""} onChange={(e) => patch({ otherPlatform: e.target.value })} placeholder="예: 회사 자체 블로그" /></Field>}
-          <Field label="상위 카테고리"><select value={form.categoryId ?? ""} onChange={(e) => patch({ categoryId: e.target.value, presetId: "", attributes: {} })}><option value="">선택 안 함</option>{CATEGORY_DEFINITIONS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></Field>
-          {category?.presets.length ? <Field label="추천 주제"><select value={form.presetId ?? ""} onChange={(e) => patch({ presetId: e.target.value })}><option value="">직접 주제 입력</option>{category.presets.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></Field> : null}
-          <Field label="자유 주제·추가 설명"><textarea value={form.freeTopic ?? ""} onChange={(e) => patch({ freeTopic: e.target.value })} rows={3} placeholder="주제를 문장이나 단어로 자유롭게 입력" /></Field>
-          {visibleFieldIds.length > 0 && <div className="panelHeader miniHeader"><div><span className="step">+</span><h2>주제별 추가 조건</h2></div><span className="subtle">선택사항</span></div>}
-          {visibleFieldIds.map((fieldId) => {
-            const field = FIELD_DEFINITIONS[fieldId]; if (!field) return null;
-            return <Field key={fieldId} label={field.label}>{field.type === "select" ? <select value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)}><option value="">지정 안 함</option>{field.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select> : <input value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)} placeholder={field.placeholder} />}</Field>;
-          })}
-          <Field label="기타 조건·요청"><textarea value={form.extraConditions ?? ""} onChange={(e) => patch({ extraConditions: e.target.value })} rows={3} placeholder="꼭 넣을 내용, 제외할 표현, 별도 요청" /></Field>
-          <Field label="글 구성"><select value={form.structureId} onChange={(e) => patch({ structureId: e.target.value as StructureId })}><option value="auto">자동 추천</option>{recommendedStructures.length > 0 && <optgroup label="이 주제 추천">{recommendedStructures.map((id) => { const item = STRUCTURE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 구성">{STRUCTURE_DEFINITIONS.filter((x) => !recommendedStructures.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>
-          {form.structureId === "custom" && <Field label="직접 구성"><input value={form.customStructure ?? ""} onChange={(e) => patch({ customStructure: e.target.value })} /></Field>}
-          <Field label="문체"><select value={form.styleId} onChange={(e) => patch({ styleId: e.target.value as StyleId })}><option value="auto">자동 추천</option>{recommendedStyles.length > 0 && <optgroup label="이 주제 추천">{recommendedStyles.map((id) => { const item = STYLE_DEFINITIONS.find((x) => x.id === id); return item ? <option key={id} value={id}>★ {item.label}</option> : null; })}</optgroup>}<optgroup label="전체 문체">{STYLE_DEFINITIONS.filter((x) => !recommendedStyles.includes(x.id)).map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</optgroup><option value="custom">직접 설정</option></select></Field>
-          {form.styleId === "custom" && <Field label="직접 문체"><input value={form.customStyle ?? ""} onChange={(e) => patch({ customStyle: e.target.value })} /></Field>}
-          <Field label="문체 강도"><select value={form.styleIntensity ?? 3} onChange={(e) => patch({ styleIntensity: Number(e.target.value) as StyleIntensity })}>{([1, 2, 3, 4, 5] as StyleIntensity[]).map((level) => <option key={level} value={level}>{level} · {styleIntensityLabel[level]}</option>)}</select><small className="hint">선택한 문체의 특징을 얼마나 선명하게 드러낼지 조절합니다. 기본값은 3이에요.</small></Field>
-          <div className="splitRow"><Field label="글 길이"><select value={form.length} onChange={(e) => patch({ length: e.target.value as Length })}>{(Object.keys(lengthLabel) as Length[]).map((key) => <option key={key} value={key}>{lengthLabel[key]}</option>)}</select></Field><Field label="이미지 수"><select value={form.imageCount} onChange={(e) => patch({ imageCount: Number(e.target.value) })}>{[2,3,4,5].map((n) => <option key={n} value={n}>{n}장</option>)}</select></Field></div>
-          <div className="controlsActionDock">{error && <div className="errorBox stickyError">{error}</div>}{!apiHealth?.keyDetected && apiHealth && <div className="apiWarning">{apiHealth.message}</div>}<button className="primary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "구성 중…" : "✦ 블로그 콘텐츠 생성"}</button></div>
+      <nav className="mobileWorkspaceTabs" aria-label="모바일 작업 단계">
+        <button className={mobilePanel === "settings" ? "active" : ""} onClick={() => setMobilePanel("settings")}>입력 · 문체</button>
+        <button className={mobilePanel === "preview" ? "active" : ""} onClick={() => setMobilePanel("preview")}>초안</button>
+        <button className="mobileReviewLauncher" onClick={() => setReviewOpen(true)} aria-haspopup="dialog" aria-controls="image-review-panel" aria-expanded={reviewOpen}>이미지·검수</button>
+      </nav>
+
+      <div ref={workspaceRef} className={`workspace workspaceApp workspaceGridV2 ${settingsOpen || single ? "" : "settingsClosed"} ${guideOpen && !compact ? "" : "guideClosed"}`}>
+        {(settingsOpen || single) && <aside className="panel controls scrollPanel settingsRail" data-mobile-panel="settings">
+          <div className="railHeading">
+            <div><span className="step">01</span><div><h2>입력 · 문체</h2><p>플랫폼과 주제를 정하고, 참고자료와 문체를 선택해요.</p></div></div>
+            <span className="subtle">필수 2개 · 나머지 선택</span>
+          </div>
+
+          <SettingGroup index="1" title="게시 플랫폼" description="게시할 공간에 맞춰 글 구조와 복사 형식을 준비해요.">
+            <Field label="게시 플랫폼 *"><select value={form.platformId} onChange={(e) => patch({ platformId: e.target.value as PlatformId | "", otherPlatform: "" })}><option value="">플랫폼 선택</option>{PLATFORM_PROFILES.map((platform) => <option key={platform.id} value={platform.id}>{platform.label}</option>)}</select></Field>
+            {platformProfile && <p className="hint platformHint">{platformProfile.description} · {platformProfile.exportHint}</p>}
+            {form.platformId === "other" && <Field label="기타 플랫폼명 *"><input value={form.otherPlatform ?? ""} onChange={(e) => patch({ otherPlatform: e.target.value })} placeholder="예: 회사 자체 블로그" /></Field>}
+          </SettingGroup>
+
+          <SettingGroup index="2" title="글 주제" description="추천 주제를 고르거나 직접 쓸 내용을 입력해요.">
+            <Field label="상위 카테고리"><select value={form.categoryId ?? ""} onChange={(e) => patch({ categoryId: e.target.value, presetId: "", attributes: {} })}><option value="">선택 안 함</option>{CATEGORY_DEFINITIONS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></Field>
+            {category?.presets.length ? <Field label="추천 주제"><select value={form.presetId ?? ""} onChange={(e) => patch({ presetId: e.target.value })}><option value="">직접 주제 입력</option>{category.presets.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></Field> : null}
+            <Field label="자유 주제·추가 설명"><textarea value={form.freeTopic ?? ""} onChange={(e) => patch({ freeTopic: e.target.value })} rows={3} placeholder="주제를 문장이나 단어로 자유롭게 입력" /></Field>
+          </SettingGroup>
+
+          <BlotoriAssetStudio
+            categoryId={form.categoryId}
+            styleId={form.styleId}
+            styleIntensity={form.styleIntensity ?? 3}
+            customStyle={form.customStyle ?? ""}
+            structureId={form.structureId}
+            customStructure={form.customStructure ?? ""}
+            recommendedStyleIds={recommendedStyles}
+            recommendedStructureIds={recommendedStructures}
+            onStyleIdChange={(styleId) => patch({ styleId })}
+            onStyleIntensityChange={(styleIntensity) => patch({ styleIntensity })}
+            onCustomStyleChange={(customStyle) => patch({ customStyle })}
+            onStructureIdChange={(structureId) => patch({ structureId })}
+            onCustomStructureChange={(customStructure) => patch({ customStructure })}
+            onGenerationContextChange={setGenerationContext}
+          />
+
+          {visibleFieldIds.length > 0 && <SettingGroup index="5" title="주제별 추가 조건" description="선택한 주제에 필요한 조건만 보여줘요." optional>
+            {visibleFieldIds.map((fieldId) => {
+              const field = FIELD_DEFINITIONS[fieldId]; if (!field) return null;
+              return <Field key={fieldId} label={field.label}>{field.type === "select" ? <select value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)}><option value="">지정 안 함</option>{field.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select> : <input value={form.attributes[fieldId] ?? ""} onChange={(e) => setAttribute(fieldId, e.target.value)} placeholder={field.placeholder} />}</Field>;
+            })}
+          </SettingGroup>}
+
+          <SettingGroup index="6" title="최종 옵션" description="글 길이·이미지 수와 꼭 반영할 요청만 마지막으로 확인해요.">
+            <div className="splitRow"><Field label="글 길이"><select value={form.length} onChange={(e) => patch({ length: e.target.value as Length })}>{(Object.keys(lengthLabel) as Length[]).map((key) => <option key={key} value={key}>{lengthLabel[key]}</option>)}</select></Field><Field label="이미지 수"><select value={form.imageCount} onChange={(e) => patch({ imageCount: Number(e.target.value) })}>{[2,3,4,5].map((n) => <option key={n} value={n}>{n}장</option>)}</select></Field></div>
+            <Field label="기타 조건·요청"><textarea value={form.extraConditions ?? ""} onChange={(e) => patch({ extraConditions: e.target.value })} rows={3} placeholder="꼭 넣을 내용, 제외할 표현, 별도 요청" /></Field>
+          </SettingGroup>
+
+          <div className="controlsActionDock stickyGenerateDock">{error && <div className="errorBox stickyError" role="alert">{error}</div>}{!apiHealth?.keyDetected && apiHealth && <div className="apiWarning">{apiHealth.message}</div>}{!canGenerate && <div className="inputRequirement">플랫폼과 추천 주제 또는 자유 주제를 입력하면 생성할 수 있어요.</div>}<button className="primary generatePrimary" onClick={generate} disabled={loading || !canGenerate}>{loading ? "블로토리가 초안을 만드는 중…" : "✦ 블로그 초안 만들기"}</button><small>입력한 자료·문체·옵션을 반영해 하나의 초안으로 정리해요.</small></div>
         </aside>}
 
-        <section className="panel previewPanel appPreviewPanel">
-          <div className="panelHeader previewHeader">
-            <div><span className="step">02</span><h2>{platformProfile ? `${platformProfile.label} 미리보기` : "플랫폼 미리보기"}</h2></div>
+        <section className="panel previewPanel appPreviewPanel previewStage" data-mobile-panel="preview">
+          <div className="panelHeader previewHeader workspacePreviewHeader">
+            <div><span className="step">02</span><div><h2>{platformProfile ? `${platformProfile.label} 초안 미리보기` : "초안 미리보기"}</h2><p>{platformProfile ? `${platformProfile.label}에 옮기기 전 실제 글 흐름을 확인해요.` : "플랫폼을 선택하면 해당 형식에 맞춰 보여드려요."}</p></div></div>
             <div className="headerActions">
-              {mode && <span className={`mode ${mode}`}>{mode === "api" ? "API 생성" : "샘플 모드"}</span>}
-              <button className={`ghost ${editMode ? "active" : ""}`} disabled={!draft} onClick={() => setEditMode((v) => !v)}>{editMode ? "미리보기 모드" : "편집 모드"}</button>
-              <button className="ghost" disabled={!draft || !form.platformId} onClick={copyPlatformDraft}>{copied === "platform" ? "본문 복사됨 ✓" : `${platformProfile?.label ?? "플랫폼"}용 본문 복사`}</button>
-              <button className="ghost" disabled={!draft} onClick={copyTags}>{copied === "tags" ? "태그 복사됨 ✓" : "태그 복사"}</button>
+              {mode && <span className={`mode ${mode}`}>{mode === "api" ? "AI 생성" : "샘플"}</span>}
+              <div className="segmentedMode"><button className={!editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(false)}>미리보기</button><button className={editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(true)}>직접 편집</button></div>
             </div>
           </div>
 
-          {!draft ? <div className="emptyState blotoriEmptyState"><img className="blotoriMascotEmpty" src="/blotori-canonical-mini.webp" alt="블로토리" /><div><h3>플랫폼과 주제를 선택해 주세요.</h3><p>설정이 끝나면 왼쪽 아래의 생성 버튼으로 실제 원고를 만들 수 있어요.</p><p className="emptyApiHint">{apiHealth?.keyDetected ? `API 키 감지됨 · ${apiHealth.model}` : "API 연결 상태를 확인 중입니다."}</p></div></div> :
-          <div className={`previewLayout appPreviewLayout ${guideOpen ? "" : "guideClosed"}`}>
+          <p className="draftStorageStatus" data-state={storageStatus} role="status" aria-live="polite">{storageMessage}</p>
+          {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><div className="emptyMascotStage"><span className="emptyGlow" /><img className="blotoriMascotEmpty" src="/blotori-character-master.png" alt="블로토리" /></div><div className="emptyCopy"><span className="emptyEyebrow">READY TO COMPOSE</span><h3>자료와 문체를 정하고, 초안을 바로 시작하세요</h3><p>주제와 참고자료를 고르면 블로토리가 플랫폼에 맞는 게시 초안을 구성해드려요.</p><div className="emptyQuickActions"><button type="button" className="secondaryAction" onClick={() => focusSettings('.referenceMaterialGroup')}>참고자료 등록</button><button type="button" className="ghost" onClick={() => focusSettings('.styleBuilder')}>내 문체 만들기</button></div><div className="emptyFeatureRow"><span>플랫폼 맞춤</span><span>참고자료 반영</span><span>이미지·검수</span></div></div></div> :
+          <div className="previewLayout appPreviewLayout previewOnlyLayout">
             <div className="blogScroller" ref={previewScrollRef}>
               <article className={`blogPaper ${platformClass} density-${draft.presentation?.density ?? "balanced"}`}>
+                {draft.titleCandidates?.length ? <div className="titleCandidatePanel"><div><strong>추천 제목</strong>{draft.titlePurpose && <span>{draft.titlePurpose}</span>}</div><div className="titleCandidateList">{draft.titleCandidates.slice(0,3).map((candidate, index) => <button key={`${candidate}-${index}`} className={candidate === draft.title ? "selected" : ""} onClick={() => updateDraft("title", candidate)}><b>{index + 1}</b><span>{candidate}</span><em>{candidate === draft.title ? "적용됨" : "적용"}</em></button>)}</div></div> : null}
                 {editMode ? <input className="titleEdit" value={draft.title} onChange={(e) => updateDraft("title", e.target.value)} /> : <h1 className={`previewTitle align-${draft.presentation?.titleAlign ?? "left"}`}>{draft.title}</h1>}
-                {draft.titleCandidates?.length ? <div className="titleCandidatePanel"><div><strong>제목 후보</strong>{draft.titlePurpose && <span>{draft.titlePurpose}</span>}</div><div className="titleCandidateList">{draft.titleCandidates.slice(0,3).map((candidate, index) => <button key={`${candidate}-${index}`} className={candidate === draft.title ? "selected" : ""} onClick={() => updateDraft("title", candidate)}><b>{index + 1}</b><span>{candidate}</span></button>)}</div></div> : null}
                 {editMode ? <textarea className="summaryEdit" value={draft.summary} onChange={(e) => updateDraft("summary", e.target.value)} rows={3} /> : <p className="summary">{draft.summary}</p>}
-                {(imageMap.get(null) ?? []).map((image) => <ImageSlot key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}
+                {(imageMap.get(null) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}
                 <div className={`introBlock align-${draft.presentation?.introAlign ?? "left"}`}>{draft.intro.map((p, i) => editMode ? <textarea key={i} className="paragraphEdit" value={p} onChange={(e) => updateArrayItem("intro", i, e.target.value)} rows={Math.max(3, Math.ceil(p.length/38))} /> : <p key={i}>{p}</p>)}</div>
-                {draft.sections.map((section) => <SectionPreview key={section.id} section={section} editMode={editMode} updateSection={updateSection} updateParagraph={updateParagraph}>{(imageMap.get(section.id) ?? []).map((image) => <ImageSlot key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</SectionPreview>)}
+                {draft.sections.filter((section) => section.presentation?.visualStyle !== "glossary").map((section) => <SectionPreview key={section.id} section={section} editMode={editMode} updateSection={updateSection} updateParagraph={updateParagraph}>{(imageMap.get(section.id) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</SectionPreview>)}
                 <div className="closingBlock">{draft.closing.map((p, i) => editMode ? <textarea key={i} className="paragraphEdit" value={p} onChange={(e) => updateArrayItem("closing", i, e.target.value)} rows={Math.max(3, Math.ceil(p.length/38))} /> : <p key={i}>{p}</p>)}</div>
+                {draft.sections.filter((section) => section.presentation?.visualStyle === "glossary").map((section) => <SectionPreview key={section.id} section={section} editMode={editMode} updateSection={updateSection} updateParagraph={updateParagraph}>{(imageMap.get(section.id) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</SectionPreview>)}
                 <div className={`tags ${editMode ? "tagsEditing" : ""}`}>{draft.tags.map((tag, i) => editMode ? <input key={i} value={tag} onChange={(e) => updateArrayItem("tags", i, e.target.value)} aria-label={`태그 ${i+1}`} /> : <span key={`${tag}-${i}`}>#{tag.replace(/^#/, "")}</span>)}</div>
               </article>
             </div>
-            {guideOpen && <aside className="guideRail scrollPanel"><div className="guideTitle"><strong>이미지 제작 가이드</strong><span>{draft.images.length}개</span></div>{draft.images.map((image) => <PromptCard key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</aside>}
           </div>}
+
+          {platformExport && <>
+            <div className="previewActionBar"><button className="ghost" onClick={() => scrollPreview("top")}>↑ TOP</button><div>
+              {platformExport.html && <button className="secondaryAction" data-copy-platform onClick={() => void copyPlatformDraft("rich")}>{copied === "platform-rich" ? "서식·이미지 복사됨 ✓" : "서식 포함 복사 (이미지)"}</button>}
+              <button className="ghost" data-copy-plain onClick={() => void copyPlatformDraft("plain")}>{copied === "platform-plain" ? "텍스트 복사됨 ✓" : "텍스트만 복사"}</button>
+              <button className="ghost" data-copy-image-guide onClick={copyImageGuide}>{copied === "image-guide" ? "가이드 복사됨 ✓" : "이미지 가이드 복사"}</button>
+              <button className="ghost" data-copy-tags onClick={copyTags}>{copied === "tags" ? "태그 복사됨 ✓" : "태그 복사"}</button>
+            </div><button className="ghost" onClick={() => scrollPreview("bottom")}>↓ END</button></div>
+            <PlatformExportPreview exported={platformExport} feedback={copyFeedback} />
+          </>}
         </section>
+
+        <ResponsiveInspector compact={compact} open={compact ? reviewOpen : guideOpen} onDismiss={() => setReviewOpen(false)} tabs={
+          <div className="inspectorTabs" role="tablist" aria-label="이미지와 검수" onKeyDown={handleInspectorKeys}>
+            {(["images", "qa"] as const).map((tab) => <button key={tab} id={`inspector-tab-${tab}`} role="tab" aria-selected={inspectorTab === tab} aria-controls="inspector-content" tabIndex={inspectorTab === tab ? 0 : -1} className={inspectorTab === tab ? "active" : ""} onClick={() => setInspectorTab(tab)}>{tab === "images" ? "이미지" : "검수"}</button>)}
+          </div>
+        }>
+          <div id="inspector-content" role="tabpanel" aria-labelledby={`inspector-tab-${inspectorTab}`} tabIndex={0}>
+          {!draft ? <div className="inspectorEmpty"><span className="inspectorEmptyIcon">✓</span><strong>게시 전 마지막 점검 공간이에요.</strong><p>글을 만들면 아래 항목이 자동으로 채워져요.</p><div className="inspectorEmptyGuide"><div><b>01</b><span><strong>이미지</strong><small>프롬프트와 삽입 위치</small></span></div><div><b>02</b><span><strong>근거자료</strong><small>참고한 자료와 용어</small></span></div><div><b>03</b><span><strong>표현 검수</strong><small>주의 표현과 게시 전 확인</small></span></div></div></div> : inspectorTab === "images" ? <div className="guideRailContent"><div className="guideTitle"><strong>이미지 제작 가이드</strong><span>{draft.images.length}개</span></div>{draft.images.map((image) => <PromptCard key={image.id} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} onLocate={locateImage} />)}</div> : <QualityInspector draft={draft} input={{ ...form, platformId: form.platformId || "naver" }} />}
+          </div>
+        </ResponsiveInspector>
       </div>
 
-      {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-canonical-mini.webp" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">AI 호출은 기존 1회 그대로예요.</span></div></div>}
-      {successVisible && draft && <div className="successToast" role="status" aria-live="polite"><div className="successPaw">✦</div><div><strong>블로토리가 원고를 완성했어요.</strong><span>제목 후보와 플랫폼용 복사 결과까지 확인해 주세요.</span></div><button onClick={() => setSuccessVisible(false)} aria-label="완료 알림 닫기">×</button></div>}
-      {draft && <div className="scrollNav" aria-label="미리보기 빠른 이동"><button onClick={() => scrollPreview("top")} title="맨 위로">TOP</button><button onClick={() => scrollPreview("bottom")} title="맨 아래로">BOTTOM</button></div>}
+      {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-character-master.png" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">자료와 문체를 반영해 게시 전 초안을 정리하고 있어요.</span></div></div>}
+      {successVisible && draft && <div className="successToast" role="status" aria-live="polite"><div className="successPaw">✦</div><div><strong>블로토리가 원고를 완성했어요.</strong><span>제목·이미지·검수 결과까지 확인해 주세요.</span></div><button onClick={() => setSuccessVisible(false)} aria-label="완료 알림 닫기">×</button></div>}
     </main>
   );
+}
+
+function SettingGroup({ index, title, description, optional = false, children }: { index: string; title: string; description: string; optional?: boolean; children: ReactNode }) {
+  return <section className="settingGroup"><div className="settingGroupHeader"><span>{index}</span><div><div className="settingGroupTitle"><h3>{title}</h3>{optional && <em>선택</em>}</div><p>{description}</p></div></div><div className="settingGroupBody">{children}</div></section>;
+}
+
+function QualityInspector({ draft, input }: { draft: BlogDraft; input: GenerateRequest }) {
+  const auditFindings = auditDraftBeforePublish(draft, input);
+  const grounding = draft.knowledgeGrounding;
+  const glossarySection = draft.sections.find((section) => section.presentation?.visualStyle === "glossary");
+  const glossaryCount = glossarySection?.paragraphs.length ?? 0;
+  return <div className="qualityInspector">
+    <div className={`qaSummary ${draft.warnings.length ? "warn" : "ok"}`}><span>{draft.warnings.length ? "확인 필요" : "검수 양호"}</span><strong>{draft.warnings.length ? `${draft.warnings.length}개 표현을 확인해 주세요.` : "현재 감지된 주의 표현이 없어요."}</strong></div>
+    <div className="qaChecklist">
+      <QaRow status={grounding?.used ? "ok" : "neutral"} title="전문자료 참고" description={grounding?.used ? `${grounding.sourceNames.length}개 자료에서 근거를 참고했어요.` : "이번 글은 등록된 전문자료를 참고하지 않았어요."} />
+      <QaRow status={glossaryCount > 0 ? "ok" : "neutral"} title="전문용어 해설" description={glossaryCount > 0 ? `${glossaryCount}개 용어 해설이 포함되어 있어요.` : "추가된 용어해설이 없어요."} />
+      <QaRow status={draft.warnings.length ? "warn" : "ok"} title="표현 안전성" description={draft.warnings.length ? "아래 주의 표현을 게시 전에 확인해 주세요." : "현재 감지된 주의 표현이 없어요."} />
+    </div>
+    {auditFindings.length > 0 && <div className="warningList"><strong>게시 전 초안 품질 확인 ({auditFindings.length}건)</strong>{auditFindings.map((finding, index) => <div key={`${finding.code}-${index}`}><span>{finding.severity === "error" ? "!" : "·"}</span><p>{finding.message}</p></div>)}</div>}
+    {draft.warnings.length > 0 && <div className="warningList"><strong>주의 표현</strong>{draft.warnings.map((warning, index) => <div key={`${warning}-${index}`}><span>!</span><p>{warning}</p></div>)}</div>}
+    {grounding?.used && grounding.sourceNames.length > 0 && <details className="sourceDetails"><summary>참고 자료 보기</summary><ul>{grounding.sourceNames.map((source) => <li key={source}>{source}</li>)}</ul></details>}
+  </div>;
+}
+
+function QaRow({ status, title, description }: { status: "ok" | "warn" | "neutral"; title: string; description: string }) {
+  return <div className={`qaRow ${status}`}><span className="qaIcon">{status === "ok" ? "✓" : status === "warn" ? "!" : "·"}</span><div><strong>{title}</strong><p>{description}</p></div></div>;
 }
 
 function SectionPreview({ section, editMode, updateSection, updateParagraph, children }: { section: BlogSection; editMode: boolean; updateSection: (sectionId: string, patchValue: Partial<BlogSection>) => void; updateParagraph: (sectionId: string, index: number, value: string) => void; children: ReactNode }) {
@@ -298,10 +466,10 @@ function SectionPreview({ section, editMode, updateSection, updateParagraph, chi
 
 function Field({ label, children }: { label: string; children: ReactNode }) { return <label className="field"><span>{label}</span>{children}</label>; }
 
-function ImageSlot({ image, editMode, updateImage, copyText, copied }: { image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {
-  return <div className="imageSlot"><div className="slotBadge">{image.id}</div><div className="slotArt"><span>IMAGE</span><small>{image.ratio}</small></div><div className="slotInfo">{editMode ? <><input value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /></> : <><div><strong>{image.label}</strong><span>{image.size}</span></div><p>{image.placement}</p></>}<button onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "프롬프트 복사됨 ✓" : "이 이미지 프롬프트 복사"}</button></div></div>;
+function ImageSlot({ draftId, sections, image, editMode, updateImage, copyText, copied }: { draftId: string | null; sections: BlogSection[]; image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {
+  return <div className="imageSlot" data-image-id={image.id} tabIndex={-1} aria-label={`${image.id} ${image.label} 삽입 위치`}><div className="slotBadge">{image.id}</div>{draftId && <DraftImageControl draftId={draftId} image={image} sections={sections} onChange={updateImage} />}<div className="slotInfo">{editMode ? <><input value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /></> : <><div><strong>{image.label}</strong><span>{image.size}</span></div><p>{image.placement}</p></>}<button onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "프롬프트 복사됨 ✓" : "이 이미지 프롬프트 복사"}</button></div></div>;
 }
 
-function PromptCard({ image, editMode, updateImage, copyText, copied }: { image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {
-  return <div className="promptCard"><div className="promptTop"><strong>{image.id}</strong><span>{image.ratio}</span></div>{editMode ? <><input className="promptEdit" value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input className="promptEdit" value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /><textarea className="promptTextarea" value={image.prompt} onChange={(e) => updateImage(image.id, { prompt: e.target.value })} rows={7} /></> : <><p className="promptLabel">{image.label}</p><div className="meta"><span>{image.size}</span><span>{image.placement}</span>{image.continuityMode === "series" && <span>동일 인물 연속 · {image.continuityGroup ?? "series"}</span>}</div><p className="promptText">{image.prompt}</p></>}<button className="copyButton" onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "복사됨 ✓" : "프롬프트 복사"}</button></div>;
+function PromptCard({ image, editMode, updateImage, copyText, copied, onLocate }: { onLocate: (id: string) => void; image: ImagePlan; editMode: boolean; updateImage: (id: string, patchValue: Partial<ImagePlan>) => void; copyText: (text: string, key: string) => Promise<void>; copied: string }) {
+  return <div className="promptCard"><div className="promptTop"><strong>{image.id}</strong><span>{image.ratio}</span></div>{editMode ? <><input className="promptEdit" value={image.label} onChange={(e) => updateImage(image.id, { label: e.target.value })} /><input className="promptEdit" value={image.placement} onChange={(e) => updateImage(image.id, { placement: e.target.value })} /><textarea className="promptTextarea" value={image.prompt} onChange={(e) => updateImage(image.id, { prompt: e.target.value })} rows={7} /></> : <><p className="promptLabel">{image.label}</p><div className="meta"><span>{image.size}</span><span>{image.placement}</span>{image.continuityMode === "series" && <span>동일 인물 연속 · {image.continuityGroup ?? "series"}</span>}</div><p className="promptText">{image.prompt}</p></>}<button className="copyButton" onClick={() => copyText(image.prompt, image.id)}>{copied === image.id ? "복사됨 ✓" : "프롬프트 복사"}</button><button className="ghost locateImageButton" onClick={() => onLocate(image.id)}>본문 위치 보기</button></div>;
 }

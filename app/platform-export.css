@@ -1,0 +1,30 @@
+.platformExportPanel { padding: 0 18px 12px; min-width: 0; background: #fff; border-top: 1px solid #e7eaed; }
+.platformExportNotice, .platformExportDetails > p { margin: 8px 0; color: #647787; font-size: 11px; line-height: 1.6; }
+.platformCopyFeedback { margin: 6px 0; color: #315b70; font-size: 12px; line-height: 1.6; }
+.platformCopyFeedback:empty { display: none; }
+.platformExportDetails { font-size: 12px; }
+.platformExportDetails > summary { cursor: pointer; padding: 5px 0; color: #315b70; font-weight: 700; }
+.imageGuideDetails { margin-top: 4px; border-top: 1px dashed #dce7ec; }
+.imageGuideDetails .platformExportDocument { background: #f8fbfc; color: #425866; }
+.platformExportDocument { max-height: min(42vh, 380px); overflow: auto; padding: 20px; border: 1px solid #dce7ec; border-radius: 8px; background: #fff; white-space: normal; overflow-wrap: anywhere; user-select: text; }
+pre.platformExportDocument { white-space: pre-wrap; font: inherit; line-height: 1.8; }
+.previewActionBar > div { min-width: 0; flex-wrap: wrap; justify-content: center; }
+@media (max-width: 600px) {
+  .platformExportPanel { padding: 0 10px 10px; }
+  .previewActionBar { flex-wrap: wrap; gap: 6px; }
+  .previewActionBar > div { flex: 1 1 100%; order: -1; }
+  .previewActionBar button { min-height: 40px; white-space: nowrap; }
+  .platformExportDocument { padding: 12px; }
+}
+/* Naver's working preview uses the same basic palette and simplified sections as its serializer. */
+.blogPaper.platform-naver .articleSection { background: transparent; border: 0; box-shadow: none; padding: 0; }
+.blogPaper.platform-naver .articleSection h3 { border: 0; padding: 0; color: #29313b; font-size: 20px; font-weight: 700; }
+.blogPaper.platform-naver .textEmphasis.bold { font-weight: 700; color: inherit; }
+.blogPaper.platform-naver .textEmphasis.accent { font-weight: 700; color: #2D8FA0; }
+.blogPaper.platform-naver .textEmphasis.highlight { background: #FFF0A8; font-weight: 700; padding: 0; }
+.blogPaper.platform-naver .visual-glossary h3 { color: #7b8794; font-size: 12px; }
+
+@media (max-width: 380px) {
+  .workspaceV2 .previewActionBar > div { gap: 6px; }
+  .workspaceV2 .previewActionBar > div > button { flex: 1 1 auto; white-space: nowrap; min-height: 44px; font-size: 12px; padding: 8px 10px; }
+}

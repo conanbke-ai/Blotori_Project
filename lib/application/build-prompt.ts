@@ -2,6 +2,7 @@ import { FIELD_DEFINITIONS, getCategory, getPlatform, getPreset, getStructure, g
 import { getPlatformStrategy } from "../domain/platform-strategy";
 import { buildAutoStyleCatalog, buildCustomStyleIntensityPrompt, buildStylePrompt } from "../domain/style-strategy";
 import { buildTitleInstruction } from "../domain/title-strategy";
+import { buildBlogDNAInstruction } from "../domain/blog-dna";
 import type { GenerateRequest } from "../domain/types";
 
 function clean(value?: string) {
@@ -12,6 +13,20 @@ function lengthGuide(length: GenerateRequest["length"]) {
   if (length === "short") return "전체 본문 기준 약 1,000~1,500자. 도입 1개, 본문 3~4개 섹션, 각 섹션 1~2개 문단.";
   if (length === "long") return "전체 본문 기준 약 3,500~5,000자. 도입 2개 문단, 본문 5~7개 섹션, 각 섹션 2~4개 충분한 문단. 각 소제목 아래에 실제 정보·설명·예시·주의점 중 필요한 내용을 구체적으로 채운다.";
   return "전체 본문 기준 약 2,000~3,000자. 도입 1~2개 문단, 본문 4~6개 섹션, 각 섹션 1~3개 문단.";
+}
+
+function contentPurposeGuide(input: GenerateRequest) {
+  const experienceLed = input.structureId === "review" || input.structureId === "story" || input.styleId === "honest-review";
+  const informationLed = ["information", "guide", "faq", "checklist", "comparison"].includes(input.structureId);
+  const purpose = experienceLed
+    ? "후기·경험형 후보: 사용자가 실제 경험을 제공한 범위 안에서 시간 흐름·관찰·판단 기준을 엮는다. 경험 근거가 없으면 후기처럼 꾸미지 말고 확인 항목과 선택 기준 중심으로 전환한다."
+    : informationLed
+      ? "정보형: 주장→근거/조건→설명→적용 순서를 우선하고, 실제 경험인 듯한 1인칭 장면을 덧붙이지 않는다."
+      : "자동 적응형: 주제와 사용자가 제공한 근거를 보고 정보형·후기형·에세이형 중 목적을 정하되, 단순히 이미지 수가 많다는 이유로 경험담을 만들어내지 않는다.";
+  const imageMode = input.imageCount >= 4
+    ? "사진이 많은 구성: 각 이미지는 장면 전환·과정·근거·디테일처럼 서로 다른 역할을 맡긴다. 사진 사이를 한 줄짜리 채움 문단이나 같은 감상으로 반복하지 않는다."
+    : "텍스트 중심 구성: 설명의 논리와 문단 연결을 우선하고, 이미지는 꼭 필요한 전환점과 이해 보조 지점에만 둔다.";
+  return `${purpose}\n- ${imageMode}`;
 }
 
 export function buildPrompt(input: GenerateRequest) {
@@ -50,6 +65,7 @@ export function buildPrompt(input: GenerateRequest) {
 
   const platformRules = platformStrategy.generationRules.map((rule, index) => `${index + 1}. ${rule}`).join("\n");
   const titleInstruction = buildTitleInstruction(input);
+  const blogDNAInstruction = buildBlogDNAInstruction(input);
 
   return `당신은 다양한 플랫폼용 한국어 블로그 콘텐츠를 설계하는 전문 편집자다. 사용자의 실제 주제와 목적을 중심으로, 곧바로 게시 초안으로 사용할 수 있는 완성도 있는 원고를 작성한다. 입력되지 않은 사실을 임의로 만들어 핵심 정보처럼 쓰지 않는다.
 
@@ -78,12 +94,19 @@ ${clean(input.extraConditions) ? `- 기타 조건: ${clean(input.extraConditions
 - 이미지 제작 가이드 수: ${input.imageCount}
 - 글 구성: ${structureInstruction}
 
+[콘텐츠 목적·구성 적응]
+- ${contentPurposeGuide(input)}
+- 사용자가 방문·구매·사용·시식·숙박했다고 명시하지 않았다면 “다녀왔어요/먹어봤어요/써봤어요” 같은 1인칭 경험을 사실처럼 쓰지 않는다.
+- 가격·소요 시간·날짜·수량·평점 같은 구체값은 입력이나 허용된 참고자료에 있는 값만 사용한다. 근거가 없으면 확인 방법 또는 선택 기준으로 표현한다.
+- 모든 문단을 같은 문장 수와 비슷한 길이로 맞추지 않는다. 짧은 전환 문단과 충분한 설명 문단을 콘텐츠 흐름에 맞춰 섞는다.
+- 도입은 주제의 실제 질문·상황에서 시작하고, 소제목은 각 섹션의 고유 역할을 드러내며, 마무리는 앞 문장을 반복하지 않고 독자가 판단하거나 실행할 다음 기준을 남긴다.
+
 [문체 — 가장 높은 우선순위의 표현 규칙]
 ${styleInstruction}
 
 문체 규칙은 콘텐츠의 사실성·안전 규칙을 깨지 않는 범위에서 플랫폼 기본 말투보다 우선한다. 특히 사용자가 특정 문체를 직접 골랐다면, 안전 정보라는 이유만으로 모든 문장을 획일적인 '-합니다/-됩니다' 안내문체로 되돌리지 않는다. 필요한 경고·주의 문장만 정확하고 단정하게 쓰고, 나머지 제목·도입·소제목·설명·전환·마무리는 선택 문체를 유지한다. 문체 강도는 단순히 농담이나 이모지를 늘리는 값이 아니며 선택한 문체 Strategy의 고유 특성을 얼마나 선명하게 드러낼지 조절한다.
 
-[제목 전략]
+${blogDNAInstruction ? `${blogDNAInstruction}\n\n` : ""}[제목 전략]
 ${titleInstruction}
 - titlePurpose에는 이번 제목이 최우선으로 반영한 목적을 짧은 한국어로 기록한다.
 - titleCandidates에는 후보를 정확히 3개 반환하고, title은 그중 하나와 완전히 동일해야 한다.
@@ -97,6 +120,12 @@ ${titleInstruction}
 - 중앙 정렬은 제목, 짧은 도입, 핵심 메시지처럼 실제로 어울리는 경우에만 사용하고 긴 설명문 전체를 중앙 정렬하지 않는다.
 - 이미지가 더 적합한 강조라면 텍스트 장식을 늘리지 말고 해당 섹션과 연결되는 ImagePlan을 사용한다.
 - 시각 표현은 플랫폼 특성보다 앞설 수 없다. 해당 플랫폼에서 어색한 표현은 사용하지 않는다.
+
+- 특별한 장식이 필요 없는 글을 제외하고, 실제 정보가 뒷받침되는 섹션 중 역할이 서로 다른 2개 정도에 visualStyle="key-point" 또는 "callout"을 부여한다. 모든 섹션을 카드로 만들지 않는다.
+- key-point에는 독자가 저장할 만한 핵심 기준을, callout에는 조건·주의점·추천 대상을 배치한다. 내용이 빈약하면 장식용 섹션을 만들지 않는다.
+- 모바일 스크롤에서 3~5개 연속 긴 문단이 이어지지 않도록 짧은 전환문, 정보 단락, 포인트형 소제목을 리듬 있게 교차한다.
+- 문체 강도 1은 중립적인 문장과 명료한 구성, 3은 선택된 Voice/DNA의 어미·도입·문단 리듬을 균형 있게, 5는 그 특징을 제목·도입·전환·마무리까지 선명하게 유지한다. 강도 5를 느낌표·이모지·허구의 체험담으로 대신하지 않는다.
+- 시각 구조(visualStyle)와 문체 강도(styleIntensity)를 독립적으로 적용한다. Visual DNA를 끈 경우 특정 DNA의 꾸밈을 강제하지 않는다.
 
 [이미지 연속성]
 - 인물 이미지가 2장 이상이고 같은 사람을 이어 보여주는 편이 자연스러우면 continuityMode="series", continuityGroup을 같은 값으로 주고 subjectProfile을 구체적으로 동일하게 유지한다.
@@ -114,12 +143,15 @@ ${titleInstruction}
 7. 비어 있는 선택 조건은 추측해서 핵심 사실로 만들지 않는다. 특히 연령대, 가격, 장소, 치료방법, 사용기간 같은 구체값을 임의 생성하지 않는다.
 8. 건강·의료 주제일 때만 의료광고성 과장 표현과 단정적 진단·치료 보장을 피한다. 다른 카테고리에는 불필요한 의료 경고를 넣지 않는다.
 9. 플랫폼 특성에 맞게 문단 길이, 소제목 호흡, 이미지 간격을 조정하되 선택 문체의 개성은 유지한다.
-10. 이미지 자체는 생성하지 않는다. 외부 이미지 생성기에 그대로 복사할 수 있는 상세 한국어 프롬프트를 만든다.
+10. 이미지 자체는 생성하지 않는다. 외부 이미지 생성기에 그대로 복사할 수 있는 상세 한국어 프롬프트를 만든다. ImagePlan은 편집자용 가이드이며 이미지가 실제 첨부되었다거나 게시 본문에 들어갔다고 표현하지 않는다.
 11. 이미지에는 한글 문구 생성을 요구하지 않는다. 정보 카드가 필요하면 텍스트 없는 그래픽 구성으로 요청한다.
 12. 첫 이미지는 HERO이며 afterSectionId=null이다. 나머지는 CONTEXT, EXPLAINER, PROCESS, TIP, CAUTION 중 내용에 맞는 역할을 고른다.
 13. 이미지는 연속 배치하지 않고 관련 섹션 뒤에 둔다. placement는 사람이 복붙 후 바로 찾을 수 있게 구체적으로 쓴다.
 14. 동일한 내용을 반복하지 않고, 선택한 분량과 글 구성에 맞게 충분한 섹션과 문단을 작성한다.
 15. styleUsed와 structureUsed를 반드시 반환한다.
+16. Blog DNA가 제공된 경우 styleUsed에 이름만 적고 끝내지 말고 실제 Voice/Mood/Structure/Image/Visual DNA를 적용한다. 다만 고정 템플릿 복제가 아니라 Adaptive Variation 규칙대로 새 콘텐츠에 맞게 자연스럽게 재구성한다.
+17. layoutFingerprint를 반드시 반환한다. 이번 글에서 실제 선택한 도입 방식 + 섹션 흐름 + 이미지 리듬 + 마무리 방식을 120자 이내 한국어로 요약한다.
+18. 최종 출력 전에 품질을 자체 점검한다. 같은 소제목이나 문단 첫 연결어를 반복하지 않고, 문단 길이를 기계적으로 동일하게 맞추지 않으며, '핵심 내용 정리' 같은 범용 템플릿 제목과 실제 내용을 대신하는 메타 문장을 남기지 않는다.
 
 JSON 외의 문장을 출력하지 마라.
 {
@@ -129,6 +161,7 @@ JSON 외의 문장을 출력하지 마라.
   "summary": "string",
   "styleUsed": "string",
   "structureUsed": "string",
+  "layoutFingerprint": "도입 방식 → 섹션 흐름 → 이미지 리듬 → 마무리 방식",
   "presentation": {
     "titleAlign": "left|center",
     "introAlign": "left|center",
