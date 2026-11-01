@@ -171,3 +171,13 @@
   .blotoriMascotEmpty { width: 116px; height: 144px; }
   .titleCandidatePanel > div:first-child { align-items: flex-start; flex-direction: column; }
 }
+
+.sectionEditHeader { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;margin-bottom:14px }
+.sectionEditHeader .sectionHeadingEdit { margin:0 }
+.sectionOrderControls { display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end }
+.sectionOrderControls button { min-height:40px;padding:0 10px;white-space:nowrap }
+.sectionOrderSession { display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 18px 12px;padding:10px 12px;border:1px solid #c9e7e6;border-radius:11px;background:#edf9f6;color:#315e5d;font-size:12px }
+.sectionOrderSession > div { display:flex;gap:8px;flex:0 0 auto }
+.sectionOrderSession button { min-height:38px }
+.sectionOrderExportNotice { margin:12px 18px;padding:10px 12px;border-radius:10px;background:#fff7e8;color:#765a24;font-size:12px }
+@media(max-width:600px){.sectionEditHeader{grid-template-columns:1fr}.sectionOrderControls{justify-content:flex-start}.sectionOrderControls button{flex:1}.sectionOrderSession{align-items:stretch;flex-direction:column;margin-inline:12px}.sectionOrderSession > div{display:grid;grid-template-columns:1fr 1fr}.sectionOrderSession button{width:100%}}
