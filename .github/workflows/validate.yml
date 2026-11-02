@@ -33,6 +33,12 @@ jobs:
       - name: TypeScript check
         run: npm run lint
 
+      - name: Draft section order QA
+        run: node scripts/validate-draft-section-order.mjs
+
+      - name: Layout plan status safety QA
+        run: node scripts/validate-layout-plan-status-safety.mjs
+
       - name: Platform export QA
         run: npm run qa:platform
 

@@ -8,6 +8,8 @@ import { copyPlatformContent, copyResultMessage, prepareClipboardImages } from "
 import { loadDraftImages } from "../lib/infrastructure/draft-workspace-storage";
 import PlatformExportPreview from "./PlatformExportPreview";
 import DraftImageControl from "./DraftImageControl";
+import LayoutPlanStatus from "./LayoutPlanStatus";
+import { applyDraftSectionOrder, editableSectionIds, moveDraftSection, type SectionMoveDirection } from "../lib/domain/draft-section-order";
 import { useDraftWorkspace } from "./useDraftWorkspace";
 import { rememberLayoutFingerprint } from "../lib/domain/layout-history";
 import BlotoriAssetStudio from "./BlotoriAssetStudio";
@@ -109,6 +111,13 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [guideOpen, setGuideOpen] = useState(true);
   const [editMode, setEditMode] = useState(false);
+  const [sectionOrderSession, setSectionOrderSession] = useState<{
+    draftId: string | null;
+    pendingIds: string[];
+    lastMovedId: string;
+  } | null>(null);
+  const [sectionOrderAnnouncement, setSectionOrderAnnouncement] = useState("");
+
   const [apiHealth, setApiHealth] = useState<ApiHealth | null>(null);
   const [healthLoading, setHealthLoading] = useState(false);
   const [inspectorTab, setInspectorTab] = useState<InspectorTab>("images");
@@ -118,6 +127,8 @@ export default function Home() {
   const workspaceRef = useRef<HTMLDivElement>(null);
   const { compact, single } = useWorkspaceLayout(workspaceRef, settingsOpen);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const editModeButtonRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => { setSectionOrderSession(null); setSectionOrderAnnouncement(""); }, [draftId]);
   useEffect(() => { if (!compact) setReviewOpen(false); }, [compact]);
 
   function locateImage(id: string) {
@@ -162,6 +173,14 @@ export default function Home() {
     for (const image of draft.images) map.set(image.afterSectionId, [...(map.get(image.afterSectionId) ?? []), image]);
     return map;
   }, [draft]);
+
+  const mainSections = useMemo(() => {
+    if (!draft) return [];
+    const sections = draft.sections.filter((section) => section.presentation?.visualStyle !== "glossary");
+    if (!sectionOrderSession || sectionOrderSession.draftId !== draftId) return sections;
+    const byId = new Map(sections.map((section) => [section.id, section]));
+    return sectionOrderSession.pendingIds.map((id) => byId.get(id)).filter((section): section is BlogSection => Boolean(section));
+  }, [draft, draftId, sectionOrderSession]);
 
   const platformExport = useMemo(() => draft && form.platformId ? buildPlatformExport(draft, form.platformId) : null, [draft, form.platformId]);
 
@@ -277,6 +296,50 @@ export default function Home() {
   function updateImage(imageId: string, patchValue: Partial<ImagePlan>) {
     setDraft((prev) => prev ? { ...prev, images: prev.images.map((image) => image.id === imageId ? { ...image, ...patchValue } : image) } : prev);
   }
+  function moveSection(sectionId: string, direction: SectionMoveDirection) {
+    if (!draft) return;
+    const initialIds = editableSectionIds(draft);
+    const currentIds = sectionOrderSession?.draftId === draftId ? sectionOrderSession.pendingIds : initialIds;
+    const previewDraft = applyDraftSectionOrder(draft, currentIds);
+    const next = moveDraftSection(previewDraft, sectionId, direction);
+    if (next === previewDraft) return;
+    const pendingIds = editableSectionIds(next);
+    const moved = draft.sections.find((section) => section.id === sectionId);
+    setSectionOrderSession({
+      draftId,
+      pendingIds,
+      lastMovedId: sectionId,
+    });
+    setSectionOrderAnnouncement(`${moved?.heading ?? "구간"} 순서를 임시로 이동했습니다. 적용 전에는 저장되지 않습니다.`);
+    focusSectionOrder(sectionId, direction);
+  }
+  function focusSectionOrder(sectionId: string, preferredDirection?: SectionMoveDirection) {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const group = document.querySelector<HTMLElement>(`[data-section-order-group="${CSS.escape(sectionId)}"]`);
+        const preferred = preferredDirection ? group?.querySelector<HTMLButtonElement>(`[data-move-direction="${preferredDirection}"]`) : null;
+        const fallback = preferredDirection ? group?.querySelector<HTMLButtonElement>(`[data-move-direction="${preferredDirection === "up" ? "down" : "up"}"]`) : null;
+        const editButton = document.querySelector<HTMLButtonElement>("[data-section-edit-mode]") ?? editModeButtonRef.current;
+        const target = preferred && !preferred.disabled ? preferred : fallback && !fallback.disabled ? fallback : group;
+        (target ?? editButton)?.focus({ preventScroll: true });
+      });
+    });
+  }
+  function applySectionOrder() {
+    if (!draft || !sectionOrderSession || sectionOrderSession.draftId !== draftId) return;
+    const returnId = sectionOrderSession.lastMovedId;
+    setDraft(applyDraftSectionOrder(draft, sectionOrderSession.pendingIds));
+    setSectionOrderSession(null);
+    setSectionOrderAnnouncement("구간 순서를 원고에 적용했습니다.");
+    focusSectionOrder(returnId);
+  }
+  function cancelSectionOrder() {
+    if (!sectionOrderSession || sectionOrderSession.draftId !== draftId) return;
+    const returnId = sectionOrderSession.lastMovedId;
+    setSectionOrderSession(null);
+    setSectionOrderAnnouncement("구간 순서 변경을 취소했습니다. 저장된 원고는 바뀌지 않았습니다.");
+    focusSectionOrder(returnId);
+  }
   function scrollPreview(where: "top" | "bottom") {
     const el = previewScrollRef.current; if (!el) return;
     el.scrollTo({ top: where === "top" ? 0 : el.scrollHeight, behavior: "smooth" });
@@ -380,11 +443,17 @@ export default function Home() {
             <div><span className="step">02</span><div><h2>{platformProfile ? `${platformProfile.label} 초안 미리보기` : "초안 미리보기"}</h2><p>{platformProfile ? `${platformProfile.label}에 옮기기 전 실제 글 흐름을 확인해요.` : "플랫폼을 선택하면 해당 형식에 맞춰 보여드려요."}</p></div></div>
             <div className="headerActions">
               {mode && <span className={`mode ${mode}`}>{mode === "api" ? "AI 생성" : "샘플"}</span>}
-              <div className="segmentedMode"><button className={!editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(false)}>미리보기</button><button className={editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(true)}>직접 편집</button></div>
+              <div className="segmentedMode"><button className={!editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(false)}>미리보기</button><button ref={editModeButtonRef} data-section-edit-mode className={editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(true)}>직접 편집</button></div>
             </div>
           </div>
 
           <p className="draftStorageStatus" data-state={storageStatus} role="status" aria-live="polite">{storageMessage}</p>
+          <p className="srOnly" aria-live="polite">{sectionOrderAnnouncement}</p>
+          {sectionOrderSession?.draftId === draftId && <div className="sectionOrderSession" role="status">
+            <span>구간 순서를 미리 조정 중입니다. 적용하기 전에는 저장 원고가 바뀌지 않습니다.</span>
+            <div><button type="button" className="ghost" data-cancel-section-order onClick={cancelSectionOrder}>순서 변경 취소</button><button type="button" className="secondaryAction" data-apply-section-order onClick={applySectionOrder}>순서 적용</button></div>
+          </div>}
+
           {!draft ? <div className="emptyState blotoriEmptyState workspaceEmpty"><div className="emptyMascotStage"><span className="emptyGlow" /><img className="blotoriMascotEmpty" src="/blotori-character-master.png" alt="블로토리" /></div><div className="emptyCopy"><span className="emptyEyebrow">READY TO COMPOSE</span><h3>자료와 문체를 정하고, 초안을 바로 시작하세요</h3><p>주제와 참고자료를 고르면 블로토리가 플랫폼에 맞는 게시 초안을 구성해드려요.</p><div className="emptyQuickActions"><button type="button" className="secondaryAction" onClick={() => focusSettings('.referenceMaterialGroup')}>참고자료 등록</button><button type="button" className="ghost" onClick={() => focusSettings('.styleBuilder')}>내 문체 만들기</button></div><div className="emptyFeatureRow"><span>플랫폼 맞춤</span><span>참고자료 반영</span><span>이미지·검수</span></div></div></div> :
           <div className="previewLayout appPreviewLayout previewOnlyLayout">
             <div className="blogScroller" ref={previewScrollRef}>
@@ -394,7 +463,7 @@ export default function Home() {
                 {editMode ? <textarea className="summaryEdit" value={draft.summary} onChange={(e) => updateDraft("summary", e.target.value)} rows={3} /> : <p className="summary">{draft.summary}</p>}
                 {(imageMap.get(null) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}
                 <div className={`introBlock align-${draft.presentation?.introAlign ?? "left"}`}>{draft.intro.map((p, i) => editMode ? <textarea key={i} className="paragraphEdit" value={p} onChange={(e) => updateArrayItem("intro", i, e.target.value)} rows={Math.max(3, Math.ceil(p.length/38))} /> : <p key={i}>{p}</p>)}</div>
-                {draft.sections.filter((section) => section.presentation?.visualStyle !== "glossary").map((section) => <SectionPreview key={section.id} section={section} editMode={editMode} updateSection={updateSection} updateParagraph={updateParagraph}>{(imageMap.get(section.id) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</SectionPreview>)}
+                {mainSections.map((section, index) => <SectionPreview key={section.id} section={section} editMode={editMode} updateSection={updateSection} updateParagraph={updateParagraph} canMoveUp={index > 0} canMoveDown={index < mainSections.length - 1} onMove={moveSection}>{(imageMap.get(section.id) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</SectionPreview>)}
                 <div className="closingBlock">{draft.closing.map((p, i) => editMode ? <textarea key={i} className="paragraphEdit" value={p} onChange={(e) => updateArrayItem("closing", i, e.target.value)} rows={Math.max(3, Math.ceil(p.length/38))} /> : <p key={i}>{p}</p>)}</div>
                 {draft.sections.filter((section) => section.presentation?.visualStyle === "glossary").map((section) => <SectionPreview key={section.id} section={section} editMode={editMode} updateSection={updateSection} updateParagraph={updateParagraph}>{(imageMap.get(section.id) ?? []).map((image) => <ImageSlot key={image.id} draftId={draftId} sections={draft.sections} image={image} editMode={editMode} updateImage={updateImage} copyText={copyText} copied={copied} />)}</SectionPreview>)}
                 <div className={`tags ${editMode ? "tagsEditing" : ""}`}>{draft.tags.map((tag, i) => editMode ? <input key={i} value={tag} onChange={(e) => updateArrayItem("tags", i, e.target.value)} aria-label={`태그 ${i+1}`} /> : <span key={`${tag}-${i}`}>#{tag.replace(/^#/, "")}</span>)}</div>
@@ -402,7 +471,8 @@ export default function Home() {
             </div>
           </div>}
 
-          {platformExport && <>
+          {platformExport && sectionOrderSession?.draftId === draftId && <p className="sectionOrderExportNotice" role="status">내보내기 전에 구간 순서를 적용하거나 취소하세요.</p>}
+          {platformExport && sectionOrderSession?.draftId !== draftId && <>
             <div className="previewActionBar"><button className="ghost" onClick={() => scrollPreview("top")}>↑ TOP</button><div>
               {platformExport.html && <button className="secondaryAction" data-copy-platform onClick={() => void copyPlatformDraft("rich")}>{copied === "platform-rich" ? "서식·이미지 복사됨 ✓" : "서식 포함 복사 (이미지)"}</button>}
               <button className="ghost" data-copy-plain onClick={() => void copyPlatformDraft("plain")}>{copied === "platform-plain" ? "텍스트 복사됨 ✓" : "텍스트만 복사"}</button>
@@ -446,6 +516,7 @@ function QualityInspector({ draft, input }: { draft: BlogDraft; input: GenerateR
       <QaRow status={glossaryCount > 0 ? "ok" : "neutral"} title="전문용어 해설" description={glossaryCount > 0 ? `${glossaryCount}개 용어 해설이 포함되어 있어요.` : "추가된 용어해설이 없어요."} />
       <QaRow status={draft.warnings.length ? "warn" : "ok"} title="표현 안전성" description={draft.warnings.length ? "아래 주의 표현을 게시 전에 확인해 주세요." : "현재 감지된 주의 표현이 없어요."} />
     </div>
+    <LayoutPlanStatus draft={draft} />
     {auditFindings.length > 0 && <div className="warningList"><strong>게시 전 초안 품질 확인 ({auditFindings.length}건)</strong>{auditFindings.map((finding, index) => <div key={`${finding.code}-${index}`}><span>{finding.severity === "error" ? "!" : "·"}</span><p>{finding.message}</p></div>)}</div>}
     {draft.warnings.length > 0 && <div className="warningList"><strong>주의 표현</strong>{draft.warnings.map((warning, index) => <div key={`${warning}-${index}`}><span>!</span><p>{warning}</p></div>)}</div>}
     {grounding?.used && grounding.sourceNames.length > 0 && <details className="sourceDetails"><summary>참고 자료 보기</summary><ul>{grounding.sourceNames.map((source) => <li key={source}>{source}</li>)}</ul></details>}
@@ -456,10 +527,19 @@ function QaRow({ status, title, description }: { status: "ok" | "warn" | "neutra
   return <div className={`qaRow ${status}`}><span className="qaIcon">{status === "ok" ? "✓" : status === "warn" ? "!" : "·"}</span><div><strong>{title}</strong><p>{description}</p></div></div>;
 }
 
-function SectionPreview({ section, editMode, updateSection, updateParagraph, children }: { section: BlogSection; editMode: boolean; updateSection: (sectionId: string, patchValue: Partial<BlogSection>) => void; updateParagraph: (sectionId: string, index: number, value: string) => void; children: ReactNode }) {
+function SectionPreview({ section, editMode, updateSection, updateParagraph, canMoveUp = false, canMoveDown = false, onMove, children }: {
+  section: BlogSection;
+  editMode: boolean;
+  updateSection: (sectionId: string, patchValue: Partial<BlogSection>) => void;
+  updateParagraph: (sectionId: string, index: number, value: string) => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
+  onMove?: (sectionId: string, direction: SectionMoveDirection) => void;
+  children: ReactNode;
+}) {
   const p = section.presentation;
-  return <section className={`articleSection visual-${p?.visualStyle ?? "standard"}`}>
-    {editMode ? <input className="sectionHeadingEdit" value={section.heading} onChange={(e) => updateSection(section.id, { heading: e.target.value })} /> : <h3 className={`align-${p?.headingAlign ?? "left"}`}>{section.heading}</h3>}
+  return <section data-section-id={section.id} className={`articleSection visual-${p?.visualStyle ?? "standard"}`}>
+    {editMode ? <div className="sectionEditHeader"><input aria-label={`${section.heading} 구간 제목`} className="sectionHeadingEdit" value={section.heading} onChange={(e) => updateSection(section.id, { heading: e.target.value })} /><div className="sectionOrderControls" role="group" tabIndex={-1} data-section-order-group={section.id} aria-label={`${section.heading} 구간 순서`}><button type="button" className="ghost" data-move-section={section.id} data-move-direction="up" disabled={!canMoveUp} onClick={() => onMove?.(section.id, "up")}>↑ 위로</button><button type="button" className="ghost" data-move-section={section.id} data-move-direction="down" disabled={!canMoveDown} onClick={() => onMove?.(section.id, "down")}>↓ 아래로</button></div></div> : <h3 className={`align-${p?.headingAlign ?? "left"}`}>{section.heading}</h3>}
     <div className={`sectionBody align-${p?.bodyAlign ?? "left"}`}>{section.paragraphs.map((paragraph, index) => editMode ? <textarea key={index} className="paragraphEdit" value={paragraph} onChange={(e) => updateParagraph(section.id, index, e.target.value)} rows={Math.max(3, Math.ceil(paragraph.length / 38))} /> : <p key={index}>{emphasizedText(paragraph, p?.emphasis)}</p>)}</div>{children}
   </section>;
 }
