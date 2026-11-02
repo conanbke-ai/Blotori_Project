@@ -302,6 +302,18 @@
   animation: blotoriToastIn .26s ease-out both;
 }
 
+.successToast[data-state="plan-unapplied"] {
+  border-color: #e7c986;
+  background: rgba(255, 250, 238, .98);
+}
+
+.successToast[data-state="plan-unapplied"] .successPaw {
+  background: #fff0c9;
+  color: #8a5b05;
+  font-size: 21px;
+  font-weight: 900;
+}
+
 @keyframes blotoriToastIn {
   from { opacity: 0; transform: translate(-50%, -12px); }
   to { opacity: 1; transform: translate(-50%, 0); }

@@ -128,6 +128,7 @@ export default function Home() {
   const { compact, single } = useWorkspaceLayout(workspaceRef, settingsOpen);
   const [reviewOpen, setReviewOpen] = useState(false);
   const editModeButtonRef = useRef<HTMLButtonElement>(null);
+  const planApplicationWarning = draft?.warnings.find((warning) => warning.startsWith("편집 계획 미적용:")) ?? "";
   useEffect(() => { setSectionOrderSession(null); setSectionOrderAnnouncement(""); }, [draftId]);
   useEffect(() => { if (!compact) setReviewOpen(false); }, [compact]);
 
@@ -157,9 +158,9 @@ export default function Home() {
   }, [loading]);
   useEffect(() => {
     if (!successVisible) return;
-    const timer = window.setTimeout(() => setSuccessVisible(false), 2600);
+    const timer = window.setTimeout(() => setSuccessVisible(false), planApplicationWarning ? 7000 : 2600);
     return () => window.clearTimeout(timer);
-  }, [successVisible]);
+  }, [planApplicationWarning, successVisible]);
 
   const category = useMemo(() => getCategory(form.categoryId), [form.categoryId]);
   const preset = useMemo(() => getPreset(form.categoryId, form.presetId), [form.categoryId, form.presetId]);
@@ -230,6 +231,9 @@ export default function Home() {
       const data = await res.json().catch(() => ({ error: "서버 응답을 읽지 못했습니다." }));
       if (!res.ok) throw new Error(data.error || (res.status === 503 ? "API 연결 설정을 확인해 주세요." : "생성 요청에 실패했습니다."));
       startDraft(data.draft); setMode(data.mode); setEditMode(false); setSuccessVisible(true); setMobilePanel("preview");
+      if (data?.draft?.warnings?.some((warning: unknown) => typeof warning === "string" && warning.startsWith("편집 계획 미적용:"))) {
+        setInspectorTab("qa");
+      }
       if (generationContext.layoutHistoryKey) {
         rememberLayoutFingerprint(browserStorage(), generationContext.layoutHistoryKey, data?.draft?.layoutFingerprint);
       }
@@ -495,7 +499,7 @@ export default function Home() {
       </div>
 
       {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-character-master.png" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">자료와 문체를 반영해 게시 전 초안을 정리하고 있어요.</span></div></div>}
-      {successVisible && draft && <div className="successToast" role="status" aria-live="polite"><div className="successPaw">✦</div><div><strong>블로토리가 원고를 완성했어요.</strong><span>제목·이미지·검수 결과까지 확인해 주세요.</span></div><button onClick={() => setSuccessVisible(false)} aria-label="완료 알림 닫기">×</button></div>}
+      {successVisible && draft && <div className="successToast" data-state={planApplicationWarning ? "plan-unapplied" : "complete"} role="status" aria-live="polite" aria-atomic="true"><div className="successPaw" aria-hidden="true">{planApplicationWarning ? "!" : "✦"}</div><div>{planApplicationWarning ? <><strong>원고는 보존했지만 편집 계획은 적용하지 않았어요.</strong><span>생성 결과가 계획한 섹션·이미지 구조와 일치하지 않았어요. ‘검수’ 탭에서 이유를 확인해 주세요.</span></> : <><strong>블로토리가 원고를 완성했어요.</strong><span>제목·이미지·검수 결과까지 확인해 주세요.</span></>}</div><button onClick={() => setSuccessVisible(false)} aria-label="생성 결과 알림 닫기">×</button></div>}
     </main>
   );
 }
