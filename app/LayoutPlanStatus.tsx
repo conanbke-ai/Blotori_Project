@@ -55,8 +55,8 @@ export function safeDraftForLayoutPlanDisplay(draft: BlogDraft | null): BlogDraf
 export default function LayoutPlanStatus({ draft }: { draft: BlogDraft }) {
   const plan = readLayoutPlanStatus(draft.contentLayoutPlan);
   if (plan.kind === "legacy") return <section className="layoutPlanStatus layoutPlanStatus--legacy" aria-label="편집 계획 상태">
-    <span>이전 원고 형식</span><strong>기존 원고와 이미지 배치를 그대로 유지합니다.</strong>
-    <p>이 원고에는 편집 계획이 저장되어 있지 않습니다. 자동으로 다시 배열하지 않으며, 새 초안을 만들 때부터 편집 계획을 저장합니다.</p>
+    <span>편집 계획 없음</span><strong>현재 원고와 이미지 배치를 자동으로 재배열하지 않습니다.</strong>
+    <p>이 원고에는 편집 계획이 저장되어 있지 않습니다. 편집 계획을 생성하는 기능은 아직 제공되지 않습니다.</p>
   </section>;
   if (plan.kind === "invalid") return <section className="layoutPlanStatus layoutPlanStatus--invalid" aria-label="편집 계획 상태" role="status">
     <span>편집 계획 확인 필요</span><strong>저장된 원고는 바꾸지 않고 안전하게 표시합니다.</strong>
