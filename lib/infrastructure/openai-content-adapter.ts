@@ -8,6 +8,7 @@ import {
   shouldUseKnowledgeBase,
 } from "../domain/knowledge-policy";
 import type { BlogDraft, GenerateRequest, KnowledgeGrounding, ReferenceFileInput } from "../domain/types";
+import type { ContentLayoutPlan } from "../domain/content-layout-plan-contract";
 
 function extractJson(text: string) {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
@@ -111,13 +112,13 @@ function safeReferenceFiles(files: ReferenceFileInput[] | undefined) {
   }).slice(0, 8);
 }
 
-function buildResponseInput(input: GenerateRequest) {
+function buildResponseInput(input: GenerateRequest, contentLayoutPlan: ContentLayoutPlan) {
   const files = safeReferenceFiles(input.referenceFiles);
-  if (!files.length) return buildPrompt(input);
+  if (!files.length) return buildPrompt(input, contentLayoutPlan);
   const content: Array<Record<string, string>> = [
     {
       type: "input_text",
-      text: `${buildPrompt(input)}\n\n[사용자 직접 참고자료]\n첨부 파일은 이번 글의 내용과 근거를 보강하기 위한 자료다. 자료에 없는 사실을 있는 것처럼 만들지 말고, 자료의 문장을 길게 복제하지 않는다. 서로 충돌하는 내용이 있으면 과도하게 단정하지 않는다.`,
+      text: `${buildPrompt(input, contentLayoutPlan)}\n\n[사용자 직접 참고자료]\n첨부 파일은 이번 글의 내용과 근거를 보강하기 위한 자료다. 자료에 없는 사실을 있는 것처럼 만들지 말고, 자료의 문장을 길게 복제하지 않는다. 서로 충돌하는 내용이 있으면 과도하게 단정하지 않는다.`,
     },
   ];
   for (const file of files) {
@@ -127,7 +128,7 @@ function buildResponseInput(input: GenerateRequest) {
   return [{ role: "user" as const, content }];
 }
 
-export async function generateWithOpenAI(input: GenerateRequest): Promise<BlogDraft> {
+export async function generateWithOpenAI(input: GenerateRequest, contentLayoutPlan: ContentLayoutPlan): Promise<BlogDraft> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY가 설정되지 않았습니다.");
 
@@ -141,7 +142,7 @@ export async function generateWithOpenAI(input: GenerateRequest): Promise<BlogDr
     model,
     instructions:
       `사용자가 지정한 플랫폼, 주제, 카테고리, 문체, 글 구성과 조건을 정확히 반영해 실제 게시 가능한 한국어 블로그 원고를 작성하세요. Blotori, 생성기, API, 설정 화면, 샘플 모드, 프롬프트 사용법 등 도구 자체에 대한 설명은 사용자가 주제로 요청하지 않은 한 본문에 절대 포함하지 마세요. ${referenceFiles.length ? `사용자가 직접 첨부한 참고자료 ${referenceFiles.length}개를 우선 확인하고 사실·근거를 보강하되 원문을 길게 복제하지 마세요. ` : ""}출력은 JSON만 반환합니다.\n${GLOSSARY_GENERATION_INSTRUCTION}${rag ? KNOWLEDGE_GROUNDING_INSTRUCTION : ""}`,
-    input: buildResponseInput(input) as never,
+    input: buildResponseInput(input, contentLayoutPlan) as never,
     max_output_tokens: outputBudget(input),
     ...(rag
       ? {

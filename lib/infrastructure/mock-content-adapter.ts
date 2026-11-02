@@ -1,4 +1,5 @@
 import { getCategory, getPlatform, getPreset, getStructure, getStyle } from "../domain/content-config";
+import type { ContentLayoutPlan } from "../domain/content-layout-plan-contract";
 import type { BlogDraft, GenerateRequest, ImagePlan } from "../domain/types";
 
 function seedValue(input: GenerateRequest) {
@@ -33,7 +34,7 @@ function uniqueHeadings(candidates: string[]) {
   });
 }
 
-export function makeMockDraft(input: GenerateRequest): BlogDraft {
+export function makeMockDraft(input: GenerateRequest, contentLayoutPlan?: ContentLayoutPlan): BlogDraft {
   const preset = getPreset(input.categoryId, input.presetId);
   const category = getCategory(input.categoryId);
   const platform = getPlatform(input.platformId);
@@ -66,6 +67,32 @@ export function makeMockDraft(input: GenerateRequest): BlogDraft {
     { id: "IMG-05-CAUTION", role: "CAUTION", label: "확인 사항 이미지", placement: `${headings[3]} 아래`, afterSectionId: "sec-4", ratio: "3:2", size: "1200×800", prompt: `${topic}을 다룰 때 추가 확인이 필요한 부분을 차분하게 표현한 샘플 이미지.` },
   ];
 
+  const baseSections = [
+    { id: "sec-1", heading: headings[0], paragraphs: [end(`${openingPattern} 흐름으로 독자가 주제에 들어오는 지점을 잡아요. ${attrs ? `사용자가 준 조건(${attrs})까지만 사용해요.` : "구체 정보가 없으므로 배경 사실은 단정하지 않아요."}`, `${openingPattern} 흐름으로 독자가 주제에 들어오는 지점을 설정합니다. ${attrs ? `사용자가 제공한 조건(${attrs})까지만 사용합니다.` : "구체 정보가 없으므로 배경 사실은 단정하지 않습니다."}`)] },
+    { id: "sec-2", heading: headings[1], paragraphs: [end(`${sectionPattern} 순서가 이 프리셋의 중심이에요. 실제 내용 대신 어떤 관점을 확인해야 하는지 구조만 선명하게 보여줘요.`, `${sectionPattern} 순서가 이 프리셋의 중심입니다. 실제 내용 대신 확인할 관점의 구조만 명확히 제시합니다.`)] },
+    { id: "sec-3", heading: headings[2], paragraphs: [end(`${dna?.voice.paragraphRhythm || "문단 호흡을 달리해 읽는 리듬을 만듭니다."} 사진은 ${dna?.imageRhythm.summary || "내용 전환점에 역할별로 배치해요."}`, `${dna?.voice.paragraphRhythm || "문단 호흡을 달리해 읽는 리듬을 구성합니다."} 사진은 ${dna?.imageRhythm.summary || "내용 전환점에 역할별로 배치합니다."}`)] },
+    { id: "sec-4", heading: headings[3], paragraphs: [end(`마지막에는 ${closingPattern} 방식으로 정리해요. 판단에 필요한 실제 정보는 사용자가 확인한 자료로 채워야 해요.`, `마지막에는 ${closingPattern} 방식으로 정리합니다. 판단에 필요한 실제 정보는 사용자가 확인한 자료로 보완해야 합니다.`)] },
+  ];
+  const plannedSections = contentLayoutPlan
+    ? contentLayoutPlan.sections.map((planned, index) => ({
+        ...baseSections[index % baseSections.length],
+        id: planned.id,
+        heading: planned.heading,
+      }))
+    : baseSections;
+  const plannedImages = contentLayoutPlan
+    ? images.slice(0, input.imageCount).map((image, index) => {
+        const anchor = contentLayoutPlan.imageAnchors[index];
+        if (!anchor) return image;
+        return {
+          ...image,
+          role: anchor.role,
+          afterSectionId: anchor.afterSectionId,
+          placement: anchor.afterSectionId === null ? "제목 바로 아래" : "계획된 섹션 바로 아래",
+        };
+      })
+    : images.slice(0, input.imageCount);
+
   return {
     title: `[샘플] ${topic} — ${patternHeading(sectionPattern, structureUsed)}`,
     titleCandidates: [
@@ -83,15 +110,10 @@ export function makeMockDraft(input: GenerateRequest): BlogDraft {
       `${topic}을 어떤 순서와 분위기로 풀어낼지 먼저 보여드릴게요. 이 화면은 사실을 지어내지 않는 구성 확인용 샘플이에요.`,
       `${topic}을 어떤 순서와 분위기로 풀어낼지 먼저 제시합니다. 이 화면은 사실을 지어내지 않는 구성 확인용 샘플입니다.`,
     )],
-    sections: [
-      { id: "sec-1", heading: headings[0], paragraphs: [end(`${openingPattern} 흐름으로 독자가 주제에 들어오는 지점을 잡아요. ${attrs ? `사용자가 준 조건(${attrs})까지만 사용해요.` : "구체 정보가 없으므로 배경 사실은 단정하지 않아요."}`, `${openingPattern} 흐름으로 독자가 주제에 들어오는 지점을 설정합니다. ${attrs ? `사용자가 제공한 조건(${attrs})까지만 사용합니다.` : "구체 정보가 없으므로 배경 사실은 단정하지 않습니다."}`)] },
-      { id: "sec-2", heading: headings[1], paragraphs: [end(`${sectionPattern} 순서가 이 프리셋의 중심이에요. 실제 내용 대신 어떤 관점을 확인해야 하는지 구조만 선명하게 보여줘요.`, `${sectionPattern} 순서가 이 프리셋의 중심입니다. 실제 내용 대신 확인할 관점의 구조만 명확히 제시합니다.`)] },
-      { id: "sec-3", heading: headings[2], paragraphs: [end(`${dna?.voice.paragraphRhythm || "문단 호흡을 달리해 읽는 리듬을 만듭니다."} 사진은 ${dna?.imageRhythm.summary || "내용 전환점에 역할별로 배치해요."}`, `${dna?.voice.paragraphRhythm || "문단 호흡을 달리해 읽는 리듬을 구성합니다."} 사진은 ${dna?.imageRhythm.summary || "내용 전환점에 역할별로 배치합니다."}`)] },
-      { id: "sec-4", heading: headings[3], paragraphs: [end(`마지막에는 ${closingPattern} 방식으로 정리해요. 판단에 필요한 실제 정보는 사용자가 확인한 자료로 채워야 해요.`, `마지막에는 ${closingPattern} 방식으로 정리합니다. 판단에 필요한 실제 정보는 사용자가 확인한 자료로 보완해야 합니다.`)] },
-    ],
+    sections: plannedSections,
     closing: [end(`분위기는 '${dna?.mood.summary || "선택한 분위기"}' 방향을 유지하고, 다음 단계에서는 확인된 자료만 더해 완성해보세요.`, `분위기는 '${dna?.mood.summary || "선택한 분위기"}' 방향을 유지하고, 다음 단계에서는 확인된 자료만 추가해 완성하시기 바랍니다.`)],
     tags: [topic.replace(/\s/g, ""), category?.label.replace(/\s/g, "") || "블로그", platform.label.replace(/\s/g, "")],
-    images: images.slice(0, input.imageCount),
+    images: plannedImages,
     warnings: ["샘플 모드: 문체·구성·이미지 배치 확인용이며, 게시 전 실제 정보와 근거를 추가해야 합니다."],
   };
 }
