@@ -39,6 +39,9 @@ jobs:
       - name: Layout plan status safety QA
         run: node scripts/validate-layout-plan-status-safety.mjs
 
+      - name: Content layout plan generation QA
+        run: node scripts/validate-content-layout-plan-generation.mjs
+
       - name: Platform export QA
         run: npm run qa:platform
 

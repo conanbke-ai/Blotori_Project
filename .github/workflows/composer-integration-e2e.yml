@@ -56,6 +56,7 @@ jobs:
           node scripts/qa/validate-pack-dual-origin.mjs
           node scripts/qa/validate-editorial-visual-dual-origin.mjs
           node scripts/qa/validate-image-clipboard-dual-origin.mjs
+          node scripts/qa/validate-layout-plan-feedback-dual-origin.mjs
       - name: Server diagnostics on failure
         if: failure()
         run: tail -120 /tmp/blotori-next.log || true
