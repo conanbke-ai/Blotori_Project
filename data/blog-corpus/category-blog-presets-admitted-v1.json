@@ -1,0 +1,5056 @@
+{
+  "schemaVersion": 1,
+  "fixtureClassification": "source-derived",
+  "source": {
+    "sha256": "311817592919b060961676c36bc455c313ade87f19fd3e1f5f1a6688dc7ffde3",
+    "schemaVersion": 2,
+    "generatedAt": "2026-10-08T02:07:18.823Z",
+    "upstreamGeneratedAt": "2026-10-08T02:07:18.670Z",
+    "source": "BlogChart TOP10 x public full-post corpus · bias-corrected text/visual eligibility",
+    "inputBlogs": 274,
+    "categoryMemberships": 319,
+    "deduplicatedSources": true,
+    "deduplicationKey": "canonical source URL within app category",
+    "biasCorrected": true
+  },
+  "counts": {
+    "categories": 19,
+    "presets": 62,
+    "admitted": 58,
+    "rejected": 4,
+    "inputBlogs": 274,
+    "categoryMemberships": 319
+  },
+  "categories": [
+    {
+      "categoryId": "health",
+      "sourceThemes": [
+        "health-medical",
+        "diet"
+      ],
+      "analyzedBlogs": 20,
+      "presets": [
+        {
+          "id": "health-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 16,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 20%",
+                "해요체 비율 6%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 15%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 34자",
+              "paragraphRhythm": "중앙값 문단 길이 약 43자, 짧은 문단 비율 약 80%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.9, 느낌표 2.6, 웃음표현 1.3, 이모지 0.2",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.9/1000자",
+                "느낌표 2.6/1000자",
+                "ㅋㅋ/ㅎㅎ 1.3/1000자",
+                "이모지 0.2/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 43자, 짧은 문단 비율 약 80%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 13개, 텍스트↔이미지 전환 중앙값 6회",
+              "grouping": "평균 이미지 묶음 길이 0.5, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.1개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.5개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "health-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 10%",
+                "해요체 비율 13%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 3%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 19자",
+              "paragraphRhythm": "중앙값 문단 길이 약 20자, 짧은 문단 비율 약 100%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.1, 느낌표 1.7, 웃음표현 0.2, 이모지 3.1",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 1.1/1000자",
+                "느낌표 1.7/1000자",
+                "ㅋㅋ/ㅎㅎ 0.2/1000자",
+                "이모지 3.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 20자, 짧은 문단 비율 약 100%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 뒤 해시태그 묶음",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 16개, 텍스트↔이미지 전환 중앙값 18회",
+              "grouping": "평균 이미지 묶음 길이 1.2, 최대 연속 이미지 중앙값 3개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.2개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "health-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 37%",
+                "해요체 비율 0%",
+                "죠/쥬체 비율 0%",
+                "평서체 비율 3%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 53자",
+              "paragraphRhythm": "중앙값 문단 길이 약 85자, 짧은 문단 비율 약 49%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.1, 느낌표 0.0, 웃음표현 0.0, 이모지 0.1",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.1/1000자",
+                "느낌표 0.0/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 85자, 짧은 문단 비율 약 49%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "소제목 → 설명 → 관련 이미지",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 52개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 소제목으로 시각적 구획이 뚜렷함",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목 구획이 명확",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "food",
+      "sourceThemes": [
+        "food"
+      ],
+      "analyzedBlogs": 10,
+      "presets": [
+        {
+          "id": "food-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 7,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심",
+              "endings": [
+                "합니다체 비율 7%",
+                "해요체 비율 11%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 10%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 18자",
+              "paragraphRhythm": "중앙값 문단 길이 약 19자, 짧은 문단 비율 약 100%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.6, 느낌표 1.5, 웃음표현 0.2, 이모지 0.3",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 0.6/1000자",
+                "느낌표 1.5/1000자",
+                "ㅋㅋ/ㅎㅎ 0.2/1000자",
+                "이모지 0.3/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 19자, 짧은 문단 비율 약 100%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 23개, 텍스트↔이미지 전환 중앙값 29회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.3개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "food-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 2,
+          "admission": "REJECTED",
+          "reason": "FOOD_SHADOW_ACTIVATION_BLOCKED"
+        },
+        {
+          "id": "food-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "REJECTED",
+          "reason": "FOOD_SHADOW_ACTIVATION_BLOCKED"
+        }
+      ]
+    },
+    {
+      "categoryId": "daily",
+      "sourceThemes": [
+        "parenting",
+        "photography"
+      ],
+      "analyzedBlogs": 15,
+      "presets": [
+        {
+          "id": "daily-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 11,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 20%",
+                "해요체 비율 11%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 6%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 27자",
+              "paragraphRhythm": "중앙값 문단 길이 약 32자, 짧은 문단 비율 약 91%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.8, 느낌표 1.2, 웃음표현 0.4, 이모지 0.4",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.8/1000자",
+                "느낌표 1.2/1000자",
+                "ㅋㅋ/ㅎㅎ 0.4/1000자",
+                "이모지 0.4/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 32자, 짧은 문단 비율 약 91%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 25개, 텍스트↔이미지 전환 중앙값 22회",
+              "grouping": "평균 이미지 묶음 길이 0.9, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.2개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "daily-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 47%",
+                "해요체 비율 7%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 9%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 39자",
+              "paragraphRhythm": "중앙값 문단 길이 약 66자, 짧은 문단 비율 약 64%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.4, 느낌표 0.3, 웃음표현 0.2, 이모지 0.1",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.4/1000자",
+                "느낌표 0.3/1000자",
+                "ㅋㅋ/ㅎㅎ 0.2/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 66자, 짧은 문단 비율 약 64%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 21개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "daily-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 1%",
+                "해요체 비율 13%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 2%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 16자",
+              "paragraphRhythm": "중앙값 문단 길이 약 17자, 짧은 문단 비율 약 100%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.6, 느낌표 2.4, 웃음표현 1.6, 이모지 0.5",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 1.6/1000자",
+                "느낌표 2.4/1000자",
+                "ㅋㅋ/ㅎㅎ 1.6/1000자",
+                "이모지 0.5/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 17자, 짧은 문단 비율 약 100%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 20개, 텍스트↔이미지 전환 중앙값 29회",
+              "grouping": "평균 이미지 묶음 길이 1.1, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 1.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 컴포넌트도 일부 활용",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "travel",
+      "sourceThemes": [
+        "domestic-travel",
+        "overseas-travel"
+      ],
+      "analyzedBlogs": 20,
+      "presets": [
+        {
+          "id": "travel-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 12,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "혼합 종결어미",
+              "endings": [
+                "합니다체 비율 11%",
+                "해요체 비율 13%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 14%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 32자",
+              "paragraphRhythm": "중앙값 문단 길이 약 46자, 짧은 문단 비율 약 75%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.5, 느낌표 1.8, 웃음표현 0.3, 이모지 0.3",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 0.5/1000자",
+                "느낌표 1.8/1000자",
+                "ㅋㅋ/ㅎㅎ 0.3/1000자",
+                "이모지 0.3/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 46자, 짧은 문단 비율 약 75%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 33개, 텍스트↔이미지 전환 중앙값 29회",
+              "grouping": "평균 이미지 묶음 길이 1.1, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "travel-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 7,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 7%",
+                "해요체 비율 15%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 4%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 20자",
+              "paragraphRhythm": "중앙값 문단 길이 약 23자, 짧은 문단 비율 약 97%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.2, 느낌표 5.1, 웃음표현 0.4, 이모지 1.7",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 1.2/1000자",
+                "느낌표 5.1/1000자",
+                "ㅋㅋ/ㅎㅎ 0.4/1000자",
+                "이모지 1.7/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 23자, 짧은 문단 비율 약 97%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 30개, 텍스트↔이미지 전환 중앙값 36회",
+              "grouping": "평균 이미지 묶음 길이 1.1, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.1개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "travel-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 2%",
+                "해요체 비율 34%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 16%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 43자",
+              "paragraphRhythm": "중앙값 문단 길이 약 136자, 짧은 문단 비율 약 40%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.4, 느낌표 0.2, 웃음표현 4.6, 이모지 0.2",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 0.4/1000자",
+                "느낌표 0.2/1000자",
+                "ㅋㅋ/ㅎㅎ 4.6/1000자",
+                "이모지 0.2/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 136자, 짧은 문단 비율 약 40%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 35개, 텍스트↔이미지 전환 중앙값 27회",
+              "grouping": "평균 이미지 묶음 길이 1.7, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.4개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "중간~긴 설명 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도/위치 컴포넌트 활용",
+                "영상 컴포넌트도 일부 활용",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "review",
+      "sourceThemes": [
+        "it-review",
+        "car-review",
+        "beauty"
+      ],
+      "analyzedBlogs": 30,
+      "presets": [
+        {
+          "id": "review-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 24,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 24%",
+                "해요체 비율 8%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 10%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 35자",
+              "paragraphRhythm": "중앙값 문단 길이 약 58자, 짧은 문단 비율 약 67%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.1, 느낌표 2.1, 웃음표현 0.4, 이모지 0.5",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.1/1000자",
+                "느낌표 2.1/1000자",
+                "ㅋㅋ/ㅎㅎ 0.4/1000자",
+                "이모지 0.5/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 58자, 짧은 문단 비율 약 67%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 19개, 텍스트↔이미지 전환 중앙값 21회",
+              "grouping": "평균 이미지 묶음 길이 1.1, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.2개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "review-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심",
+              "endings": [
+                "합니다체 비율 7%",
+                "해요체 비율 15%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 4%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 22자",
+              "paragraphRhythm": "중앙값 문단 길이 약 24자, 짧은 문단 비율 약 93%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.4, 느낌표 1.8, 웃음표현 0.2, 이모지 0.4",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 0.4/1000자",
+                "느낌표 1.8/1000자",
+                "ㅋㅋ/ㅎㅎ 0.2/1000자",
+                "이모지 0.4/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 24자, 짧은 문단 비율 약 93%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 뒤 해시태그 묶음",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 24개, 텍스트↔이미지 전환 중앙값 29회",
+              "grouping": "평균 이미지 묶음 길이 1.1, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.3개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "review-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 2,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 26%",
+                "해요체 비율 8%",
+                "죠/쥬체 비율 3%",
+                "평서체 비율 18%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 34자",
+              "paragraphRhythm": "중앙값 문단 길이 약 54자, 짧은 문단 비율 약 68%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.8, 느낌표 1.4, 웃음표현 0.1, 이모지 0.2",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.8/1000자",
+                "느낌표 1.4/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.2/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 54자, 짧은 문단 비율 약 68%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 28개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "review-observed-04",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 48%",
+                "해요체 비율 12%",
+                "죠/쥬체 비율 5%",
+                "평서체 비율 4%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 63자",
+              "paragraphRhythm": "중앙값 문단 길이 약 67자, 짧은 문단 비율 약 50%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.5, 느낌표 0.1, 웃음표현 0.2, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.5/1000자",
+                "느낌표 0.1/1000자",
+                "ㅋㅋ/ㅎㅎ 0.2/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 67자, 짧은 문단 비율 약 50%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 12개, 텍스트↔이미지 전환 중앙값 11회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 장식이 적음, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "education",
+      "sourceThemes": [
+        "education",
+        "books"
+      ],
+      "analyzedBlogs": 17,
+      "presets": [
+        {
+          "id": "education-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 15,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 16%",
+                "해요체 비율 6%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 14%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 32자",
+              "paragraphRhythm": "중앙값 문단 길이 약 43자, 짧은 문단 비율 약 79%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.4, 느낌표 2.0, 웃음표현 0.1, 이모지 0.7",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.4/1000자",
+                "느낌표 2.0/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.7/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 43자, 짧은 문단 비율 약 79%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 10개, 텍스트↔이미지 전환 중앙값 9회",
+              "grouping": "평균 이미지 묶음 길이 0.8, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.2개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.8개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "education-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 3%",
+                "해요체 비율 15%",
+                "죠/쥬체 비율 3%",
+                "평서체 비율 3%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 15자",
+              "paragraphRhythm": "중앙값 문단 길이 약 16자, 짧은 문단 비율 약 100%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.0, 느낌표 2.5, 웃음표현 2.7, 이모지 0.2",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 1.0/1000자",
+                "느낌표 2.5/1000자",
+                "ㅋㅋ/ㅎㅎ 2.7/1000자",
+                "이모지 0.2/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 16자, 짧은 문단 비율 약 100%",
+            "opening": [
+              "도입 설명 후 첫 이미지 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 35개, 텍스트↔이미지 전환 중앙값 50회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 2.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 컴포넌트도 일부 활용",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "education-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "혼합 종결어미, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 0%",
+                "해요체 비율 0%",
+                "죠/쥬체 비율 0%",
+                "평서체 비율 5%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 25자",
+              "paragraphRhythm": "중앙값 문단 길이 약 27자, 짧은 문단 비율 약 98%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.5, 느낌표 0.0, 웃음표현 0.0, 이모지 0.5",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.5/1000자",
+                "느낌표 0.0/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.5/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 27자, 짧은 문단 비율 약 98%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "소제목 → 설명 → 관련 이미지",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "텍스트 중심, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 2개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 소제목으로 시각적 구획이 뚜렷함",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목 구획이 명확",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "hobby",
+      "sourceThemes": [
+        "design",
+        "music",
+        "photography"
+      ],
+      "analyzedBlogs": 26,
+      "presets": [
+        {
+          "id": "hobby-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 14,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 16%",
+                "해요체 비율 8%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 7%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 23자",
+              "paragraphRhythm": "중앙값 문단 길이 약 27자, 짧은 문단 비율 약 93%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.7, 느낌표 2.6, 웃음표현 0.3, 이모지 0.8",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.7/1000자",
+                "느낌표 2.6/1000자",
+                "ㅋㅋ/ㅎㅎ 0.3/1000자",
+                "이모지 0.8/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 27자, 짧은 문단 비율 약 93%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 25개, 텍스트↔이미지 전환 중앙값 22회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.1개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "hobby-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 10,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 27%",
+                "해요체 비율 6%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 10%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 37자",
+              "paragraphRhythm": "중앙값 문단 길이 약 54자, 짧은 문단 비율 약 74%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.7, 느낌표 1.5, 웃음표현 0.4, 이모지 0.1",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.7/1000자",
+                "느낌표 1.5/1000자",
+                "ㅋㅋ/ㅎㅎ 0.4/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 54자, 짧은 문단 비율 약 74%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 16개, 텍스트↔이미지 전환 중앙값 2회",
+              "grouping": "평균 이미지 묶음 길이 0.2, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.1개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.2개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "hobby-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 10%",
+                "해요체 비율 2%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 2%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 35자",
+              "paragraphRhythm": "중앙값 문단 길이 약 37자, 짧은 문단 비율 약 92%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.7, 느낌표 1.4, 웃음표현 0.0, 이모지 0.1",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.7/1000자",
+                "느낌표 1.4/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 37자, 짧은 문단 비율 약 92%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 뒤 해시태그 묶음",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진을 적절히 사용, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 5개, 텍스트↔이미지 전환 중앙값 4회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "hobby-observed-04",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 24%",
+                "해요체 비율 5%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 9%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 30자",
+              "paragraphRhythm": "중앙값 문단 길이 약 41자, 짧은 문단 비율 약 79%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.9, 느낌표 3.8, 웃음표현 2.6, 이모지 0.4",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.9/1000자",
+                "느낌표 3.8/1000자",
+                "ㅋㅋ/ㅎㅎ 2.6/1000자",
+                "이모지 0.4/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 41자, 짧은 문단 비율 약 79%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "소제목 → 설명 → 관련 이미지",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 60개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 소제목으로 시각적 구획이 뚜렷함",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목 구획이 명확",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "tech",
+      "sourceThemes": [
+        "it-review"
+      ],
+      "analyzedBlogs": 10,
+      "presets": [
+        {
+          "id": "tech-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 6,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 34%",
+                "해요체 비율 6%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 8%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 37자",
+              "paragraphRhythm": "중앙값 문단 길이 약 60자, 짧은 문단 비율 약 59%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.8, 느낌표 0.9, 웃음표현 0.1, 이모지 0.2",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.8/1000자",
+                "느낌표 0.9/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.2/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 60자, 짧은 문단 비율 약 59%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 17개, 텍스트↔이미지 전환 중앙값 22회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.3개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "tech-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "서술형 평서체 비중이 높음",
+              "endings": [
+                "합니다체 비율 19%",
+                "해요체 비율 1%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 37%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 46자",
+              "paragraphRhythm": "중앙값 문단 길이 약 106자, 짧은 문단 비율 약 33%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.8, 느낌표 1.1, 웃음표현 0.0, 이모지 0.1",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.8/1000자",
+                "느낌표 1.1/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 106자, 짧은 문단 비율 약 33%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 15개, 텍스트↔이미지 전환 중앙값 21회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "중간~긴 설명 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "tech-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "서술형 평서체 비중이 높음",
+              "endings": [
+                "합니다체 비율 24%",
+                "해요체 비율 5%",
+                "죠/쥬체 비율 3%",
+                "평서체 비율 29%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 44자",
+              "paragraphRhythm": "중앙값 문단 길이 약 79자, 짧은 문단 비율 약 45%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.1, 느낌표 0.9, 웃음표현 0.0, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.1/1000자",
+                "느낌표 0.9/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 79자, 짧은 문단 비율 약 45%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 23개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 장식이 적음, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "beauty-fashion",
+      "sourceThemes": [
+        "beauty",
+        "fashion"
+      ],
+      "analyzedBlogs": 17,
+      "presets": [
+        {
+          "id": "beauty-fashion-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 14,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 6%",
+                "해요체 비율 17%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 4%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 24자",
+              "paragraphRhythm": "중앙값 문단 길이 약 28자, 짧은 문단 비율 약 91%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.2, 느낌표 3.2, 웃음표현 0.6, 이모지 0.9",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 1.2/1000자",
+                "느낌표 3.2/1000자",
+                "ㅋㅋ/ㅎㅎ 0.6/1000자",
+                "이모지 0.9/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 28자, 짧은 문단 비율 약 91%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 22개, 텍스트↔이미지 전환 중앙값 24회",
+              "grouping": "평균 이미지 묶음 길이 1.1, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.1개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "beauty-fashion-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 2,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 7%",
+                "해요체 비율 3%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 3%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 21자",
+              "paragraphRhythm": "중앙값 문단 길이 약 29자, 짧은 문단 비율 약 90%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.6, 느낌표 1.1, 웃음표현 0.0, 이모지 0.2",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.6/1000자",
+                "느낌표 1.1/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.2/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 29자, 짧은 문단 비율 약 90%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "소제목 → 설명 → 관련 이미지",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 14개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 소제목으로 시각적 구획이 뚜렷함",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목 구획이 명확",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "beauty-fashion-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 21%",
+                "해요체 비율 12%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 6%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 35자",
+              "paragraphRhythm": "중앙값 문단 길이 약 38자, 짧은 문단 비율 약 84%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.8, 느낌표 2.7, 웃음표현 0.1, 이모지 0.1",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.8/1000자",
+                "느낌표 2.7/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 38자, 짧은 문단 비율 약 84%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 16개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 장식이 적음, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "parenting-family",
+      "sourceThemes": [
+        "parenting",
+        "wedding"
+      ],
+      "analyzedBlogs": 8,
+      "presets": [
+        {
+          "id": "parenting-family-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 6,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 10%",
+                "해요체 비율 13%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 4%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 25자",
+              "paragraphRhythm": "중앙값 문단 길이 약 27자, 짧은 문단 비율 약 96%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.3, 느낌표 2.7, 웃음표현 0.7, 이모지 0.6",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 1.3/1000자",
+                "느낌표 2.7/1000자",
+                "ㅋㅋ/ㅎㅎ 0.7/1000자",
+                "이모지 0.6/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 27자, 짧은 문단 비율 약 96%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 16개, 텍스트↔이미지 전환 중앙값 19회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.7개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "parenting-family-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 8%",
+                "해요체 비율 4%",
+                "죠/쥬체 비율 0%",
+                "평서체 비율 7%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 26자",
+              "paragraphRhythm": "중앙값 문단 길이 약 29자, 짧은 문단 비율 약 97%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.4, 느낌표 3.9, 웃음표현 3.5, 이모지 0.3",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.4/1000자",
+                "느낌표 3.9/1000자",
+                "ㅋㅋ/ㅎㅎ 3.5/1000자",
+                "이모지 0.3/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 29자, 짧은 문단 비율 약 97%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 38개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "parenting-family-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 19%",
+                "해요체 비율 6%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 7%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 37자",
+              "paragraphRhythm": "중앙값 문단 길이 약 54자, 짧은 문단 비율 약 65%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.6, 느낌표 4.7, 웃음표현 0.4, 이모지 5.4",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.6/1000자",
+                "느낌표 4.7/1000자",
+                "ㅋㅋ/ㅎㅎ 0.4/1000자",
+                "이모지 5.4/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 54자, 짧은 문단 비율 약 65%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 뒤 해시태그 묶음",
+              "검색 키워드형 해시태그를 비교적 많이 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 11개, 텍스트↔이미지 전환 중앙값 12회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 1.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.4개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그를 적극 활용"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "pets",
+      "sourceThemes": [
+        "pets"
+      ],
+      "analyzedBlogs": 10,
+      "presets": [
+        {
+          "id": "pets-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 7,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 6%",
+                "해요체 비율 14%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 4%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 23자",
+              "paragraphRhythm": "중앙값 문단 길이 약 26자, 짧은 문단 비율 약 94%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.1, 느낌표 2.8, 웃음표현 1.1, 이모지 0.4",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 1.1/1000자",
+                "느낌표 2.8/1000자",
+                "ㅋㅋ/ㅎㅎ 1.1/1000자",
+                "이모지 0.4/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 26자, 짧은 문단 비율 약 94%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 15개, 텍스트↔이미지 전환 중앙값 21회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.6개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "pets-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 2,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 39%",
+                "해요체 비율 14%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 7%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 41자",
+              "paragraphRhythm": "중앙값 문단 길이 약 63자, 짧은 문단 비율 약 65%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.6, 느낌표 0.1, 웃음표현 0.2, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.6/1000자",
+                "느낌표 0.1/1000자",
+                "ㅋㅋ/ㅎㅎ 0.2/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 63자, 짧은 문단 비율 약 65%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 뒤 해시태그 묶음",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 8개, 텍스트↔이미지 전환 중앙값 11회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.5개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 장식이 적음, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "pets-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 8%",
+                "해요체 비율 16%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 2%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 19자",
+              "paragraphRhythm": "중앙값 문단 길이 약 19자, 짧은 문단 비율 약 100%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.6, 느낌표 5.1, 웃음표현 0.0, 이모지 0.1",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 0.6/1000자",
+                "느낌표 5.1/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 19자, 짧은 문단 비율 약 100%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 뒤 해시태그 묶음",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 19개, 텍스트↔이미지 전환 중앙값 25회",
+              "grouping": "평균 이미지 묶음 길이 1.2, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.4개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 컴포넌트도 일부 활용",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "real-estate",
+      "sourceThemes": [
+        "real-estate"
+      ],
+      "analyzedBlogs": 10,
+      "presets": [
+        {
+          "id": "real-estate-observed-01",
+          "confidence": "medium",
+          "observedBlogCount": 8,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 28%",
+                "해요체 비율 2%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 13%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 34자",
+              "paragraphRhythm": "중앙값 문단 길이 약 44자, 짧은 문단 비율 약 77%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.9, 느낌표 0.5, 웃음표현 0.0, 이모지 0.6",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.9/1000자",
+                "느낌표 0.5/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.6/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 44자, 짧은 문단 비율 약 77%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 9개, 텍스트↔이미지 전환 중앙값 9회",
+              "grouping": "평균 이미지 묶음 길이 0.8, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.1개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.9개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "real-estate-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "혼합 종결어미, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 2%",
+                "해요체 비율 0%",
+                "죠/쥬체 비율 0%",
+                "평서체 비율 15%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 52자",
+              "paragraphRhythm": "중앙값 문단 길이 약 59자, 짧은 문단 비율 약 65%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.1, 느낌표 0.1, 웃음표현 0.0, 이모지 0.4",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.1/1000자",
+                "느낌표 0.1/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.4/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 59자, 짧은 문단 비율 약 65%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진을 적절히 사용, 사진을 2장 이상 묶어서 보여주는 구간이 많음, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 6개, 텍스트↔이미지 전환 중앙값 2회",
+              "grouping": "평균 이미지 묶음 길이 5.0, 최대 연속 이미지 중앙값 5개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 1.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 장식이 적음, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "real-estate-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 32%",
+                "해요체 비율 1%",
+                "죠/쥬체 비율 0%",
+                "평서체 비율 5%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 22자",
+              "paragraphRhythm": "중앙값 문단 길이 약 22자, 짧은 문단 비율 약 100%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.1, 느낌표 0.3, 웃음표현 0.1, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.1/1000자",
+                "느낌표 0.3/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 22자, 짧은 문단 비율 약 100%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 19개, 텍스트↔이미지 전환 중앙값 2회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 1.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 장식이 적음, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "finance",
+      "sourceThemes": [
+        "finance"
+      ],
+      "analyzedBlogs": 10,
+      "presets": [
+        {
+          "id": "finance-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 8,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 19%",
+                "해요체 비율 4%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 16%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 30자",
+              "paragraphRhythm": "중앙값 문단 길이 약 41자, 짧은 문단 비율 약 73%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.2, 느낌표 0.7, 웃음표현 0.1, 이모지 1.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.2/1000자",
+                "느낌표 0.7/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 1.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 41자, 짧은 문단 비율 약 73%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 10개, 텍스트↔이미지 전환 중앙값 14회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.3개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.3개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "finance-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 1%",
+                "해요체 비율 0%",
+                "죠/쥬체 비율 0%",
+                "평서체 비율 0%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 31자",
+              "paragraphRhythm": "중앙값 문단 길이 약 31자, 짧은 문단 비율 약 97%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.0, 느낌표 0.0, 웃음표현 0.0, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.0/1000자",
+                "느낌표 0.0/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 31자, 짧은 문단 비율 약 97%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "소제목 → 설명 → 관련 이미지",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 14개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 소제목으로 시각적 구획이 뚜렷함",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목 구획이 명확",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "finance-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "서술형 평서체 비중이 높음, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 22%",
+                "해요체 비율 3%",
+                "죠/쥬체 비율 0%",
+                "평서체 비율 37%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 60자",
+              "paragraphRhythm": "중앙값 문단 길이 약 153자, 짧은 문단 비율 약 13%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.3, 느낌표 0.0, 웃음표현 0.0, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.3/1000자",
+                "느낌표 0.0/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 153자, 짧은 문단 비율 약 13%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 뒤 해시태그 묶음",
+              "검색 키워드형 해시태그를 비교적 많이 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 9개, 텍스트↔이미지 전환 중앙값 15회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 장식이 적음, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "중간~긴 설명 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그를 적극 활용"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "career",
+      "sourceThemes": [
+        "jobs"
+      ],
+      "analyzedBlogs": 8,
+      "presets": [
+        {
+          "id": "career-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 4,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 30%",
+                "해요체 비율 2%",
+                "죠/쥬체 비율 0%",
+                "평서체 비율 13%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 39자",
+              "paragraphRhythm": "중앙값 문단 길이 약 53자, 짧은 문단 비율 약 71%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.6, 느낌표 1.0, 웃음표현 0.1, 이모지 0.3",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.6/1000자",
+                "느낌표 1.0/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.3/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 53자, 짧은 문단 비율 약 71%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 8개, 텍스트↔이미지 전환 중앙값 6회",
+              "grouping": "평균 이미지 묶음 길이 0.5, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.4개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "career-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 19%",
+                "해요체 비율 2%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 8%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 22자",
+              "paragraphRhythm": "중앙값 문단 길이 약 25자, 짧은 문단 비율 약 98%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.3, 느낌표 1.5, 웃음표현 0.1, 이모지 0.7",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.3/1000자",
+                "느낌표 1.5/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.7/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 25자, 짧은 문단 비율 약 98%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 8개, 텍스트↔이미지 전환 중앙값 7회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 1.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "career-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 26%",
+                "해요체 비율 0%",
+                "죠/쥬체 비율 5%",
+                "평서체 비율 4%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 26자",
+              "paragraphRhythm": "중앙값 문단 길이 약 29자, 짧은 문단 비율 약 91%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 3.8, 느낌표 1.8, 웃음표현 0.0, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 3.8/1000자",
+                "느낌표 1.8/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 29자, 짧은 문단 비율 약 91%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 14개, 텍스트↔이미지 전환 중앙값 8회",
+              "grouping": "평균 이미지 묶음 길이 1.9, 최대 연속 이미지 중앙값 5개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 1.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "auto",
+      "sourceThemes": [
+        "car-review"
+      ],
+      "analyzedBlogs": 10,
+      "presets": [
+        {
+          "id": "auto-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 8,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 33%",
+                "해요체 비율 5%",
+                "죠/쥬체 비율 3%",
+                "평서체 비율 7%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 42자",
+              "paragraphRhythm": "중앙값 문단 길이 약 55자, 짧은 문단 비율 약 66%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.4, 느낌표 1.5, 웃음표현 0.6, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.4/1000자",
+                "느낌표 1.5/1000자",
+                "ㅋㅋ/ㅎㅎ 0.6/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 55자, 짧은 문단 비율 약 66%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 20개, 텍스트↔이미지 전환 중앙값 18회",
+              "grouping": "평균 이미지 묶음 길이 1.1, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.1개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "auto-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 60%",
+                "해요체 비율 1%",
+                "죠/쥬체 비율 5%",
+                "평서체 비율 10%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 47자",
+              "paragraphRhythm": "중앙값 문단 길이 약 139자, 짧은 문단 비율 약 50%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.1, 느낌표 0.0, 웃음표현 0.0, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.1/1000자",
+                "느낌표 0.0/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 139자, 짧은 문단 비율 약 50%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 22개, 텍스트↔이미지 전환 중앙값 25회",
+              "grouping": "평균 이미지 묶음 길이 1.3, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "중간~긴 설명 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "auto-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 27%",
+                "해요체 비율 11%",
+                "죠/쥬체 비율 4%",
+                "평서체 비율 8%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 23자",
+              "paragraphRhythm": "중앙값 문단 길이 약 29자, 짧은 문단 비율 약 90%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.6, 느낌표 2.0, 웃음표현 0.2, 이모지 0.4",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.6/1000자",
+                "느낌표 2.0/1000자",
+                "ㅋㅋ/ㅎㅎ 0.2/1000자",
+                "이모지 0.4/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 29자, 짧은 문단 비율 약 90%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 33개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "gaming-entertainment",
+      "sourceThemes": [
+        "games",
+        "movies",
+        "comics-anime",
+        "entertainment",
+        "celebrities"
+      ],
+      "analyzedBlogs": 41,
+      "presets": [
+        {
+          "id": "gaming-entertainment-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 22,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 20%",
+                "해요체 비율 4%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 14%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 33자",
+              "paragraphRhythm": "중앙값 문단 길이 약 45자, 짧은 문단 비율 약 75%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.2, 느낌표 1.3, 웃음표현 0.2, 이모지 0.3",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.2/1000자",
+                "느낌표 1.3/1000자",
+                "ㅋㅋ/ㅎㅎ 0.2/1000자",
+                "이모지 0.3/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 45자, 짧은 문단 비율 약 75%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 18개, 텍스트↔이미지 전환 중앙값 20회",
+              "grouping": "평균 이미지 묶음 길이 1.2, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.1개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "gaming-entertainment-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 10,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "혼합 종결어미, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 15%",
+                "해요체 비율 5%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 16%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 27자",
+              "paragraphRhythm": "중앙값 문단 길이 약 33자, 짧은 문단 비율 약 89%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.6, 느낌표 4.7, 웃음표현 1.1, 이모지 0.3",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.6/1000자",
+                "느낌표 4.7/1000자",
+                "ㅋㅋ/ㅎㅎ 1.1/1000자",
+                "이모지 0.3/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 33자, 짧은 문단 비율 약 89%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 19개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "gaming-entertainment-observed-03",
+          "confidence": "low",
+          "observedBlogCount": 4,
+          "admission": "REJECTED",
+          "reason": "LOW_CONFIDENCE"
+        },
+        {
+          "id": "gaming-entertainment-observed-04",
+          "confidence": "high",
+          "observedBlogCount": 4,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "서술형 평서체 비중이 높음",
+              "endings": [
+                "합니다체 비율 14%",
+                "해요체 비율 3%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 32%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 38자",
+              "paragraphRhythm": "중앙값 문단 길이 약 55자, 짧은 문단 비율 약 71%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.7, 느낌표 0.5, 웃음표현 0.0, 이모지 2.4",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.7/1000자",
+                "느낌표 0.5/1000자",
+                "ㅋㅋ/ㅎㅎ 0.0/1000자",
+                "이모지 2.4/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 55자, 짧은 문단 비율 약 71%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 뒤 해시태그 묶음",
+              "검색 키워드형 해시태그를 비교적 많이 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 7개, 텍스트↔이미지 전환 중앙값 9회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.8개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.4개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그를 적극 활용"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "gaming-entertainment-observed-05",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 14%",
+                "해요체 비율 8%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 8%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 18자",
+              "paragraphRhythm": "중앙값 문단 길이 약 41자, 짧은 문단 비율 약 80%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 8.2, 느낌표 79.6, 웃음표현 13.4, 이모지 0.0",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 8.2/1000자",
+                "느낌표 79.6/1000자",
+                "ㅋㅋ/ㅎㅎ 13.4/1000자",
+                "이모지 0.0/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 41자, 짧은 문단 비율 약 80%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "검색 키워드형 해시태그를 비교적 많이 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 105개, 텍스트↔이미지 전환 중앙값 96회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 1.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.2개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 장식이 적음, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그를 적극 활용"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "living-interior",
+      "sourceThemes": [
+        "interior"
+      ],
+      "analyzedBlogs": 7,
+      "presets": [
+        {
+          "id": "living-interior-observed-01",
+          "confidence": "medium",
+          "observedBlogCount": 5,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 7%",
+                "해요체 비율 16%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 5%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 23자",
+              "paragraphRhythm": "중앙값 문단 길이 약 25자, 짧은 문단 비율 약 95%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.3, 느낌표 3.0, 웃음표현 1.0, 이모지 0.3",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 1.3/1000자",
+                "느낌표 3.0/1000자",
+                "ㅋㅋ/ㅎㅎ 1.0/1000자",
+                "이모지 0.3/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 25자, 짧은 문단 비율 약 95%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 19개, 텍스트↔이미지 전환 중앙값 15회",
+              "grouping": "평균 이미지 묶음 길이 0.8, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.2개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.6개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "living-interior-observed-02",
+          "confidence": "low",
+          "observedBlogCount": 1,
+          "admission": "REJECTED",
+          "reason": "LOW_CONFIDENCE"
+        },
+        {
+          "id": "living-interior-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 35%",
+                "해요체 비율 12%",
+                "죠/쥬체 비율 5%",
+                "평서체 비율 6%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 41자",
+              "paragraphRhythm": "중앙값 문단 길이 약 71자, 짧은 문단 비율 약 48%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.4, 느낌표 0.2, 웃음표현 0.1, 이모지 0.1",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.4/1000자",
+                "느낌표 0.2/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 71자, 짧은 문단 비율 약 48%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 17개, 텍스트↔이미지 전환 중앙값 26회",
+              "grouping": "평균 이미지 묶음 길이 1.1, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 1.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 컴포넌트도 일부 활용",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "marketing-business",
+      "sourceThemes": [
+        "marketing"
+      ],
+      "analyzedBlogs": 10,
+      "presets": [
+        {
+          "id": "marketing-business-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 4,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 21%",
+                "해요체 비율 2%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 19%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 26자",
+              "paragraphRhythm": "중앙값 문단 길이 약 35자, 짧은 문단 비율 약 86%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.5, 느낌표 1.5, 웃음표현 0.1, 이모지 0.7",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.5/1000자",
+                "느낌표 1.5/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.7/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 35자, 짧은 문단 비율 약 86%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 높은 편, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 12개, 텍스트↔이미지 전환 중앙값 15회",
+              "grouping": "평균 이미지 묶음 길이 1.2, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 1.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.3개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "marketing-business-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "혼합 종결어미, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 11%",
+                "해요체 비율 3%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 16%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 31자",
+              "paragraphRhythm": "중앙값 문단 길이 약 37자, 짧은 문단 비율 약 90%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.7, 느낌표 1.9, 웃음표현 1.2, 이모지 0.3",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.7/1000자",
+                "느낌표 1.9/1000자",
+                "ㅋㅋ/ㅎㅎ 1.2/1000자",
+                "이모지 0.3/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 37자, 짧은 문단 비율 약 90%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 15개, 텍스트↔이미지 전환 중앙값 4회",
+              "grouping": "평균 이미지 묶음 길이 0.7, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.3개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.6개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "marketing-business-observed-03",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 27%",
+                "해요체 비율 10%",
+                "죠/쥬체 비율 2%",
+                "평서체 비율 7%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 39자",
+              "paragraphRhythm": "중앙값 문단 길이 약 69자, 짧은 문단 비율 약 65%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.5, 느낌표 0.8, 웃음표현 0.1, 이모지 0.1",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.5/1000자",
+                "느낌표 0.8/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 69자, 짧은 문단 비율 약 65%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 18개, 텍스트↔이미지 전환 중앙값 18회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "categoryId": "outdoor-sports",
+      "sourceThemes": [
+        "sports",
+        "hiking",
+        "camping",
+        "fishing"
+      ],
+      "analyzedBlogs": 40,
+      "presets": [
+        {
+          "id": "outdoor-sports-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 23,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심",
+              "endings": [
+                "합니다체 비율 22%",
+                "해요체 비율 5%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 14%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 28자",
+              "paragraphRhythm": "중앙값 문단 길이 약 34자, 짧은 문단 비율 약 87%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.0, 느낌표 1.3, 웃음표현 0.7, 이모지 0.5",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 1.0/1000자",
+                "느낌표 1.3/1000자",
+                "ㅋㅋ/ㅎㅎ 0.7/1000자",
+                "이모지 0.5/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 34자, 짧은 문단 비율 약 87%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 26개, 텍스트↔이미지 전환 중앙값 24회",
+              "grouping": "평균 이미지 묶음 길이 1.1, 최대 연속 이미지 중앙값 2개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.5개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "outdoor-sports-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 15,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "혼합 종결어미",
+              "endings": [
+                "합니다체 비율 16%",
+                "해요체 비율 4%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 17%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 28자",
+              "paragraphRhythm": "중앙값 문단 길이 약 33자, 짧은 문단 비율 약 90%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 0.7, 느낌표 1.2, 웃음표현 0.7, 이모지 0.4",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 0.7/1000자",
+                "느낌표 1.2/1000자",
+                "ㅋㅋ/ㅎㅎ 0.7/1000자",
+                "이모지 0.4/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 33자, 짧은 문단 비율 약 90%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 21개, 텍스트↔이미지 전환 중앙값 3회",
+              "grouping": "평균 이미지 묶음 길이 0.5, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.2개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 핵심만 선택적으로 강조, 여백과 이미지로 구획",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소는 제한적",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "outdoor-sports-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "해요체 중심, 리액션 표현이 비교적 활발",
+              "endings": [
+                "합니다체 비율 7%",
+                "해요체 비율 10%",
+                "죠/쥬체 비율 5%",
+                "평서체 비율 3%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 25자",
+              "paragraphRhythm": "중앙값 문단 길이 약 31자, 짧은 문단 비율 약 99%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 1.3, 느낌표 1.1, 웃음표현 0.6, 이모지 6.2",
+              "readerDistance": "독자에게 가까운 대화형",
+              "punctuationHabits": [
+                "물음표 1.3/1000자",
+                "느낌표 1.1/1000자",
+                "ㅋㅋ/ㅎㅎ 0.6/1000자",
+                "이모지 6.2/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 31자, 짧은 문단 비율 약 99%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "검색 의도와 핵심 키워드를 제목에 충분히 포함"
+            ],
+            "sections": [
+              "사진/장면 → 짧은 설명 → 다음 장면",
+              "텍스트와 이미지를 자주 교차"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "검색 키워드형 해시태그를 비교적 많이 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 사진과 짧은 텍스트를 자주 교차, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 26개, 텍스트↔이미지 전환 중앙값 21회",
+              "grouping": "평균 이미지 묶음 길이 1.0, 최대 연속 이미지 중앙값 1개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 1.1개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "중앙 정렬 요소를 자주 사용, 강조 표현을 자주 사용, 여백과 이미지로 구획",
+              "alignment": "중앙 정렬 사용 빈도가 높음",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목보다 흐름 중심",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그를 적극 활용"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        },
+        {
+          "id": "outdoor-sports-observed-04",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "admission": "ADMITTED",
+          "reason": "ADMITTED_AGGREGATE_STYLE_ONLY",
+          "guidance": {
+            "voice": {
+              "summary": "합니다체 중심, 감탄·이모지 사용은 절제",
+              "endings": [
+                "합니다체 비율 21%",
+                "해요체 비율 3%",
+                "죠/쥬체 비율 1%",
+                "평서체 비율 8%"
+              ],
+              "sentenceRhythm": "중앙값 문장 길이 약 33자",
+              "paragraphRhythm": "중앙값 문단 길이 약 40자, 짧은 문단 비율 약 88%",
+              "transitions": [],
+              "lexicalHabits": [],
+              "emotionPattern": "1,000자당 물음표 2.1, 느낌표 0.6, 웃음표현 0.1, 이모지 0.1",
+              "readerDistance": "정보 전달 중심의 일정한 거리",
+              "punctuationHabits": [
+                "물음표 2.1/1000자",
+                "느낌표 0.6/1000자",
+                "ㅋㅋ/ㅎㅎ 0.1/1000자",
+                "이모지 0.1/1000자"
+              ],
+              "avoid": [
+                "특정 원문 문구 복제",
+                "최근 생성글과 동일한 도입·마무리 반복"
+              ]
+            },
+            "paragraphRhythm": "중앙값 문단 길이 약 40자, 짧은 문단 비율 약 88%",
+            "opening": [
+              "도입 텍스트를 짧게 쓰고 빠르게 첫 이미지로 진입",
+              "간결한 제목으로 시작"
+            ],
+            "sections": [
+              "소제목 → 설명 → 관련 이미지",
+              "섹션 단위로 텍스트와 이미지를 묶음"
+            ],
+            "closing": [
+              "짧은 총평 또는 추천 대상",
+              "필요한 태그만 제한적으로 사용"
+            ],
+            "imageRhythm": {
+              "summary": "사진 비중이 매우 높음, 이미지를 섹션 전환점에 배치, 사진 묶음 사이 텍스트가 짧음",
+              "cadence": "게시글당 이미지 중앙값 116개, 텍스트↔이미지 전환 중앙값 0회",
+              "grouping": "평균 이미지 묶음 길이 0.0, 최대 연속 이미지 중앙값 0개",
+              "placementRules": [
+                "첫 이미지 전 텍스트 컴포넌트 중앙값 0.0개",
+                "이미지 묶음 사이 텍스트 컴포넌트 중앙값 0.0개"
+              ],
+              "rolePreferences": [
+                "HERO",
+                "CONTEXT",
+                "EXPLAINER",
+                "TIP"
+              ],
+              "adaptationRules": [
+                "현재 보유 사진 수가 적으면 섹션을 압축",
+                "사진 수가 많으면 관찰된 묶음 길이 범위에서 분산",
+                "슬롯 번호보다 사진 의미와 글 흐름 우선"
+              ]
+            },
+            "visual": {
+              "summary": "본문 좌측 정렬 중심, 강조 표현을 자주 사용, 소제목으로 시각적 구획이 뚜렷함",
+              "alignment": "좌측 정렬 중심",
+              "emphasis": "강조 요소를 자주 사용",
+              "whitespace": "짧은 문단과 넓은 호흡",
+              "headingStyle": "소제목 구획이 명확",
+              "decorationHabits": [
+                "지도 사용은 선택적",
+                "영상 의존도 낮음",
+                "해시태그는 절제"
+              ],
+              "avoid": [
+                "전체 글의 동일 레이아웃 반복",
+                "근거 없는 장식 추가"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
