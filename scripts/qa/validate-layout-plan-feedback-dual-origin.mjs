@@ -30,7 +30,7 @@ function syntheticDraft(name, warning = "") {
     closing: ["합성 fixture 종료"],
     tags: ["SYNTHETIC"],
     images: [],
-    warnings: warning ? [`편집 계획 미적용: ${warning}`] : [],
+    warnings: warning ? [`편집 표현 계획 불일치: ${warning}`] : [],
   };
 }
 
@@ -192,8 +192,8 @@ async function runMismatch(originName, origin, mismatch, viewport, reducedMotion
     await prepareBasicGeneration(page, `합성 ${mismatch} mismatch`);
     await generateAndRead(page);
     const toast = await assertToastInsideViewport(page, "plan-unapplied");
-    await toast.getByText("원고는 보존했지만 편집 계획은 적용하지 않았어요.", { exact: true }).waitFor();
-    await toast.getByText(/‘검수’ 탭에서 이유를 확인/).waitFor();
+    await toast.getByText("원고는 보존했지만 편집 표현 계획은 적용하지 않았어요.", { exact: true }).waitFor();
+    await toast.getByText(/‘검수’ 탭에서 차이를 확인/).waitFor();
     assert.equal(await toast.locator(".successPaw").innerText(), "!");
     assert.equal(await page.locator("#inspector-tab-qa").getAttribute("aria-selected"), "true");
     assert.equal(generateCalls, 1);

@@ -105,7 +105,9 @@ try {
   });
   assert.equal(restaurant.plan.source.purposeField, "visitPurpose");
   assert.equal(restaurant.plan.intent, "experience");
-  assert.equal(restaurant.plan.sections.some((section) => section.id.startsWith("food-")), false, "food-specific sections are outside this candidate");
+  assert.equal(restaurant.plan.sections.some((section) => section.id === "food-facts"), true);
+  assert.equal(restaurant.plan.factPlan?.scope, "food-review");
+  assert.equal(restaurant.plan.factPlan?.facts.find((fact) => fact.key === "visitPurpose")?.value, "친구와 방문 경험");
 
   const stalePurposeInput = {
     ...baseInput,
@@ -172,7 +174,7 @@ try {
     assert.equal(validation.ok, false);
     const unapplied = applyContentLayoutPlanToGeneratedDraft(mismatch, baseInput.imageCount, first.plan);
     assert.equal(unapplied.contentLayoutPlan, undefined);
-    assert.ok(unapplied.warnings.some((warning) => warning.startsWith("편집 계획 미적용:")));
+    assert.ok(unapplied.warnings.some((warning) => warning.startsWith("편집 표현 계획 불일치:")));
     assert.deepEqual(mismatch, before, "mismatch handling must not repair or mutate provider evidence");
   }
 
@@ -208,7 +210,7 @@ try {
   });
   assert.equal(mismatchApiCalls, 1, "mismatched output must not trigger a retry");
   assert.equal(mismatchResult.draft.contentLayoutPlan, undefined);
-  assert.ok(mismatchResult.draft.warnings.some((warning) => warning.startsWith("편집 계획 미적용:")));
+  assert.ok(mismatchResult.draft.warnings.some((warning) => warning.startsWith("편집 표현 계획 불일치:")));
 
   let staleApiCalls = 0;
   const staleResult = await generateBlogDraft(stalePurposeInput, {
