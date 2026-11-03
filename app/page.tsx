@@ -3,13 +3,18 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { composeGenerationRequest } from "../lib/application/compose-generation-request";
 import { auditDraftBeforePublish } from "../lib/application/audit-draft-before-publish";
-import { buildPlatformExport } from "../lib/application/platform-exporter";
+import { buildPlatformExport, canExportDraft } from "../lib/application/platform-exporter";
 import { copyPlatformContent, copyResultMessage, prepareClipboardImages } from "../lib/browser/copy-platform-content";
 import { loadDraftImages } from "../lib/infrastructure/draft-workspace-storage";
 import PlatformExportPreview from "./PlatformExportPreview";
 import DraftImageControl from "./DraftImageControl";
 import LayoutPlanStatus from "./LayoutPlanStatus";
 import { applyDraftSectionOrder, editableSectionIds, moveDraftSection, type SectionMoveDirection } from "../lib/domain/draft-section-order";
+import { validateDraftPresentationAgainstContentLayoutPlan } from "../lib/domain/content-layout-plan";
+import {
+  CONTENT_LAYOUT_PLAN_UNAPPLIED_WARNING_PREFIX,
+  FACT_INTEGRITY_BLOCKING_WARNING_PREFIX,
+} from "../lib/domain/content-layout-plan-contract";
 import { useDraftWorkspace } from "./useDraftWorkspace";
 import { rememberLayoutFingerprint } from "../lib/domain/layout-history";
 import BlotoriAssetStudio from "./BlotoriAssetStudio";
@@ -128,7 +133,20 @@ export default function Home() {
   const { compact, single } = useWorkspaceLayout(workspaceRef, settingsOpen);
   const [reviewOpen, setReviewOpen] = useState(false);
   const editModeButtonRef = useRef<HTMLButtonElement>(null);
-  const planApplicationWarning = draft?.warnings.find((warning) => warning.startsWith("편집 계획 미적용:")) ?? "";
+  let planApplicationWarning = draft?.warnings.find((warning) => warning.startsWith(CONTENT_LAYOUT_PLAN_UNAPPLIED_WARNING_PREFIX)) ?? "";
+  if (draft?.contentLayoutPlan) {
+    try {
+      const currentPresentation = validateDraftPresentationAgainstContentLayoutPlan(draft, draft.contentLayoutPlan);
+      planApplicationWarning = currentPresentation.ok ? ""
+        : `${CONTENT_LAYOUT_PLAN_UNAPPLIED_WARNING_PREFIX} 현재 편집 결과가 생성 계획과 달라요. ${currentPresentation.reasons.join(" ")}`;
+    } catch {
+      planApplicationWarning = `${CONTENT_LAYOUT_PLAN_UNAPPLIED_WARNING_PREFIX} 저장된 편집 계획 형식을 확인할 수 없어요.`;
+    }
+  }
+  const factIntegrityWarning = draft && !canExportDraft(draft)
+    ? draft.warnings.find((warning) => warning.startsWith(FACT_INTEGRITY_BLOCKING_WARNING_PREFIX))
+      ?? `${FACT_INTEGRITY_BLOCKING_WARNING_PREFIX} 편집된 원고의 사실 항목을 다시 확인해 주세요.`
+    : "";
   useEffect(() => { setSectionOrderSession(null); setSectionOrderAnnouncement(""); }, [draftId]);
   useEffect(() => { if (!compact) setReviewOpen(false); }, [compact]);
 
@@ -158,9 +176,9 @@ export default function Home() {
   }, [loading]);
   useEffect(() => {
     if (!successVisible) return;
-    const timer = window.setTimeout(() => setSuccessVisible(false), planApplicationWarning ? 7000 : 2600);
+    const timer = window.setTimeout(() => setSuccessVisible(false), planApplicationWarning || factIntegrityWarning ? 7000 : 2600);
     return () => window.clearTimeout(timer);
-  }, [planApplicationWarning, successVisible]);
+  }, [factIntegrityWarning, planApplicationWarning, successVisible]);
 
   const category = useMemo(() => getCategory(form.categoryId), [form.categoryId]);
   const preset = useMemo(() => getPreset(form.categoryId, form.presetId), [form.categoryId, form.presetId]);
@@ -183,7 +201,9 @@ export default function Home() {
     return sectionOrderSession.pendingIds.map((id) => byId.get(id)).filter((section): section is BlogSection => Boolean(section));
   }, [draft, draftId, sectionOrderSession]);
 
-  const platformExport = useMemo(() => draft && form.platformId ? buildPlatformExport(draft, form.platformId) : null, [draft, form.platformId]);
+  const platformExport = useMemo(() => draft && form.platformId && canExportDraft(draft)
+    ? buildPlatformExport(draft, form.platformId)
+    : null, [draft, form.platformId]);
 
   const hasTopic = Boolean(form.presetId || form.freeTopic?.trim());
   const canGenerate = storageReady && Boolean(form.platformId) && (form.platformId !== "other" || Boolean(form.otherPlatform?.trim())) && hasTopic;
@@ -231,7 +251,9 @@ export default function Home() {
       const data = await res.json().catch(() => ({ error: "서버 응답을 읽지 못했습니다." }));
       if (!res.ok) throw new Error(data.error || (res.status === 503 ? "API 연결 설정을 확인해 주세요." : "생성 요청에 실패했습니다."));
       startDraft(data.draft); setMode(data.mode); setEditMode(false); setSuccessVisible(true); setMobilePanel("preview");
-      if (data?.draft?.warnings?.some((warning: unknown) => typeof warning === "string" && warning.startsWith("편집 계획 미적용:"))) {
+      if (data?.draft?.warnings?.some((warning: unknown) => typeof warning === "string"
+        && (warning.startsWith(CONTENT_LAYOUT_PLAN_UNAPPLIED_WARNING_PREFIX)
+          || warning.startsWith(FACT_INTEGRITY_BLOCKING_WARNING_PREFIX)))) {
         setInspectorTab("qa");
       }
       if (generationContext.layoutHistoryKey) {
@@ -276,8 +298,8 @@ export default function Home() {
   }
 
   async function copyTags() {
-    if (!draft || !form.platformId) return;
-    await copyText(buildPlatformExport(draft, form.platformId).tagsText, "tags");
+    if (!platformExport) return;
+    await copyText(platformExport.tagsText, "tags");
   }
 
   async function copyImageGuide() {
@@ -475,6 +497,8 @@ export default function Home() {
             </div>
           </div>}
 
+          {planApplicationWarning && <p className="sectionOrderExportNotice" role="status">문단·강조·카드·사진 표현이 편집 계획과 달라요. 원고는 보존했고 내보내기는 가능하지만 ‘검수’ 탭에서 차이를 확인해 주세요.</p>}
+          {factIntegrityWarning && <p className="sectionOrderExportNotice" role="alert">확인되지 않았거나 입력과 충돌하는 맛집 정보가 있어 본문·태그·이미지 가이드 내보내기를 잠갔어요. 원고는 보존했으니 ‘검수’ 탭에서 사실 항목을 확인해 주세요.</p>}
           {platformExport && sectionOrderSession?.draftId === draftId && <p className="sectionOrderExportNotice" role="status">내보내기 전에 구간 순서를 적용하거나 취소하세요.</p>}
           {platformExport && sectionOrderSession?.draftId !== draftId && <>
             <div className="previewActionBar"><button className="ghost" onClick={() => scrollPreview("top")}>↑ TOP</button><div>
@@ -499,7 +523,7 @@ export default function Home() {
       </div>
 
       {loading && <div className="generationOverlay" role="status" aria-live="polite"><div className="blotoriStateCard"><img className="loadingMascot" src="/blotori-character-master.png" alt="블로토리" /><div className="blotoriStateEyebrow">BLOTORI IS COMPOSING</div><h2>글과 이미지를 차근차근 엮고 있어요.</h2><p>{loadingStages[loadingStage]}</p><div className="blotoriProgressTrack"><div className="blotoriProgressBar" /></div><div className="blotoriStageList">{loadingStages.map((stage, index) => <div key={stage} className={`blotoriStageRow ${index < loadingStage ? "done" : index === loadingStage ? "active" : ""}`}><span className="stageDot">{index < loadingStage ? "✓" : index + 1}</span><span>{stage}</span></div>)}</div><span className="generationMeta">자료와 문체를 반영해 게시 전 초안을 정리하고 있어요.</span></div></div>}
-      {successVisible && draft && <div className="successToast" data-state={planApplicationWarning ? "plan-unapplied" : "complete"} role="status" aria-live="polite" aria-atomic="true"><div className="successPaw" aria-hidden="true">{planApplicationWarning ? "!" : "✦"}</div><div>{planApplicationWarning ? <><strong>원고는 보존했지만 편집 계획은 적용하지 않았어요.</strong><span>생성 결과가 계획한 섹션·이미지 구조와 일치하지 않았어요. ‘검수’ 탭에서 이유를 확인해 주세요.</span></> : <><strong>블로토리가 원고를 완성했어요.</strong><span>제목·이미지·검수 결과까지 확인해 주세요.</span></>}</div><button onClick={() => setSuccessVisible(false)} aria-label="생성 결과 알림 닫기">×</button></div>}
+      {successVisible && draft && <div className="successToast" data-state={factIntegrityWarning ? "fact-blocked" : planApplicationWarning ? "plan-unapplied" : "complete"} role="status" aria-live="polite" aria-atomic="true"><div className="successPaw" aria-hidden="true">{factIntegrityWarning || planApplicationWarning ? "!" : "✦"}</div><div>{factIntegrityWarning ? <><strong>원고는 보존했지만 사실 확인이 필요해요.</strong><span>확인되지 않았거나 입력과 충돌하는 맛집 정보가 있어 내보내기를 막았어요. ‘검수’ 탭에서 항목을 확인해 주세요.</span></> : planApplicationWarning ? <><strong>원고는 보존했지만 편집 표현 계획은 적용하지 않았어요.</strong><span>문단·강조·카드·사진 표현이 계획과 달라요. 내보내기는 가능하며 ‘검수’ 탭에서 차이를 확인할 수 있어요.</span></> : <><strong>블로토리가 원고를 완성했어요.</strong><span>제목·이미지·검수 결과까지 확인해 주세요.</span></>}</div><button onClick={() => setSuccessVisible(false)} aria-label="생성 결과 알림 닫기">×</button></div>}
     </main>
   );
 }
