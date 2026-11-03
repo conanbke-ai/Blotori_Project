@@ -1,4 +1,5 @@
 import type { ContentLayoutPlan } from "./content-layout-plan-contract";
+import type { FactPlan } from "./fact-provenance";
 export type PlatformId = "naver" | "tistory" | "blogger" | "wordpress" | "brunch" | "other";
 export type StyleId = "auto" | "custom" | "easy-expert" | "patient-guide" | "professional-column" | "honest-review" | "casual-daily" | "emotional-essay" | "concise-record" | "friendly-info" | "playful" | "shareable-info";
 export type StyleIntensity = 1 | 2 | 3 | 4 | 5;
@@ -198,6 +199,8 @@ export interface KnowledgeGrounding {
 
 export interface BlogDraft {
   contentLayoutPlan?: ContentLayoutPlan;
+  /** Independent fact-integrity contract retained even when presentation planning is not applied. */
+  factIntegrityPlan?: FactPlan;
   title: string;
   titleCandidates?: string[];
   titlePurpose?: string;

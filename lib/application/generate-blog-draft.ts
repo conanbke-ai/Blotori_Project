@@ -1,7 +1,15 @@
 import { ensureWarnings, normalizeImagePlans } from "../domain/rules";
 import { normalizeGlossaryFootnotes } from "../domain/glossary";
-import { buildContentLayoutPlan, validateDraftAgainstContentLayoutPlan } from "../domain/content-layout-plan";
-import type { ContentLayoutPlan } from "../domain/content-layout-plan-contract";
+import {
+  buildContentLayoutPlan,
+  validateDraftFactIntegrity,
+  validateDraftPresentationAgainstContentLayoutPlan,
+} from "../domain/content-layout-plan";
+import {
+  CONTENT_LAYOUT_PLAN_UNAPPLIED_WARNING_PREFIX,
+  FACT_INTEGRITY_BLOCKING_WARNING_PREFIX,
+  type ContentLayoutPlan,
+} from "../domain/content-layout-plan-contract";
 import type { BlogDraft, GenerateRequest } from "../domain/types";
 import { makeMockDraft } from "../infrastructure/mock-content-adapter";
 import { generateWithOpenAI } from "../infrastructure/openai-content-adapter";
@@ -40,21 +48,32 @@ export function applyContentLayoutPlanToGeneratedDraft(
   contentLayoutPlan: ContentLayoutPlan,
   inputWarnings: readonly string[] = [],
 ): BlogDraft {
-  const providerValidation = validateDraftAgainstContentLayoutPlan(draft, contentLayoutPlan);
+  const providerValidation = validateDraftPresentationAgainstContentLayoutPlan(draft, contentLayoutPlan);
+  const providerFacts = validateDraftFactIntegrity(draft, contentLayoutPlan);
   const normalized = normalizeDraft(draft, imageCount);
-  const normalizedValidation = validateDraftAgainstContentLayoutPlan(normalized, contentLayoutPlan);
+  const normalizedValidation = validateDraftPresentationAgainstContentLayoutPlan(normalized, contentLayoutPlan);
+  const normalizedFacts = validateDraftFactIntegrity(normalized, contentLayoutPlan);
   const validationReasons = [
     ...providerValidation.reasons.map((reason) => `provider 출력: ${reason}`),
     ...normalizedValidation.reasons.map((reason) => `정규화 결과: ${reason}`),
   ];
   const planApplied = providerValidation.ok && normalizedValidation.ok;
+  const factIntegrityPassed = providerFacts.ok && normalizedFacts.ok;
   const planWarnings = planApplied
     ? []
-    : [`편집 계획 미적용: 생성된 원고가 계획과 일치하지 않았어요. ${validationReasons.join(" ")}`];
+    : [`${CONTENT_LAYOUT_PLAN_UNAPPLIED_WARNING_PREFIX} 생성된 원고가 계획과 일치하지 않았어요. ${validationReasons.join(" ")}`];
+  const factReasons = [
+    ...providerFacts.reasons.map((reason) => `provider output: ${reason}`),
+    ...normalizedFacts.reasons.map((reason) => `normalized output: ${reason}`),
+  ];
+  const factWarnings = factIntegrityPassed
+    ? []
+    : [`${FACT_INTEGRITY_BLOCKING_WARNING_PREFIX} 확인되지 않았거나 입력과 충돌하는 맛집 정보가 있어 본문 내보내기를 막았어요. ${factReasons.join(" ")}`];
   return {
     ...normalized,
-    contentLayoutPlan: planApplied ? contentLayoutPlan : undefined,
-    warnings: [...new Set([...normalized.warnings, ...inputWarnings, ...planWarnings])],
+    contentLayoutPlan: planApplied && factIntegrityPassed ? contentLayoutPlan : undefined,
+    factIntegrityPlan: contentLayoutPlan.factPlan,
+    warnings: [...new Set([...normalized.warnings, ...inputWarnings, ...planWarnings, ...factWarnings])],
   };
 }
 

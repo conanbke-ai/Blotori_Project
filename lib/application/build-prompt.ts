@@ -40,8 +40,10 @@ export function buildPrompt(input: GenerateRequest, contentLayoutPlan?: ContentL
   const structure = getStructure(input.structureId);
   const styleIntensity = input.styleIntensity ?? 3;
 
+  const projectedFactFields = new Set((contentLayoutPlan?.factPlan?.facts ?? [])
+    .flatMap((fact) => fact.sourceField ? [fact.sourceField] : []));
   const attributes = Object.entries(input.attributes ?? {})
-    .filter(([, value]) => clean(value))
+    .filter(([key, value]) => !projectedFactFields.has(key) && clean(value))
     .map(([key, value]) => `- ${FIELD_DEFINITIONS[key]?.label ?? key}: ${clean(value)}`)
     .join("\n");
 
