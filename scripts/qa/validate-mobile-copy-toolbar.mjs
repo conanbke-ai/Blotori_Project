@@ -10,6 +10,9 @@ const screenshotDir = process.env.BLOTORI_QA_SCREENSHOT_DIR
   ? path.resolve(process.env.BLOTORI_QA_SCREENSHOT_DIR)
   : null;
 if (screenshotDir) await fs.mkdir(screenshotDir, { recursive: true });
+const mobileLayoutDiagnosticDir = process.env.BLOTORI_MOBILE_LAYOUT_DIAGNOSTIC_DIR
+  ? path.resolve(process.env.BLOTORI_MOBILE_LAYOUT_DIAGNOSTIC_DIR)
+  : null;
 
 const externalAttempts = [];
 const pageErrors = [];
@@ -168,6 +171,96 @@ async function toolbarMetrics(page) {
   });
 }
 
+async function captureMobileLayoutDiagnostic(page, label) {
+  const diagnostic = await page.evaluate(({ label }) => {
+    const measure = (node) => {
+      if (!node) return null;
+      const rect = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      return {
+        rect: {
+          x: Math.round(rect.x),
+          y: Math.round(rect.y),
+          top: Math.round(rect.top),
+          right: Math.round(rect.right),
+          bottom: Math.round(rect.bottom),
+          left: Math.round(rect.left),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+        },
+        clientWidth: node.clientWidth,
+        clientHeight: node.clientHeight,
+        scrollWidth: node.scrollWidth,
+        scrollHeight: node.scrollHeight,
+        display: style.display,
+        visibility: style.visibility,
+        position: style.position,
+        overflowX: style.overflowX,
+        overflowY: style.overflowY,
+      };
+    };
+    const platformSelect = [...document.querySelectorAll(".settingsRail select")]
+      .find((node) => [...node.options].some((option) => option.value === "naver"));
+    const visualViewport = window.visualViewport;
+    return {
+      evidence: "SYNTHETIC_MOCK_BROWSER_ONLY",
+      actualAiCalls: 0,
+      naverTransfers: 0,
+      osClipboardWrites: 0,
+      label,
+      phase: "closed-before-assertions",
+      viewport: {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        visualViewport: visualViewport ? {
+          width: visualViewport.width,
+          height: visualViewport.height,
+          offsetTop: visualViewport.offsetTop,
+          offsetLeft: visualViewport.offsetLeft,
+          scale: visualViewport.scale,
+        } : null,
+      },
+      currentPlatform: platformSelect?.value ?? null,
+      elements: {
+        previewStage: measure(document.querySelector(".previewStage")),
+        workspaceHeader: measure(document.querySelector(".workspaceHeader")),
+        workspacePreviewHeader: measure(document.querySelector(".workspacePreviewHeader")),
+        statusRow: measure(document.querySelector(".draftStorageStatus")),
+        warnings: [...document.querySelectorAll(".sectionOrderExportNotice")]
+          .map((node, index) => ({ index, role: node.getAttribute("role"), metrics: measure(node) })),
+        blogScroller: measure(document.querySelector(".blogScroller")),
+        actionBar: measure(document.querySelector(".previewActionBar")),
+        platformExportPanel: measure(document.querySelector(".platformExportPanel")),
+      },
+    };
+  }, { label });
+
+  console.log("BLOTORI_MOBILE_LAYOUT_DIAGNOSTIC", JSON.stringify(diagnostic));
+  if (mobileLayoutDiagnosticDir) {
+    try {
+      await fs.mkdir(mobileLayoutDiagnosticDir, { recursive: true });
+      const baseName = `${label}-closed-before-assertions`;
+      await fs.writeFile(
+        path.join(mobileLayoutDiagnosticDir, `${baseName}.json`),
+        `${JSON.stringify(diagnostic, null, 2)}\n`,
+        "utf8",
+      );
+      await page.screenshot({
+        path: path.join(mobileLayoutDiagnosticDir, `${baseName}.png`),
+        animations: "disabled",
+        fullPage: false,
+      });
+    } catch (error) {
+      console.warn("BLOTORI_MOBILE_LAYOUT_DIAGNOSTIC_WRITE_FAILED", JSON.stringify({
+        label,
+        message: error instanceof Error ? error.message : String(error),
+      }));
+    }
+  }
+
+  return diagnostic;
+}
+
 async function optionalScreenshot(page, name) {
   if (screenshotDir) await page.screenshot({ path: path.join(screenshotDir, name), animations: "disabled" });
 }
@@ -180,6 +273,7 @@ try {
     const { context, page } = await openGeneratedPage(browser, { width, height: 844 }, label);
     try {
       const closed = await toolbarMetrics(page);
+      await captureMobileLayoutDiagnostic(page, label);
       assert.ok(closed.actionBar && closed.actionBar.height <= 64, `${label} closed action bar height ${closed.actionBar?.height}`);
       assert.ok(closed.scrollerHeight >= 260, `${label} scroller height ${closed.scrollerHeight}`);
       assert.equal(closed.documentOverflow, 0);
