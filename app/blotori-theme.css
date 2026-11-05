@@ -497,6 +497,69 @@ body {
 .articleSection.visual-key-point .sectionBody p:last-child,
 .articleSection.visual-callout .sectionBody p:last-child,
 .articleSection.visual-quote .sectionBody p:last-child { margin-bottom: 0; }
+
+/* The plan intent is projected only while the saved draft still matches its
+   ContentLayoutPlan. These grammars change reading rhythm, not brand color. */
+.blogPaper[data-visual-grammar="experience"] {
+  max-width: 760px;
+}
+.blogPaper[data-visual-density="airy"] .articleSection {
+  margin-block: 48px;
+}
+.blogPaper[data-heading-density="sparse"] .articleSection.visual-standard h3 {
+  padding-left: 0;
+  border-left: 0;
+  font-size: 18px;
+  letter-spacing: -.01em;
+}
+.blogPaper[data-visual-grammar="experience"] .articleSection.visual-quote {
+  margin-inline: clamp(0px, 4vw, 38px);
+  padding-block: 24px;
+}
+.blogPaper[data-visual-density="airy"] .imageSlot {
+  margin-block: 36px 46px;
+}
+
+.blogPaper[data-visual-grammar="information"] {
+  max-width: 860px;
+}
+.blogPaper[data-visual-density="dense"] .articleSection {
+  margin-block: 28px;
+}
+.blogPaper[data-heading-density="high"] .articleSection.visual-standard {
+  padding-bottom: 22px;
+  border-bottom: 1px solid #e2eef0;
+  border-radius: 0;
+}
+.blogPaper[data-heading-density="high"] .articleSection.visual-standard h3 {
+  border-left-width: 4px;
+}
+.blogPaper[data-visual-density="dense"] .imageSlot {
+  margin-block: 24px 30px;
+}
+
+.blogPaper[data-visual-density="balanced"] .articleSection {
+  margin-block: 34px;
+}
+.blogPaper[data-heading-density="regular"] .articleSection.visual-standard h3 {
+  padding: 0 0 10px;
+  border-left: 0;
+  border-bottom: 1px solid #dcebed;
+}
+.blogPaper[data-visual-grammar="curation"] .articleSection.visual-key-point,
+.blogPaper[data-visual-grammar="curation"] .articleSection.visual-callout {
+  width: min(94%, 720px);
+}
+.blogPaper[data-visual-grammar="curation"] .articleSection.visual-key-point {
+  margin-right: auto;
+}
+.blogPaper[data-visual-grammar="curation"] .articleSection.visual-callout {
+  margin-left: auto;
+}
+.blogPaper[data-visual-density="balanced"] .imageSlot {
+  margin-block: 30px 38px;
+}
+
 @media (max-width: 760px) {
   .articleSection.visual-key-point,
   .articleSection.visual-callout,
@@ -504,4 +567,20 @@ body {
     padding: 15px 13px;
     margin-block: 20px;
   }
+  .blogPaper[data-visual-density="airy"] .articleSection {
+    margin-block: 30px;
+  }
+  .blogPaper[data-visual-density="balanced"] .articleSection { margin-block: 26px; }
+  .blogPaper[data-visual-density="dense"] .articleSection { margin-block: 22px; }
+  .blogPaper[data-visual-grammar="experience"] .articleSection.visual-quote,
+  .blogPaper[data-visual-grammar="curation"] .articleSection.visual-key-point,
+  .blogPaper[data-visual-grammar="curation"] .articleSection.visual-callout {
+    width: 100%;
+    margin-inline: 0;
+  }
+  .blogPaper[data-visual-density="airy"] .imageSlot { margin-block: 26px 32px; }
+  .blogPaper[data-visual-density="balanced"] .imageSlot {
+    margin-block: 24px 30px;
+  }
+  .blogPaper[data-visual-density="dense"] .imageSlot { margin-block: 20px 24px; }
 }

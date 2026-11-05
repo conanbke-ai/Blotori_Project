@@ -30,6 +30,7 @@ try {
   const { CATEGORY_DEFINITIONS } = require("../lib/domain/content-config.ts");
   const {
     buildContentLayoutPlan,
+    CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX,
     validateDraftAgainstContentLayoutPlan,
   } = require("../lib/domain/content-layout-plan.ts");
   const { buildPrompt } = require("../lib/application/build-prompt.ts");
@@ -58,6 +59,13 @@ try {
     learningGoal: 3,
     visitPurpose: 1,
   });
+  const generationFixtures = CATEGORY_DEFINITIONS.flatMap((category) => category.presets.length > 0
+    ? category.presets.map((preset) => ({ categoryId: category.id, presetId: preset.id, fieldIds: preset.fieldIds }))
+    : [{ categoryId: category.id, presetId: "", fieldIds: category.defaultFieldIds }]);
+  const knownNonPurposeFields = [...new Set(selectionStates.flatMap((state) => state.fieldIds))]
+    .filter((field) => !purposeFields.includes(field));
+  assert.equal(generationFixtures.length, 28, "every selectable preset and every presetless category needs a synthetic admission fixture");
+  assert.equal(generationFixtures.reduce((count, fixture) => count + fixture.fieldIds.length, 0), 111);
 
   const baseInput = {
     platformId: "naver",
@@ -80,7 +88,8 @@ try {
   assert.equal(first.plan.source.purposeField, "goal");
   assert.equal(first.plan.source.purposeValue, baseInput.attributes.goal);
   assert.deepEqual(first.plan.source.excludedPurposeFields, []);
-  assert.deepEqual(first.warnings, []);
+  assert.equal(first.generationInput.attributes.audience, undefined);
+  assert.ok(first.warnings.some((warning) => warning.includes("사용하지 않는 상세 입력")));
   assert.equal(first.plan.intent, "information");
 
   const emptyPurpose = buildContentLayoutPlan({ ...baseInput, attributes: { audience: "초보자", goal: "   " } });
@@ -134,6 +143,137 @@ try {
   assert.equal(directRequest.generationInput.attributes.visitPurpose, undefined);
   assert.deepEqual(directRequest.plan.source.excludedPurposeFields, ["learningGoal", "visitPurpose"]);
   assert.equal(directRequest.warnings.length, 1);
+
+  let retainedActiveFields = 0;
+  let rejectedInactiveFields = 0;
+  for (const fixture of generationFixtures) {
+    const attributes = Object.fromEntries(fixture.fieldIds.map((field) => [field, `VALID_${fixture.categoryId}_${fixture.presetId || "default"}_${field}`]));
+    const rawInput = {
+      ...baseInput,
+      categoryId: fixture.categoryId,
+      presetId: fixture.presetId,
+      attributes,
+    };
+    const rawBefore = structuredClone(rawInput);
+    const admitted = buildContentLayoutPlan(rawInput);
+    assert.deepEqual(rawInput, rawBefore, `${fixture.categoryId}/${fixture.presetId || "default"} raw input must remain immutable`);
+    for (const field of fixture.fieldIds) {
+      assert.equal(admitted.generationInput.attributes[field], attributes[field], `${fixture.categoryId}/${fixture.presetId || "default"} must retain ${field}`);
+      retainedActiveFields += 1;
+    }
+
+    const inactiveField = knownNonPurposeFields.find((field) => !fixture.fieldIds.includes(field));
+    assert.ok(inactiveField, `${fixture.categoryId}/${fixture.presetId || "default"} requires a known inactive field fixture`);
+    const leakSentinel = `INACTIVE_LEAK_${fixture.categoryId}_${fixture.presetId || "default"}`;
+    const injectedInput = {
+      ...rawInput,
+      attributes: { ...attributes, [inactiveField]: leakSentinel },
+    };
+    const injectedBefore = structuredClone(injectedInput);
+    const filtered = buildContentLayoutPlan(injectedInput);
+    assert.deepEqual(injectedInput, injectedBefore, "inactive filtering must not mutate raw input");
+    assert.equal(filtered.generationInput.attributes[inactiveField], undefined, `${fixture.categoryId}/${fixture.presetId || "default"} must reject ${inactiveField}`);
+    assert.ok(filtered.warnings.some((warning) => warning.includes("사용하지 않는 상세 입력")));
+    assert.ok(filtered.warnings.some((warning) => warning.startsWith(CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX)));
+    assert.ok(filtered.warnings.some((warning) => warning.includes(inactiveField)));
+    assert.doesNotMatch(filtered.warnings.join("\n"), new RegExp(leakSentinel), "warnings must not repeat rejected values");
+
+    const filteredPrompt = buildPrompt(filtered.generationInput, filtered.plan);
+    const filteredProviderDraft = makeMockDraft(filtered.generationInput, filtered.plan);
+    const filteredDraft = applyContentLayoutPlanToGeneratedDraft(
+      filteredProviderDraft,
+      injectedInput.imageCount,
+      filtered.plan,
+      filtered.warnings,
+    );
+    const filteredExport = buildPlatformExport(filteredDraft, "naver");
+    assert.doesNotMatch(filteredPrompt, new RegExp(leakSentinel), "inactive value must not leak into prompt");
+    assert.doesNotMatch(JSON.stringify(filteredDraft), new RegExp(leakSentinel), "inactive value must not leak into mock draft");
+    assert.doesNotMatch(JSON.stringify(filteredExport), new RegExp(leakSentinel), "inactive value must not leak into export");
+    rejectedInactiveFields += 1;
+  }
+  assert.equal(retainedActiveFields, 111);
+  assert.equal(rejectedInactiveFields, 28);
+
+  const foodAttributes = {
+    place: "합성 식당",
+    menu: "합성 메뉴",
+    visitPurpose: "합성 방문 목적",
+    priceRange: "합성 가격대",
+    tastePoint: "합성 맛 특징",
+  };
+  const cleanFood = buildContentLayoutPlan({
+    ...baseInput,
+    categoryId: "food",
+    presetId: "restaurant-review",
+    attributes: foodAttributes,
+  });
+  const injectedFood = buildContentLayoutPlan({
+    ...baseInput,
+    categoryId: "food",
+    presetId: "restaurant-review",
+    attributes: { ...foodAttributes, symptom: "INACTIVE_FOOD_LEAK" },
+  });
+  assert.deepEqual(injectedFood.plan.factPlan, cleanFood.plan.factPlan, "inactive filtering must not change admitted food fact provenance");
+  assert.equal(injectedFood.generationInput.attributes.symptom, undefined);
+
+  const freeCategory = buildContentLayoutPlan({
+    ...baseInput,
+    categoryId: "free",
+    presetId: "",
+    attributes: { audience: "합성 독자", situation: "합성 상황", keywords: "합성 키워드", menu: "FREE_CATEGORY_LEAK" },
+  });
+  assert.deepEqual(freeCategory.generationInput.attributes, {
+    audience: "합성 독자",
+    situation: "합성 상황",
+    keywords: "합성 키워드",
+  });
+
+  const unknownCategory = buildContentLayoutPlan({
+    ...baseInput,
+    categoryId: "unknown-category",
+    presetId: "",
+    attributes: { audience: "UNKNOWN_CATEGORY_LEAK" },
+  });
+  assert.deepEqual(unknownCategory.generationInput.attributes, {}, "unknown categories must fail closed rather than infer a schema");
+  assert.ok(unknownCategory.warnings.some((warning) => warning.includes("카테고리를 확인할 수 없어")));
+
+  const mismatchedPreset = buildContentLayoutPlan({
+    ...baseInput,
+    categoryId: "health",
+    presetId: "restaurant-review",
+    attributes: { audience: "MISMATCHED_PRESET_LEAK", goal: "MISMATCHED_PURPOSE_LEAK" },
+  });
+  assert.deepEqual(mismatchedPreset.generationInput.attributes, {}, "a nonempty mismatched preset must fail closed rather than use category defaults");
+  assert.ok(mismatchedPreset.warnings.some((warning) => warning.includes("주제 구성을 현재 카테고리에서 확인할 수 없어")));
+  assert.doesNotMatch(buildPrompt(mismatchedPreset.generationInput, mismatchedPreset.plan), /MISMATCHED_(?:PRESET|PURPOSE)_LEAK/);
+
+  const hostileUnknownKey = `unknown\nPRIVATE_KEY_${"x".repeat(256)}`;
+  const malformedAttributes = buildContentLayoutPlan({
+    ...baseInput,
+    attributes: { goal: "합성 목적", [hostileUnknownKey]: "UNKNOWN_KEY_VALUE_LEAK", audience: 123 },
+  });
+  assert.deepEqual(malformedAttributes.generationInput.attributes, { goal: "합성 목적" });
+  assert.ok(malformedAttributes.warnings.some((warning) => warning.includes("알 수 없는 상세 입력 1개")));
+  assert.ok(malformedAttributes.warnings.some((warning) => warning.includes("문자열이 아닌 상세 입력 1개")));
+  assert.doesNotMatch(malformedAttributes.warnings.join("\n"), /PRIVATE_KEY_|UNKNOWN_KEY_VALUE_LEAK/,
+    "unknown keys and rejected values must not be copied into persisted warnings");
+  assert.doesNotMatch(buildPrompt(malformedAttributes.generationInput, malformedAttributes.plan), /PRIVATE_KEY_|UNKNOWN_KEY_VALUE_LEAK|123/);
+
+  const numericPurpose = buildContentLayoutPlan({ ...baseInput, attributes: { goal: 123 } });
+  assert.deepEqual(numericPurpose.generationInput.attributes, {});
+  assert.equal(numericPurpose.plan.source.purposeField, null);
+  assert.ok(numericPurpose.warnings.some((warning) => warning.includes("문자열이 아닌 상세 입력 1개")));
+
+  const numericFoodFact = buildContentLayoutPlan({
+    ...baseInput,
+    categoryId: "food",
+    presetId: "restaurant-review",
+    attributes: { ...foodAttributes, place: 123 },
+  });
+  assert.equal(numericFoodFact.generationInput.attributes.place, undefined);
+  assert.equal(numericFoodFact.plan.factPlan?.facts.find((fact) => fact.key === "place")?.status, "UNKNOWN");
+  assert.ok(numericFoodFact.warnings.some((warning) => warning.includes("문자열이 아닌 상세 입력 1개")));
 
   const prompt = buildPrompt(first.generationInput, first.plan);
   for (const section of first.plan.sections) {
@@ -223,6 +363,7 @@ try {
   });
   assert.equal(staleApiCalls, 1);
   assert.ok(staleResult.draft.warnings.some((warning) => /사용하지 않는 목적 필드/.test(warning)));
+  assert.ok(staleResult.draft.warnings.some((warning) => warning.startsWith(CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX)));
   assert.doesNotMatch(JSON.stringify(staleResult.draft), /이전 preset의 숨은 값/);
 
   let mockCalls = 0;
@@ -240,7 +381,15 @@ try {
   assert.equal(readLayoutPlanStatus(mockResult.draft.contentLayoutPlan).kind, "planned");
   assert.deepEqual(baseInput, inputBefore, "full generation must leave the raw request unchanged");
 
-  console.log("Content layout plan generation QA PASS: 20 categories/15 presets/35 selection states; raw freeTopic preserved; purpose admission and exclusion recorded; deterministic plan→prompt→mock/API ID contract; mismatch left unapplied without mutation or retry; legacy and export projections unchanged. Fixtures are SYNTHETIC; no provider or user data used.");
+  const pageSource = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(pageSource, /warning\.startsWith\(CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX\)/,
+    "generation completion must route admission warnings to the QA tab");
+  assert.match(pageSource, /inputAdmissionWarning \? "input-adjusted"/,
+    "generation completion must expose an input-adjusted live status");
+  assert.match(pageSource, /setInspectorTab\("qa"\)/,
+    "warning completion must select the QA tab");
+
+  console.log("Content layout plan generation QA PASS: 20 categories/15 presets/35 selection states; 28 generation fixtures retained 111/111 active fields and rejected 28/28 injected inactive fields before prompt/mock/export; unknown category and mismatched preset fail closed; raw freeTopic preserved; purpose admission and exclusion recorded; deterministic plan→prompt→mock/API ID contract; mismatch left unapplied without mutation or retry; legacy and export projections unchanged. Fixtures are SYNTHETIC; no provider, Naver, external service, or user data used.");
 } finally {
   if (originalTs) Module._extensions[".ts"] = originalTs; else delete Module._extensions[".ts"];
   if (originalTsx) Module._extensions[".tsx"] = originalTsx; else delete Module._extensions[".tsx"];

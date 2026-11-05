@@ -45,11 +45,17 @@ jobs:
       - name: Content layout plan generation QA
         run: node scripts/validate-content-layout-plan-generation.mjs
 
+      - name: Non-food input summary QA
+        run: node scripts/validate-nonfood-input-summary.mjs
+
       - name: Observed style admission QA
         run: node scripts/validate-category-blog-presets-admission.mjs
 
       - name: Observed category style runtime QA
         run: node scripts/validate-observed-style-runtime.mjs
+
+      - name: Mock style oracle QA
+        run: node scripts/validate-mock-style-oracle.mjs
 
       - name: Content design pipeline QA
         run: node scripts/validate-content-design-pipeline.mjs

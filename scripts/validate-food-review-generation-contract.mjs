@@ -304,8 +304,8 @@ try {
   const mockSource = readFileSync(new URL("../lib/infrastructure/mock-content-adapter.ts", import.meta.url), "utf8");
   assert.match(promptSource, /!projectedFactFields\.has\(key\)/,
     "fact-bound form fields must be excluded from the generic attributes prompt by source key");
-  assert.match(mockSource, /factPlan\?\.scope === "food-review" \? "" : rawAttributes/,
-    "mock narrative and image generation must not receive the generic fact-bound attributes string");
+  assert.match(mockSource, /const attributes = contentLayoutPlan\?\.factPlan\?\.scope === "food-review" \? \[\] : rawAttributes/,
+    "mock narrative and image generation must not receive generic fact-bound attributes");
   assert.deepEqual(input, rawBefore, "generation and export fixtures must leave raw input unchanged");
 
   console.log(JSON.stringify({

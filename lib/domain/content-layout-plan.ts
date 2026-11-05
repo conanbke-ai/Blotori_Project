@@ -1,4 +1,4 @@
-import { getCategory, getPreset } from "./content-config";
+import { FIELD_DEFINITIONS, getCategory, getPreset } from "./content-config";
 import type {
   ContentIntent,
   ContentLayoutPlan,
@@ -7,6 +7,10 @@ import type {
 } from "./content-layout-plan-contract";
 import type { BlogDraft, GenerateRequest, ImageRole, SectionVisualStyle, StructureId } from "./types";
 import type { FactPlan } from "./fact-provenance";
+import {
+  CATEGORY_INPUT_SUMMARY_SECTION_ID,
+  projectCategoryInputSummary,
+} from "./category-input-summary";
 import {
   projectedFoodReviewSourceFields,
   buildFoodReviewFactPlan,
@@ -25,12 +29,41 @@ import {
 } from "./observed-style";
 
 const PURPOSE_FIELDS = ["goal", "learningGoal", "visitPurpose"] as const satisfies readonly ContentPurposeField[];
+export const CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX = "편집 계획 입력 확인:";
+
+interface AttributeSchemaResolution {
+  activeFields: Set<string>;
+  warnings: string[];
+}
 
 export interface ContentLayoutPlanBuildResult {
   plan: ContentLayoutPlan;
   /** A derived request admitted by the selected category/preset schema. The raw request is never mutated. */
   generationInput: GenerateRequest;
   warnings: string[];
+}
+
+export interface ContentLayoutVisualGrammarProjection {
+  intent: ContentLayoutPlan["intent"];
+  headingDensity: ContentLayoutPlan["headingDensity"];
+  density?: ContentLayoutPlan["typography"]["density"];
+}
+
+/**
+ * Project only a plan that still matches the current draft. Keeping this gate
+ * in one pure function prevents intent defaults from overriding an observed
+ * heading or whitespace token and makes mismatch fallback fail closed.
+ */
+export function resolveContentLayoutVisualGrammar(
+  plan: ContentLayoutPlan | undefined,
+  applied: boolean,
+): ContentLayoutVisualGrammarProjection | undefined {
+  if (!plan || !applied) return undefined;
+  return {
+    intent: plan.intent,
+    headingDensity: plan.headingDensity,
+    ...(plan.typography.density ? { density: plan.typography.density } : {}),
+  };
 }
 
 export interface LayoutPlanValidation {
@@ -50,12 +83,32 @@ function intentFromText(value: string): ContentIntent | undefined {
   if (/가이드|체크리스트|정보|교육|정리|안내|실무|방법/.test(value)) return "information";
 }
 
-function resolvePurpose(input: GenerateRequest) {
+function resolveAttributeSchema(input: GenerateRequest): AttributeSchemaResolution {
   const category = getCategory(input.categoryId);
+  if (!category) {
+    return {
+      activeFields: new Set(),
+      warnings: [`${CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX} 선택한 카테고리를 확인할 수 없어 상세 입력을 생성에서 제외했어요.`],
+    };
+  }
+
+  if (!input.presetId) return { activeFields: new Set(category.defaultFieldIds), warnings: [] };
   const preset = getPreset(input.categoryId, input.presetId);
-  const activeFields = new Set(preset?.fieldIds ?? category?.defaultFieldIds ?? []);
+  if (!preset) {
+    return {
+      activeFields: new Set(),
+      warnings: [`${CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX} 선택한 주제 구성을 현재 카테고리에서 확인할 수 없어 상세 입력을 생성에서 제외했어요.`],
+    };
+  }
+  return { activeFields: new Set(preset.fieldIds), warnings: [] };
+}
+
+function resolvePurpose(input: GenerateRequest, activeFields: ReadonlySet<string>) {
   const activePurposeFields = PURPOSE_FIELDS.filter((field) => activeFields.has(field));
-  const suppliedPurposeFields = PURPOSE_FIELDS.filter((field) => Boolean(input.attributes?.[field]?.trim()));
+  const suppliedPurposeFields = PURPOSE_FIELDS.filter((field) => {
+    const value = input.attributes?.[field];
+    return typeof value === "string" && Boolean(value.trim());
+  });
   const warnings: string[] = [];
 
   // Current form definitions expose at most one purpose field per category/preset.
@@ -63,13 +116,13 @@ function resolvePurpose(input: GenerateRequest) {
   const schemaPurposeField = activePurposeFields.length === 1 ? activePurposeFields[0] : null;
   const purposeField = schemaPurposeField && suppliedPurposeFields.includes(schemaPurposeField) ? schemaPurposeField : null;
   if (activePurposeFields.length > 1) {
-    warnings.push(`편집 계획 입력 확인: 활성 목적 필드가 여러 개라 목적값을 계획에 적용하지 않았어요 (${activePurposeFields.join(", ")}).`);
+    warnings.push(`${CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX} 활성 목적 필드가 여러 개라 목적값을 계획에 적용하지 않았어요 (${activePurposeFields.join(", ")}).`);
   }
 
   const excludedPurposeFields = suppliedPurposeFields.filter((field) => field !== purposeField);
   const inactivePurposeFields = suppliedPurposeFields.filter((field) => !activeFields.has(field));
   if (inactivePurposeFields.length > 0) {
-    warnings.push(`편집 계획 입력 확인: 현재 카테고리·주제에서 사용하지 않는 목적 필드를 계획에서 제외했어요 (${inactivePurposeFields.join(", ")}).`);
+    warnings.push(`${CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX} 현재 카테고리·주제에서 사용하지 않는 목적 필드를 계획에서 제외했어요 (${inactivePurposeFields.join(", ")}).`);
   }
 
   return {
@@ -84,9 +137,12 @@ function admittedGenerationInput(
   input: GenerateRequest,
   purpose: ReturnType<typeof resolvePurpose>,
   factPlan: FactPlan | undefined,
+  activeFields: ReadonlySet<string>,
 ): GenerateRequest {
   const projectedFoodFields = projectedFoodReviewSourceFields(factPlan);
   const attributes = Object.fromEntries(Object.entries(input.attributes ?? {})
+    .filter(([key]) => activeFields.has(key))
+    .filter(([, value]) => typeof value === "string")
     .filter(([key]) => !(PURPOSE_FIELDS as readonly string[]).includes(key))
     .filter(([key]) => !factPlan || !isProtectedFoodReviewSourceField(key) || projectedFoodFields.has(key)));
   if (purpose.purposeField) attributes[purpose.purposeField] = purpose.purposeValue;
@@ -140,6 +196,12 @@ function section(
   };
 }
 
+const PROTECTED_FACT_SECTION_IDS = new Set(["food-facts", CATEGORY_INPUT_SUMMARY_SECTION_ID]);
+
+function isProtectedFactSection(sectionId: string) {
+  return PROTECTED_FACT_SECTION_IDS.has(sectionId);
+}
+
 function decoratedSections(
   sections: ContentLayoutSection[],
   intent: ContentIntent,
@@ -152,15 +214,17 @@ function decoratedSections(
       : ["takeaway", "verdict", "evidence", "application"];
   const preferred = sections
     .map((item, index) => ({ item, index, rank: preferredKinds.indexOf(item.kind) }))
-    .filter((entry) => entry.item.id !== "food-facts" && entry.rank >= 0)
+    .filter((entry) => !isProtectedFactSection(entry.item.id) && entry.rank >= 0)
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
     .slice(0, cardLimit);
   const selected = new Set(preferred.map((entry) => entry.item.id));
   return sections.map((item) => {
     if (!selected.has(item.id)) return item;
-    const visualStyle: SectionVisualStyle = item.kind === "takeaway" || item.kind === "verdict"
-      ? "callout"
-      : "key-point";
+    const visualStyle: SectionVisualStyle = intent === "experience"
+      ? "quote"
+      : item.kind === "takeaway" || item.kind === "verdict"
+        ? "callout"
+        : "key-point";
     return { ...item, visualStyle };
   });
 }
@@ -220,6 +284,25 @@ function withFoodFactSection(
     .map((item, index) => ({ ...item, priority: index + 1 }));
 }
 
+function withCategoryFactSection(
+  sections: ContentLayoutSection[],
+  input: GenerateRequest,
+  intent: ContentIntent,
+): ContentLayoutSection[] {
+  const category = getCategory(input.categoryId);
+  if (!category) return sections;
+  const items = projectCategoryInputSummary(input);
+  if (items.length === 0) return sections;
+
+  const factSection = section(CATEGORY_INPUT_SUMMARY_SECTION_ID, "context", `${category.label} 한눈에 보기`, 1, [], intent);
+  factSection.paragraphRange = [items.length, items.length];
+  factSection.visualStyle = "key-point";
+  factSection.optionalFactKeys = items.map((item) => item.fieldId);
+  const insertAt = Math.min(1, sections.length);
+  return [...sections.slice(0, insertAt), factSection, ...sections.slice(insertAt)]
+    .map((item, index) => ({ ...item, priority: index + 1 }));
+}
+
 function applyObservedParagraphRhythm(
   sections: ContentLayoutSection[],
   observed: ObservedStyleResolution,
@@ -227,7 +310,7 @@ function applyObservedParagraphRhythm(
   if (!observed.guidance || !observed.provenance.toggles.paragraph) return sections;
   const band = observed.guidance.paragraph.band;
   return sections.map((item) => {
-    if (item.id === "food-facts" || item.kind === "takeaway" || item.kind === "verdict") return item;
+    if (isProtectedFactSection(item.id) || item.kind === "takeaway" || item.kind === "verdict") return item;
     const paragraphRange: [number, number] = band === "compact" ? [1, 2]
       : band === "extended" ? [2, 3]
         : item.kind === "context" || item.kind === "scene" ? [1, 2] : [2, 3];
@@ -243,7 +326,7 @@ function buildImageAnchors(
 ) {
   const count = Math.max(0, Math.min(6, input.imageCount));
   const roles = getPreset(input.categoryId, input.presetId)?.suggestedImageRoles ?? ["HERO", "CONTEXT", "EXPLAINER", "TIP"];
-  const editorialSections = sections.filter((item) => item.id !== "food-facts");
+  const editorialSections = sections.filter((item) => !isProtectedFactSection(item.id));
   return Array.from({ length: count }, (_, slot) => {
     if (slot === 0) return {
       slot,
@@ -276,24 +359,54 @@ function buildImageAnchors(
 }
 
 export function buildContentLayoutPlan(input: GenerateRequest): ContentLayoutPlanBuildResult {
-  const purpose = resolvePurpose(input);
-  const factPlan = buildFoodReviewFactPlan(input);
-  const generationInput = admittedGenerationInput(input, purpose, factPlan);
+  const attributeEntries = Object.entries(input.attributes ?? {});
+  const invalidAttributeValueCount = attributeEntries.filter(([, value]) => typeof value !== "string").length;
+  const stringAttributeInput: GenerateRequest = {
+    ...input,
+    attributes: Object.fromEntries(attributeEntries.filter(([, value]) => typeof value === "string")),
+  };
+  const schema = resolveAttributeSchema(input);
+  const purpose = resolvePurpose(stringAttributeInput, schema.activeFields);
+  const inactiveAttributeFields = attributeEntries
+    .filter(([, value]) => typeof value === "string" && Boolean(value.trim()))
+    .map(([key]) => key)
+    .filter((key) => !(PURPOSE_FIELDS as readonly string[]).includes(key))
+    .filter((key) => !schema.activeFields.has(key))
+    .sort();
+  const knownInactiveAttributeFields = inactiveAttributeFields.filter((key) => Object.hasOwn(FIELD_DEFINITIONS, key));
+  const unknownAttributeCount = inactiveAttributeFields.length - knownInactiveAttributeFields.length;
+  const attributeWarnings = [
+    ...(knownInactiveAttributeFields.length > 0
+      ? [`${CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX} 현재 카테고리·주제 구성에서 사용하지 않는 상세 입력을 생성에서 제외했어요 (${knownInactiveAttributeFields.join(", ")}).`]
+      : []),
+    ...(unknownAttributeCount > 0
+      ? [`${CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX} 알 수 없는 상세 입력 ${unknownAttributeCount}개를 생성에서 제외했어요.`]
+      : []),
+    ...(invalidAttributeValueCount > 0
+      ? [`${CONTENT_LAYOUT_PLAN_INPUT_WARNING_PREFIX} 문자열이 아닌 상세 입력 ${invalidAttributeValueCount}개를 생성에서 제외했어요.`]
+      : []),
+  ];
+  const factPlan = buildFoodReviewFactPlan(stringAttributeInput);
+  const generationInput = admittedGenerationInput(stringAttributeInput, purpose, factPlan, schema.activeFields);
   const observed = resolveObservedStyleGuidance(generationInput);
   const intent = resolveIntent(generationInput, purpose.purposeValue);
   const intensity = input.styleIntensity ?? 3;
   const requestedCardLimit = intensity <= 1 ? 0 : intensity >= 4 || intent === "curation" ? 2 : 1;
   const rawSections = applyObservedParagraphRhythm(
-    withFoodFactSection(planSections(generationInput, intent), factPlan, intent),
+    withCategoryFactSection(
+      withFoodFactSection(planSections(generationInput, intent), factPlan, intent),
+      generationInput,
+      intent,
+    ),
     observed,
   );
-  const cardLimit = Math.min(requestedCardLimit, rawSections.filter((item) => item.id !== "food-facts").length);
+  const cardLimit = Math.min(requestedCardLimit, rawSections.filter((item) => !isProtectedFactSection(item.id)).length);
   const sections = decoratedSections(rawSections, intent, cardLimit);
   const visualDNA = input.blogDNA && input.blogDNAApply?.visual !== false ? input.blogDNA.visual : null;
   const observedVisual = observed.provenance.toggles.visual ? observed.guidance?.visual : undefined;
   const observedCentered = observedVisual?.alignment === "center-mixed";
   const centered = Boolean(visualDNA && /가운데|중앙/.test(visualDNA.alignment));
-  const eligibleEmphasisSections = sections.filter((item) => item.id !== "food-facts").length;
+  const eligibleEmphasisSections = sections.filter((item) => !isProtectedFactSection(item.id)).length;
   const minimumEmphasisSections = intensity <= 1 ? 0 : Math.min(intensity >= 4 ? 2 : 1, eligibleEmphasisSections);
   const plan: ContentLayoutPlan = {
     version: 1,
@@ -341,9 +454,9 @@ export function buildContentLayoutPlan(input: GenerateRequest): ContentLayoutPla
     naverLoss: [],
     missingFacts: foodReviewMissingFacts(factPlan),
     ...(factPlan ? { factPlan } : {}),
-    consistencyWarnings: [...purpose.warnings],
+    consistencyWarnings: [...schema.warnings, ...purpose.warnings, ...attributeWarnings],
   };
-  return { plan, generationInput, warnings: [...purpose.warnings] };
+  return { plan, generationInput, warnings: [...schema.warnings, ...purpose.warnings, ...attributeWarnings] };
 }
 
 export function contentLayoutPrompt(plan: ContentLayoutPlan): string {
@@ -371,8 +484,11 @@ Return the plan in the actual JSON fields; do not merely describe it or repair t
 function validateObservedStylePlanApplication(plan: ContentLayoutPlan): string[] {
   const provenance = plan.source.observedStyle;
   const guidance = plan.observedStyle;
-  if (provenance?.status !== "applied" || !guidance) return [];
   const reasons: string[] = [];
+  if (plan.imageAnchors.some((item) => item.afterSectionId !== null && isProtectedFactSection(item.afterSectionId))) {
+    reasons.push("Observed image rhythm cannot target a protected fixed-information section.");
+  }
+  if (provenance?.status !== "applied" || !guidance) return reasons;
   if (provenance.toggles.paragraph) {
     const expected: [number, number] = guidance.paragraph.band === "compact" ? [30, 110]
       : guidance.paragraph.band === "extended" ? [85, 240] : [55, 175];
@@ -391,9 +507,6 @@ function validateObservedStylePlanApplication(plan: ContentLayoutPlan): string[]
     if (guidance.visual.emphasis === "selective" && plan.emphasis.maxPerSection > 1) {
       reasons.push("Observed selective emphasis limit is not reflected in the layout plan.");
     }
-  }
-  if (plan.imageAnchors.some((item) => item.afterSectionId === "food-facts")) {
-    reasons.push("Observed image rhythm cannot override the protected food-facts boundary.");
   }
   return reasons;
 }
@@ -427,7 +540,7 @@ export function validateDraftPresentationAgainstContentLayoutPlan(draft: BlogDra
     }
     const emphasis = draftSection.presentation?.emphasis ?? [];
     if (emphasis.length > plan.emphasis.maxPerSection) reasons.push(`${planned.id}: too many emphasis marks.`);
-    if (planned.id !== "food-facts" && emphasis.length > 0) emphasizedSections += 1;
+    if (!isProtectedFactSection(planned.id) && emphasis.length > 0) emphasizedSections += 1;
     for (const item of emphasis) {
       if (!plan.emphasis.kinds.includes(item.kind)) reasons.push(`${planned.id}: emphasis kind is not allowed.`);
       if (!item.phrase || !draftSection.paragraphs.some((paragraph) => paragraph.includes(item.phrase))) {
@@ -435,7 +548,7 @@ export function validateDraftPresentationAgainstContentLayoutPlan(draft: BlogDra
       }
     }
   }
-  const actualCards = sections.filter((item) => item.id !== "food-facts"
+  const actualCards = sections.filter((item) => !isProtectedFactSection(item.id)
     && !["standard", "glossary"].includes(item.presentation?.visualStyle ?? "standard")).length;
   if (actualCards > plan.emphasis.cardLimit) reasons.push("Card section count exceeds the plan.");
   if (emphasizedSections < (plan.emphasis.minimumSections ?? 0)) reasons.push("Too few sections contain planned emphasis.");

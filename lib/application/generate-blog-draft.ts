@@ -13,6 +13,7 @@ import {
 import type { BlogDraft, GenerateRequest } from "../domain/types";
 import { makeMockDraft } from "../infrastructure/mock-content-adapter";
 import { generateWithOpenAI } from "../infrastructure/openai-content-adapter";
+import { validateInputSummaryAgainstGenerationInput } from "../domain/category-input-summary";
 
 export type GenerationMode = "mock" | "api";
 
@@ -47,17 +48,27 @@ export function applyContentLayoutPlanToGeneratedDraft(
   imageCount: number,
   contentLayoutPlan: ContentLayoutPlan,
   inputWarnings: readonly string[] = [],
+  generationInput?: GenerateRequest,
 ): BlogDraft {
   const providerValidation = validateDraftPresentationAgainstContentLayoutPlan(draft, contentLayoutPlan);
+  const providerInputSummaryReasons = generationInput
+    ? validateInputSummaryAgainstGenerationInput(draft, generationInput, contentLayoutPlan)
+    : [];
   const providerFacts = validateDraftFactIntegrity(draft, contentLayoutPlan);
   const normalized = normalizeDraft(draft, imageCount);
   const normalizedValidation = validateDraftPresentationAgainstContentLayoutPlan(normalized, contentLayoutPlan);
+  const normalizedInputSummaryReasons = generationInput
+    ? validateInputSummaryAgainstGenerationInput(normalized, generationInput, contentLayoutPlan)
+    : [];
   const normalizedFacts = validateDraftFactIntegrity(normalized, contentLayoutPlan);
   const validationReasons = [
     ...providerValidation.reasons.map((reason) => `provider 출력: ${reason}`),
+    ...providerInputSummaryReasons.map((reason) => `provider input summary: ${reason}`),
     ...normalizedValidation.reasons.map((reason) => `정규화 결과: ${reason}`),
+    ...normalizedInputSummaryReasons.map((reason) => `normalized input summary: ${reason}`),
   ];
-  const planApplied = providerValidation.ok && normalizedValidation.ok;
+  const planApplied = providerValidation.ok && providerInputSummaryReasons.length === 0
+    && normalizedValidation.ok && normalizedInputSummaryReasons.length === 0;
   const factIntegrityPassed = providerFacts.ok && normalizedFacts.ok;
   const planWarnings = planApplied
     ? []
@@ -85,7 +96,7 @@ export async function generateBlogDraft(
   if (!process.env.OPENAI_API_KEY) {
     if (process.env.BLOTORI_MOCK_MODE === "true") {
       return {
-        draft: applyContentLayoutPlanToGeneratedDraft(providers.mock(generationInput, plan), input.imageCount, plan, warnings),
+        draft: applyContentLayoutPlanToGeneratedDraft(providers.mock(generationInput, plan), input.imageCount, plan, warnings, generationInput),
         mode: "mock",
       };
     }
@@ -97,7 +108,7 @@ export async function generateBlogDraft(
 
   const generated = await providers.api(generationInput, plan);
   return {
-    draft: applyContentLayoutPlanToGeneratedDraft(generated, input.imageCount, plan, warnings),
+    draft: applyContentLayoutPlanToGeneratedDraft(generated, input.imageCount, plan, warnings, generationInput),
     mode: "api",
   };
 }

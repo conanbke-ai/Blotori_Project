@@ -41,8 +41,6 @@ function publicDraftText(draft) {
 }
 
 const internalObservedTokenPattern = /compact paragraph rhythm|balanced paragraph rhythm|extended paragraph rhythm|very-high\s*\/|section-transition|\binterleaved\b/i;
-const casualObservedFlowSentence = "짧은 문단으로 빠르게 이어지는 호흡을 유지하고, 사진은 본문과 사진을 번갈아 잇는 흐름에 맞춰 배치해요.";
-const formalObservedFlowSentence = "짧고 중간 길이 문단을 섞은 호흡을 유지하고, 사진은 내용이 바뀌는 지점에 사진을 두는 흐름에 맞춰 배치합니다.";
 
 function neutralExplicitBlogDNA() {
   return {
@@ -314,8 +312,8 @@ try {
     assert.ok(generated.draft.contentLayoutPlan, `${categoryId} mock must satisfy and attach the plan`);
     assert.doesNotMatch(publicDraftText(generated.draft), internalObservedTokenPattern,
       `${categoryId} public draft text must not expose internal observed enums`);
-    if (categoryId === "food") assert.equal(publicDraftText(generated.draft).includes(casualObservedFlowSentence), true);
-    if (categoryId === "health") assert.equal(publicDraftText(generated.draft).includes(formalObservedFlowSentence), true);
+    if (categoryId === "food") assert.match(publicDraftText(generated.draft), /(?:해요|봐요|볼게요)\./);
+    if (categoryId === "health") assert.match(publicDraftText(generated.draft), /(?:합니다|살펴봅니다|보겠습니다)\./);
     assert.equal(validateDraftAgainstContentLayoutPlan(generated.draft, first.plan).ok, true);
     results.push({ categoryId, ...first, prompt: controlledPrompt, draft: generated.draft });
   }
