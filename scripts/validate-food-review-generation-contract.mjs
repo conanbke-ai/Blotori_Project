@@ -170,9 +170,22 @@ try {
   };
   const confinedBuild = buildContentLayoutPlan(confinedInput);
   const confinedDraft = makeMockDraft(confinedBuild.generationInput, confinedBuild.plan);
-  const genericImageText = confinedDraft.images.map((image) => image.prompt).join(" ").replaceAll(/\s/g, "");
-  assert.equal(genericImageText.includes("AlphaPlace"), false,
-    "fact-bound place input must not feed generic image prompt construction, including whitespace variants");
+  const confinedFactSection = confinedDraft.sections.find((section) => section.id === "food-facts");
+  assert.equal(confinedFactSection?.paragraphs.join(" ").replaceAll(/\s/g, "").includes("AlphaPlace"), true,
+    "fact-bound place input must remain in the exact provenance section");
+  const confinedGenericText = [
+    confinedDraft.summary,
+    ...confinedDraft.intro,
+    ...confinedDraft.closing,
+    ...confinedDraft.tags,
+    ...confinedDraft.sections.filter((section) => section.id !== "food-facts").flatMap((section) => [
+      ...section.paragraphs,
+      ...(section.presentation?.emphasis?.map((emphasis) => emphasis.phrase) ?? []),
+    ]),
+    ...confinedDraft.images.map((image) => image.prompt),
+  ].join(" ").replaceAll(/\s/g, "");
+  assert.equal(confinedGenericText.includes("AlphaPlace"), false,
+    "fact-bound place input must not feed generic narrative, emphasis, tags, or image prompts, including whitespace variants");
 
   const correctedWithStaleWarning = structuredClone(generated.draft);
   correctedWithStaleWarning.warnings.push("사실 무결성 차단: 이전 검수 결과");
@@ -304,8 +317,9 @@ try {
   const mockSource = readFileSync(new URL("../lib/infrastructure/mock-content-adapter.ts", import.meta.url), "utf8");
   assert.match(promptSource, /!projectedFactFields\.has\(key\)/,
     "fact-bound form fields must be excluded from the generic attributes prompt by source key");
-  assert.match(mockSource, /const attributes = contentLayoutPlan\?\.factPlan\?\.scope === "food-review" \? \[\] : rawAttributes/,
-    "mock narrative and image generation must not receive generic fact-bound attributes");
+  assert.match(mockSource,
+    /const attributes = contentLayoutPlan\?\.factPlan\?\.scope === "food-review"\s*\?\s*\[\]\s*:\s*rawAttributes\.filter\(\(attribute\) => !inputSummaryFieldIds\.has\(attribute\.fieldId\)\);/,
+    "mock food narrative and images must receive no generic attributes, while non-food summaries exclude already projected fields");
   assert.deepEqual(input, rawBefore, "generation and export fixtures must leave raw input unchanged");
 
   console.log(JSON.stringify({

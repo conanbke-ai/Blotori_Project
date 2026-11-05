@@ -82,7 +82,7 @@ async function withSyntheticRoutes(context, url, draft, counters) {
 async function generateSynthetic(page, url) {
   const response = await page.goto(url, { waitUntil: "domcontentloaded" });
   assert.equal(response?.status(), 200);
-  await page.locator('.draftStorageStatus[data-state="ready"]').waitFor();
+  await page.locator('.draftStorageStatus[data-state="ready"]').waitFor({ state: "attached" });
   await page.locator(".settingsRail select").filter({ has: page.locator('option[value="naver"]') }).first().selectOption("naver");
   await page.locator(".settingsRail textarea").first().fill("합성 시각 문법 QA");
   await page.waitForFunction(() => {
