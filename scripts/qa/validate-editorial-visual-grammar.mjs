@@ -106,17 +106,44 @@ async function renderFixture(originName, url, fixture, viewport) {
       bodyOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       paperOverflow: node.scrollWidth - node.clientWidth,
       maxWidth: getComputedStyle(node).maxWidth,
-      styles: [...node.querySelectorAll(".articleSection")].map((section) => ({ className: section.className, marginBlock: getComputedStyle(section).marginBlock, width: section.getBoundingClientRect().width })),
+      styles: [...node.querySelectorAll(".articleSection")].map((section) => {
+        const visualClass = [...section.classList].find((value) => value.startsWith("visual-"));
+        return {
+          id: section.getAttribute("data-section-id"),
+          heading: section.querySelector("h3")?.textContent?.trim() ?? "",
+          visualStyle: visualClass?.slice("visual-".length) ?? null,
+          paragraphs: [...section.querySelectorAll(".sectionBody > p")].map((paragraph) => paragraph.textContent?.trim() ?? ""),
+          className: section.className,
+          marginBlock: getComputedStyle(section).marginBlock,
+          width: section.getBoundingClientRect().width,
+        };
+      }),
     }));
     assert.equal(metrics.grammar, fixture.name);
     assert.equal(metrics.bodyOverflow, 0);
     assert.ok(metrics.paperOverflow <= 1);
-    const classes = metrics.styles.map((item) => item.className);
-    if (fixture.name === "experience") assert.equal(classes.filter((value) => value.includes("visual-quote")).length, 1);
-    if (fixture.name === "information") assert.equal(classes.filter((value) => value.includes("visual-key-point")).length, 1);
+    assert.deepEqual(
+      metrics.styles.map(({ id, heading, visualStyle }) => ({ id, heading, visualStyle })),
+      fixture.plan.sections.map(({ id, heading, visualStyle }) => ({ id, heading, visualStyle })),
+      "rendered section ids, headings, and visual roles must exactly match the plan",
+    );
+    const inputSummary = metrics.styles.filter((item) => item.id === "input-summary");
+    const inputSummaryDraft = fixture.draft.sections.find((section) => section.id === "input-summary");
+    assert.equal(inputSummary.length, 1, "the protected input summary must render exactly once");
+    assert.equal(inputSummary[0].visualStyle, "key-point");
+    assert.ok(inputSummaryDraft, "the synthetic fixture must retain its input summary rows");
+    assert.deepEqual(inputSummary[0].paragraphs, inputSummaryDraft.paragraphs,
+      "the protected input summary must render the exact admitted input rows");
+
+    const editorialStyles = metrics.styles.filter((item) => !["input-summary", "food-facts"].includes(item.id));
+    const editorialIds = (visualStyle) => editorialStyles
+      .filter((item) => item.visualStyle === visualStyle)
+      .map((item) => item.id);
+    if (fixture.name === "experience") assert.deepEqual(editorialIds("quote"), ["layout-takeaway"]);
+    if (fixture.name === "information") assert.deepEqual(editorialIds("key-point"), ["layout-application"]);
     if (fixture.name === "curation") {
-      assert.equal(classes.filter((value) => value.includes("visual-key-point")).length, 1);
-      assert.equal(classes.filter((value) => value.includes("visual-callout")).length, 1);
+      assert.deepEqual(editorialIds("key-point"), ["layout-evidence"]);
+      assert.deepEqual(editorialIds("callout"), ["layout-takeaway"]);
     }
 
     const exportPanel = page.locator(".platformExportPanel");
