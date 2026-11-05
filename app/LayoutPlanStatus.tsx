@@ -1,4 +1,5 @@
 import type { BlogDraft } from "../lib/domain/types";
+import { validFoodReviewFactPlan } from "../lib/domain/food-review";
 import "./layout-plan-status.css";
 
 const INTENT_LABEL = {
@@ -8,10 +9,11 @@ const INTENT_LABEL = {
 } as const;
 
 type PlannedSection = { id: string; priority: number; heading: string; paragraphRange: [number, number] };
+type FactStatus = { key: string; label: string; status: "RAW_USER_INPUT" | "USER_CONFIRMED" | "EXTERNAL_VERIFIED" };
 export type LayoutPlanStatusView =
   | { kind: "legacy" }
   | { kind: "invalid" }
-  | { kind: "planned"; version: 1; intent: keyof typeof INTENT_LABEL; sections: PlannedSection[]; naverLoss: string[]; missingFacts: string[] };
+  | { kind: "planned"; version: 1; intent: keyof typeof INTENT_LABEL; sections: PlannedSection[]; naverLoss: string[]; missingFacts: string[]; factStatuses: FactStatus[] };
 
 function record(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -40,10 +42,17 @@ export function readLayoutPlanStatus(value: unknown): LayoutPlanStatusView {
   if (!value.naverLoss.every((item) => record(item) && typeof item.feature === "string" && item.feature.trim()
     && ["EQUIVALENT", "DEGRADED"].includes(String(item.outcome)))
     || !value.missingFacts.every((item) => typeof item === "string")) return { kind: "invalid" };
+  if (value.factPlan !== undefined && !validFoodReviewFactPlan(value.factPlan)) return { kind: "invalid" };
+  const factStatuses: FactStatus[] = validFoodReviewFactPlan(value.factPlan)
+    ? value.factPlan.facts.flatMap((fact) => ["RAW_USER_INPUT", "USER_CONFIRMED", "EXTERNAL_VERIFIED"].includes(fact.status)
+      ? [{ key: fact.key, label: fact.label, status: fact.status as FactStatus["status"] }]
+      : [])
+    : [];
   return {
     kind: "planned", version: 1, intent: value.intent as keyof typeof INTENT_LABEL, sections,
     naverLoss: value.naverLoss.map((item) => (item as Record<string, unknown>).feature as string),
     missingFacts: [...value.missingFacts] as string[],
+    factStatuses,
   };
 }
 
@@ -68,6 +77,8 @@ export default function LayoutPlanStatus({ draft }: { draft: BlogDraft }) {
     <ol>{plan.sections.map((section) => <li key={section.id}>
       <span>{section.priority}</span><strong>{section.heading}</strong><small>문단 {section.paragraphRange[0]}~{section.paragraphRange[1]}개</small>
     </li>)}</ol>
+    {plan.factStatuses.length > 0 && <p className="layoutPlanStatus__facts">입력 정보 상태: {plan.factStatuses.map((fact) => `${fact.label} · ${fact.status === "RAW_USER_INPUT" ? "입력됨(미검증)" : fact.status === "USER_CONFIRMED" ? "사용자 확인" : "외부 자료 확인"}`).join(" / ")}</p>}
     {plan.naverLoss.length > 0 && <p className="layoutPlanStatus__loss">네이버 변환 시 단순화: {plan.naverLoss.join(" · ")}</p>}
+    {plan.missingFacts.length > 0 && <p className="layoutPlanStatus__missing">확인되지 않아 생성하지 않은 정보: {plan.missingFacts.join(" · ")}</p>}
   </details>;
 }

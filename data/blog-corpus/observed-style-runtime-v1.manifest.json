@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "artifact": "observed-style-runtime-v1.json",
+  "artifactSha256": "47f3b93a79f0c06cb3eeab3178a639017d9b52f9718046436530e7dd027864a5",
+  "canonicalProjectionSha256": "49eace43f4b10370786357fcfce8e74fe7a19470e6a889cb838fe615c267bb8b",
+  "sourceSha256": "311817592919b060961676c36bc455c313ade87f19fd3e1f5f1a6688dc7ffde3",
+  "classification": "source-derived-aggregate-style-tokens",
+  "admissionVersion": 1,
+  "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+  "counts": {
+    "categories": 19,
+    "sourcePresets": 62,
+    "admitted": 58,
+    "rejected": 4
+  }
+}

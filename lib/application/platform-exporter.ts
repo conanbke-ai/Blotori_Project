@@ -1,5 +1,7 @@
 import type { BlogDraft, BlogSection, ImagePlan, PlatformExport, PlatformId, TextAlign, TextEmphasis } from "../domain/types";
 import { getPlatformCapabilities } from "../domain/platform-capabilities";
+import { FACT_INTEGRITY_BLOCKING_WARNING_PREFIX } from "../domain/content-layout-plan-contract";
+import { validFoodReviewFactPlan, validateFoodReviewDraftFacts } from "../domain/food-review";
 
 export type EmbeddedImageMime = "image/png" | "image/jpeg" | "image/webp";
 export interface EmbeddedImage {
@@ -7,6 +9,22 @@ export interface EmbeddedImage {
   src: string;
   mimeType: EmbeddedImageMime;
   byteLength: number;
+}
+
+export function canExportDraft(draft: BlogDraft): boolean {
+  if (draft.contentLayoutPlan) {
+    const source = draft.contentLayoutPlan.source;
+    const foodReviewScope = source.categoryId === "food" && source.presetId === "restaurant-review";
+    const layoutFactPlan = draft.contentLayoutPlan.factPlan;
+    const draftFactPlan = draft.factIntegrityPlan;
+    if (foodReviewScope) {
+      if (!validFoodReviewFactPlan(layoutFactPlan) || !validFoodReviewFactPlan(draftFactPlan)
+        || JSON.stringify(layoutFactPlan) !== JSON.stringify(draftFactPlan)) return false;
+    } else if (layoutFactPlan !== undefined || draftFactPlan !== undefined) return false;
+  }
+  if (draft.factIntegrityPlan !== undefined) return validFoodReviewFactPlan(draft.factIntegrityPlan)
+    && validateFoodReviewDraftFacts(draft, draft.factIntegrityPlan).length === 0;
+  return !draft.warnings.some((warning) => warning.startsWith(FACT_INTEGRITY_BLOCKING_WARNING_PREFIX));
 }
 
 function imageDisplayGuide(image: ImagePlan) {
@@ -178,6 +196,9 @@ function buildImageGuide(draft: BlogDraft) {
 }
 
 export function buildPlatformExport(draft: BlogDraft, platformId: PlatformId, embeddedImages: readonly EmbeddedImage[] = []): PlatformExport {
+  if (!canExportDraft(draft)) {
+    throw new Error("사실 확인이 완료되지 않은 원고는 검수 전 내보낼 수 없습니다.");
+  }
   const capabilities = getPlatformCapabilities(platformId);
   const labels: Record<PlatformId, string> = { naver: "네이버 본문", tistory: "티스토리용 본문", blogger: "Blogger용 본문", wordpress: "WordPress용 본문", brunch: "브런치스토리용 본문", other: "범용 본문" };
   const parts = bodyParts(draft);

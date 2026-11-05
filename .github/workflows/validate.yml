@@ -33,11 +33,38 @@ jobs:
       - name: TypeScript check
         run: npm run lint
 
+      - name: Content design targeted TypeScript check
+        run: npx --no-install tsc -p tsconfig.content-design-check.json
+
       - name: Draft section order QA
         run: node scripts/validate-draft-section-order.mjs
 
       - name: Layout plan status safety QA
         run: node scripts/validate-layout-plan-status-safety.mjs
+
+      - name: Content layout plan generation QA
+        run: node scripts/validate-content-layout-plan-generation.mjs
+
+      - name: Non-food input summary QA
+        run: node scripts/validate-nonfood-input-summary.mjs
+
+      - name: Observed style admission QA
+        run: node scripts/validate-category-blog-presets-admission.mjs
+
+      - name: Observed category style runtime QA
+        run: node scripts/validate-observed-style-runtime.mjs
+
+      - name: Mock style oracle QA
+        run: node scripts/validate-mock-style-oracle.mjs
+
+      - name: Content design pipeline QA
+        run: node scripts/validate-content-design-pipeline.mjs
+
+      - name: Food review provenance QA
+        run: node scripts/validate-food-review-facts.mjs
+
+      - name: Food review generation contract QA
+        run: node scripts/validate-food-review-generation-contract.mjs
 
       - name: Platform export QA
         run: npm run qa:platform

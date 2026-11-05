@@ -3,6 +3,12 @@ import { getPlatformStrategy } from "../domain/platform-strategy";
 import { buildAutoStyleCatalog, buildCustomStyleIntensityPrompt, buildStylePrompt } from "../domain/style-strategy";
 import { buildTitleInstruction } from "../domain/title-strategy";
 import { buildBlogDNAInstruction } from "../domain/blog-dna";
+import { contentLayoutPrompt } from "../domain/content-layout-plan";
+import {
+  CATEGORY_INPUT_SUMMARY_SECTION_ID,
+  formatCategoryInputSummaryRows,
+} from "../domain/category-input-summary";
+import type { ContentLayoutPlan } from "../domain/content-layout-plan-contract";
 import type { GenerateRequest } from "../domain/types";
 
 function clean(value?: string) {
@@ -29,7 +35,7 @@ function contentPurposeGuide(input: GenerateRequest) {
   return `${purpose}\n- ${imageMode}`;
 }
 
-export function buildPrompt(input: GenerateRequest) {
+export function buildPrompt(input: GenerateRequest, contentLayoutPlan?: ContentLayoutPlan) {
   const platform = getPlatform(input.platformId);
   const platformStrategy = getPlatformStrategy(input.platformId);
   const category = getCategory(input.categoryId);
@@ -37,9 +43,17 @@ export function buildPrompt(input: GenerateRequest) {
   const style = getStyle(input.styleId);
   const structure = getStructure(input.structureId);
   const styleIntensity = input.styleIntensity ?? 3;
+  const inputSummaryRows = contentLayoutPlan?.sections.some((section) => section.id === CATEGORY_INPUT_SUMMARY_SECTION_ID)
+    ? formatCategoryInputSummaryRows(input)
+    : [];
+  const inputSummaryInstruction = inputSummaryRows.length > 0
+    ? `[INPUT SUMMARY - EXACT USER INPUT]\nCreate the ${CATEGORY_INPUT_SUMMARY_SECTION_ID} section with exactly these paragraphs in this order:\n${inputSummaryRows.map((row) => `- ${row}`).join("\n")}\nDo not add, infer, verify, reword, or repeat any of these label/value rows in another section.`
+    : "";
 
+  const projectedFactFields = new Set((contentLayoutPlan?.factPlan?.facts ?? [])
+    .flatMap((fact) => fact.sourceField ? [fact.sourceField] : []));
   const attributes = Object.entries(input.attributes ?? {})
-    .filter(([, value]) => clean(value))
+    .filter(([key, value]) => !projectedFactFields.has(key) && clean(value))
     .map(([key, value]) => `- ${FIELD_DEFINITIONS[key]?.label ?? key}: ${clean(value)}`)
     .join("\n");
 
@@ -106,7 +120,7 @@ ${styleInstruction}
 
 문체 규칙은 콘텐츠의 사실성·안전 규칙을 깨지 않는 범위에서 플랫폼 기본 말투보다 우선한다. 특히 사용자가 특정 문체를 직접 골랐다면, 안전 정보라는 이유만으로 모든 문장을 획일적인 '-합니다/-됩니다' 안내문체로 되돌리지 않는다. 필요한 경고·주의 문장만 정확하고 단정하게 쓰고, 나머지 제목·도입·소제목·설명·전환·마무리는 선택 문체를 유지한다. 문체 강도는 단순히 농담이나 이모지를 늘리는 값이 아니며 선택한 문체 Strategy의 고유 특성을 얼마나 선명하게 드러낼지 조절한다.
 
-${blogDNAInstruction ? `${blogDNAInstruction}\n\n` : ""}[제목 전략]
+${blogDNAInstruction ? `${blogDNAInstruction}\n\n` : ""}${contentLayoutPlan ? `${contentLayoutPrompt(contentLayoutPlan)}\n\n` : ""}${inputSummaryInstruction ? `${inputSummaryInstruction}\n\n` : ""}[제목 전략]
 ${titleInstruction}
 - titlePurpose에는 이번 제목이 최우선으로 반영한 목적을 짧은 한국어로 기록한다.
 - titleCandidates에는 후보를 정확히 3개 반환하고, title은 그중 하나와 완전히 동일해야 한다.
@@ -170,8 +184,8 @@ JSON 외의 문장을 출력하지 마라.
   "intro": ["paragraph"],
   "sections": [
     {
-      "id": "sec-1",
-      "heading": "string",
+      "id": "편집 계획에 지정된 id 그대로",
+      "heading": "편집 계획에 지정된 소제목 그대로",
       "paragraphs": ["paragraph"],
       "presentation": {
         "headingAlign": "left|center",

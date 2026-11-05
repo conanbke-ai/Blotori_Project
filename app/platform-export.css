@@ -16,9 +16,12 @@ pre.platformExportDocument { white-space: pre-wrap; font: inherit; line-height: 
   .previewActionBar button { min-height: 40px; white-space: nowrap; }
   .platformExportDocument { padding: 12px; }
 }
-/* Naver's working preview uses the same basic palette and simplified sections as its serializer. */
+/* Naver preview is a local approximation. Keep cards heading-led until SmartEditor fidelity is verified. */
 .blogPaper.platform-naver .articleSection { background: transparent; border: 0; box-shadow: none; padding: 0; }
 .blogPaper.platform-naver .articleSection h3 { border: 0; padding: 0; color: #29313b; font-size: 20px; font-weight: 700; }
+.blogPaper.platform-naver .articleSection.visual-key-point h3 { border-left: 3px solid #62aab0; padding-left: 10px; }
+.blogPaper.platform-naver .articleSection.visual-callout h3 { border-left: 3px solid #c29b65; padding-left: 10px; }
+.blogPaper.platform-naver .articleSection.visual-quote h3 { border-bottom: 1px solid #d8e0e2; padding-bottom: 8px; }
 .blogPaper.platform-naver .textEmphasis.bold { font-weight: 700; color: inherit; }
 .blogPaper.platform-naver .textEmphasis.accent { font-weight: 700; color: #2D8FA0; }
 .blogPaper.platform-naver .textEmphasis.highlight { background: #FFF0A8; font-weight: 700; padding: 0; }

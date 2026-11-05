@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "projection": "category-blog-presets-admitted-v1.json",
+  "projectionSha256": "1c4ba619eb114451b92b71c69eb1d4a88a39f821af634ec69dda9607840a12d2",
+  "sourceSha256": "311817592919b060961676c36bc455c313ade87f19fd3e1f5f1a6688dc7ffde3",
+  "classification": "source-derived-admission-projection",
+  "admissionVersion": 1,
+  "counts": {
+    "categories": 19,
+    "sourcePresets": 62,
+    "admitted": 58,
+    "rejected": 4,
+    "inputBlogs": 274,
+    "categoryMemberships": 319
+  }
+}

@@ -5,6 +5,7 @@ import "./platform-export.css";
 export default function PlatformExportPreview({ exported, feedback }: { exported: PlatformExport; feedback: string }) {
   return <div className="platformExportPanel">
     <p className="platformExportNotice">{exported.capabilities.notice}</p>
+    {exported.platformId === "naver" && <p className="platformExportNotice" data-naver-preview-boundary>카드·강조 미리보기는 로컬 예상 표현입니다. 네이버 SmartEditor에서 같은 모양으로 유지되는지는 아직 검증되지 않았어요.</p>}
     <p className="platformCopyFeedback" role="status" aria-live="polite" data-copy-result>{feedback}</p>
     <details className="platformExportDetails">
       <summary>복사될 본문 확인 · {exported.html ? "서식 포함" : "텍스트"}</summary>
