@@ -21,9 +21,18 @@ function allowedRequest(urlString) {
 }
 
 async function selectWithOption(page, value) {
-  const locator = page.locator(".settingsRail select").filter({ has: page.locator(`option[value="${value}"]`) }).first();
-  assert.ok(await locator.count(), `select option missing: ${value}`);
+  const locator = page.locator(".settingsRail:visible select").filter({ has: page.locator(`option[value="${value}"]`) });
+  assert.equal(await locator.count(), 1, `exactly one visible select must contain option: ${value}`);
   await locator.selectOption(value);
+}
+
+async function openMobilePanel(page, panel) {
+  const label = panel === "settings" ? "입력 및 문체" : "초안";
+  const tab = page.getByRole("button", { name: label, exact: true });
+  await tab.click();
+  await page.locator(`[data-mobile-panel="${panel}"]`).waitFor({ state: "visible" });
+  assert.equal(await tab.evaluate((node) => node.classList.contains("active")), true,
+    `${label} tab must be active when its panel is visible`);
 }
 
 async function fillTravelFields(page) {
@@ -200,13 +209,19 @@ try {
 
       await toggle.click();
       assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+      await openMobilePanel(page, "settings");
       await selectWithOption(page, "tistory");
       await selectWithOption(page, "naver");
+      await openMobilePanel(page, "preview");
+      await toggle.waitFor({ state: "visible" });
       assert.equal(await toggle.getAttribute("aria-expanded"), "false", `${label} platform changes must close the menu`);
 
       await toggle.click();
       assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+      await openMobilePanel(page, "settings");
       await generate(page);
+      await page.locator('[data-mobile-panel="preview"]').waitFor({ state: "visible" });
+      await toggle.waitFor({ state: "visible" });
       assert.equal(await toggle.getAttribute("aria-expanded"), "false", `${label} a new draft must close the menu`);
       await optionalScreenshot(page, `${label}-closed.png`);
       records.push({ label, closed, open, focus, clipboardWrites: 1, platformReset: true, newDraftReset: true });
