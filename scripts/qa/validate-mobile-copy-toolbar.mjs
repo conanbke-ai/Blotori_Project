@@ -27,12 +27,21 @@ async function selectWithOption(page, value) {
 }
 
 async function openMobilePanel(page, panel) {
-  const label = panel === "settings" ? "입력 및 문체" : "초안";
-  const tab = page.getByRole("button", { name: label, exact: true });
+  const label = panel === "settings" ? "입력 · 문체" : "초안";
+  const nav = page.locator('nav.mobileWorkspaceTabs[aria-label="모바일 작업 단계"]');
+  assert.equal(await nav.count(), 1, "exactly one mobile workspace navigation must exist");
+  await nav.waitFor({ state: "visible" });
+  const tab = nav.getByRole("button", { name: label, exact: true });
+  assert.equal(await tab.count(), 1, `exactly one mobile tab must match: ${label}`);
+  const targetPanel = page.locator(`[data-mobile-panel="${panel}"]`);
+  assert.equal(await targetPanel.count(), 1, `exactly one mobile panel must match: ${panel}`);
   await tab.click();
-  await page.locator(`[data-mobile-panel="${panel}"]`).waitFor({ state: "visible" });
+  await targetPanel.waitFor({ state: "visible" });
   assert.equal(await tab.evaluate((node) => node.classList.contains("active")), true,
     `${label} tab must be active when its panel is visible`);
+  assert.equal(await nav.locator("button.active").count(), 1, "exactly one mobile tab must be active");
+  assert.equal(await page.locator("[data-mobile-panel]:visible").count(), 1,
+    "exactly one mobile panel must be visible");
 }
 
 async function fillTravelFields(page) {
