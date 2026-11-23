@@ -164,7 +164,11 @@ export interface DraftPresentation {
   titleAlign?: TextAlign;
   introAlign?: TextAlign;
   density?: "airy" | "balanced" | "dense";
+  /** Preview-only decoration. It never changes draft facts, section order, image anchors, or export data. */
+  foodPreviewDecoration?: FoodPreviewDecoration;
 }
+
+export type FoodPreviewDecoration = "default" | "visit-guide";
 
 export interface ImagePlan {
   id: string;

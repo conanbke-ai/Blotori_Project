@@ -66,6 +66,9 @@ jobs:
       - name: Food review generation contract QA
         run: node scripts/validate-food-review-generation-contract.mjs
 
+      - name: Food preview decoration QA
+        run: node scripts/validate-food-preview-decoration.mjs
+
       - name: Platform export QA
         run: npm run qa:platform
 

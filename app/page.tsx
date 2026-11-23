@@ -21,6 +21,11 @@ import {
 } from "../lib/domain/content-layout-plan-contract";
 import { useDraftWorkspace } from "./useDraftWorkspace";
 import { rememberLayoutFingerprint } from "../lib/domain/layout-history";
+import {
+  applyFoodPreviewDecoration,
+  readFoodPreviewDecoration,
+  supportsFoodPreviewDecoration,
+} from "../lib/domain/food-preview-decoration";
 import BlotoriAssetStudio from "./BlotoriAssetStudio";
 import ResponsiveInspector, { useWorkspaceLayout } from "./ResponsiveInspector";
 import type {
@@ -28,6 +33,7 @@ import type {
   BlogSection,
   GenerateRequest,
   GenerationContext,
+  FoodPreviewDecoration,
   ImagePlan,
   Length,
   PlatformId,
@@ -153,6 +159,8 @@ export default function Home() {
     draft?.contentLayoutPlan,
     Boolean(draft?.contentLayoutPlan) && !planApplicationWarning,
   );
+  const foodPreviewDecorationSupported = supportsFoodPreviewDecoration(draft);
+  const foodPreviewDecoration = readFoodPreviewDecoration(draft);
   const factIntegrityWarning = draft && !canExportDraft(draft)
     ? draft.warnings.find((warning) => warning.startsWith(FACT_INTEGRITY_BLOCKING_WARNING_PREFIX))
       ?? `${FACT_INTEGRITY_BLOCKING_WARNING_PREFIX} 편집된 원고의 사실 항목을 다시 확인해 주세요.`
@@ -332,6 +340,9 @@ export default function Home() {
   function updateDraft<K extends keyof BlogDraft>(key: K, value: BlogDraft[K]) {
     setDraft((prev) => prev ? { ...prev, [key]: value } : prev);
   }
+  function updateFoodPreviewDecoration(value: FoodPreviewDecoration) {
+    setDraft((prev) => prev ? applyFoodPreviewDecoration(prev, value) : prev);
+  }
   function updateArrayItem(key: "intro" | "closing" | "tags", index: number, value: string) {
     setDraft((prev) => prev ? { ...prev, [key]: prev[key].map((item, i) => i === index ? value : item) } : prev);
   }
@@ -491,6 +502,11 @@ export default function Home() {
             <div><span className="step">02</span><div><h2>{platformProfile ? `${platformProfile.label} 초안 미리보기` : "초안 미리보기"}</h2><p>{platformProfile ? `${platformProfile.label}에 옮기기 전 실제 글 흐름을 확인해요.` : "플랫폼을 선택하면 해당 형식에 맞춰 보여드려요."}</p></div></div>
             <div className="headerActions">
               {mode && <span className={`mode ${mode}`}>{mode === "api" ? "AI 생성" : "샘플"}</span>}
+              {foodPreviewDecorationSupported && <div className="foodPreviewDecorationControl" role="group" aria-label="음식 원고 미리보기 꾸밈">
+                <span>꾸밈</span>
+                <button type="button" data-food-preview-option="default" className={foodPreviewDecoration === "default" ? "active" : ""} aria-pressed={foodPreviewDecoration === "default"} onClick={() => updateFoodPreviewDecoration("default")}>기본</button>
+                <button type="button" data-food-preview-option="visit-guide" className={foodPreviewDecoration === "visit-guide" ? "active" : ""} aria-pressed={foodPreviewDecoration === "visit-guide"} onClick={() => updateFoodPreviewDecoration("visit-guide")}>방문정보 가이드</button>
+              </div>}
               <div className="segmentedMode"><button className={!editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(false)}>미리보기</button><button ref={editModeButtonRef} data-section-edit-mode className={editMode ? "active" : ""} disabled={!draft} onClick={() => setEditMode(true)}>직접 편집</button></div>
             </div>
           </div>
@@ -506,10 +522,11 @@ export default function Home() {
           <div className="previewLayout appPreviewLayout previewOnlyLayout">
             <div className="blogScroller" ref={previewScrollRef}>
               <article
-                className={`blogPaper ${platformClass} density-${draft.presentation?.density ?? "balanced"}${visualGrammar ? ` grammar-${visualGrammar.intent}` : ""}`}
+                className={`blogPaper ${platformClass} density-${draft.presentation?.density ?? "balanced"}${visualGrammar ? ` grammar-${visualGrammar.intent}` : ""}${foodPreviewDecoration === "visit-guide" ? " foodPreview--visitGuide" : ""}`}
                 data-visual-grammar={visualGrammar?.intent}
                 data-heading-density={visualGrammar?.headingDensity}
                 data-visual-density={visualGrammar?.density}
+                data-food-preview-decoration={foodPreviewDecorationSupported ? foodPreviewDecoration : undefined}
               >
                 {draft.titleCandidates?.length ? <div className="titleCandidatePanel"><div><strong>추천 제목</strong>{draft.titlePurpose && <span>{draft.titlePurpose}</span>}</div><div className="titleCandidateList">{draft.titleCandidates.slice(0,3).map((candidate, index) => <button key={`${candidate}-${index}`} className={candidate === draft.title ? "selected" : ""} onClick={() => updateDraft("title", candidate)}><b>{index + 1}</b><span>{candidate}</span><em>{candidate === draft.title ? "적용됨" : "적용"}</em></button>)}</div></div> : null}
                 {editMode ? <input className="titleEdit" value={draft.title} onChange={(e) => updateDraft("title", e.target.value)} /> : <h1 className={`previewTitle align-${draft.presentation?.titleAlign ?? "left"}`}>{draft.title}</h1>}
