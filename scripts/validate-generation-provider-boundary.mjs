@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { registerHooks } from "node:module";
 import { extname } from "node:path";
 
@@ -61,6 +62,9 @@ registerHooks({
     if (url === "blotori-fixture:next/server") {
       return { format: "module", shortCircuit: true, source: "export const NextResponse = Response;" };
     }
+    if (url.endsWith(".json")) {
+      return { format: "module", shortCircuit: true, source: `export default ${readFileSync(new URL(url), "utf8")};` };
+    }
     return nextLoad(url, context);
   },
 });
@@ -104,8 +108,12 @@ process.env.BLOTORI_MOCK_MODE = "true";
 const mock = await request();
 assert.equal(mock.status, 200);
 assert.equal(mock.body.mode, "mock");
-const expectedMock = await generateBlogDraft(input, { mode: "mock", generate: async (request) => makeMockDraft(request) });
+const expectedMock = await generateBlogDraft(input, {
+  mode: "mock",
+  generate: async (request, plan) => makeMockDraft(request, plan),
+});
 assert.deepEqual(mock.body.draft, JSON.parse(JSON.stringify(expectedMock.draft)));
+assert.ok(mock.body.draft.contentLayoutPlan, "The route must pass the layout plan through the mock port.");
 assert.equal(calls.length, 0);
 
 process.env.BLOTORI_MOCK_MODE = "false";

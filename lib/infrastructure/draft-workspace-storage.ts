@@ -1,4 +1,6 @@
 import type { BlogDraft, PlatformId } from "../domain/types";
+import { validFoodReviewFactPlan } from "../domain/food-review";
+import { validateObservedStylePlanProjection } from "../domain/observed-style";
 
 /** Local to this browser and origin. Nothing in this module uploads draft or image data. */
 export interface DraftWorkspace {
@@ -78,11 +80,26 @@ function timestamp(value: unknown): value is string {
 const isString = (value: unknown) => typeof value === "string";
 const alignment = (value: unknown) => oneOf(value, ["left", "center"]);
 
-function validDraft(value: unknown): value is BlogDraft {
+function validStoredContentLayoutPlan(value: unknown, draftFactPlan: unknown): boolean {
+  if (!object(value) || !object(value.source)) return false;
+  if (validateObservedStylePlanProjection(value.observedStyle, value.source.observedStyle, value.source).length > 0) return false;
+  const hasLayoutFactPlan = value.factPlan !== undefined;
+  const hasDraftFactPlan = draftFactPlan !== undefined;
+  const foodReviewScope = value.source.categoryId === "food" && value.source.presetId === "restaurant-review";
+  if (foodReviewScope !== (hasLayoutFactPlan && hasDraftFactPlan)) return false;
+  if (!foodReviewScope && (hasLayoutFactPlan || hasDraftFactPlan)) return false;
+  if (foodReviewScope && (!validFoodReviewFactPlan(value.factPlan) || !validFoodReviewFactPlan(draftFactPlan)
+    || JSON.stringify(value.factPlan) !== JSON.stringify(draftFactPlan))) return false;
+  return true;
+}
+
+export function isValidStoredDraft(value: unknown): value is BlogDraft {
   if (!object(value) || !isString(value.title) || !isString(value.summary)
     || !strings(value.intro) || !strings(value.closing) || !strings(value.tags) || !strings(value.warnings)
     || !Array.isArray(value.sections) || !Array.isArray(value.images)
     || !optional(value.titleCandidates, strings)
+    || !optional(value.factIntegrityPlan, validFoodReviewFactPlan)
+    || !optional(value.contentLayoutPlan, (plan) => validStoredContentLayoutPlan(plan, value.factIntegrityPlan))
     || !["titlePurpose", "styleUsed", "structureUsed", "layoutFingerprint"].every((key) => optional(value[key], isString))) return false;
   if (!optional(value.presentation, (p) => object(p) && optional(p.titleAlign, alignment) && optional(p.introAlign, alignment)
     && optional(p.density, (v) => oneOf(v, ["airy", "balanced", "dense"])))) return false;
@@ -115,7 +132,7 @@ function validDraft(value: unknown): value is BlogDraft {
 
 function assertWorkspace(value: unknown): asserts value is DraftWorkspace {
   if (!object(value) || !nonempty(value.id) || !timestamp(value.updatedAt)
-    || !oneOf(value.platformId, ["naver", "tistory", "blogger", "wordpress", "brunch", "other"]) || !validDraft(value.draft)) {
+    || !oneOf(value.platformId, ["naver", "tistory", "blogger", "wordpress", "brunch", "other"]) || !isValidStoredDraft(value.draft)) {
     corrupt("저장된 원고의 형식을 확인할 수 없어요. 기존 원고는 지우지 않았어요.");
   }
 }

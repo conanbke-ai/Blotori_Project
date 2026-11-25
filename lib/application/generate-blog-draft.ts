@@ -1,6 +1,17 @@
 import { ensureWarnings, normalizeImagePlans } from "../domain/rules";
 import { normalizeGlossaryFootnotes } from "../domain/glossary";
+import {
+  buildContentLayoutPlan,
+  validateDraftFactIntegrity,
+  validateDraftPresentationAgainstContentLayoutPlan,
+} from "../domain/content-layout-plan";
+import {
+  CONTENT_LAYOUT_PLAN_UNAPPLIED_WARNING_PREFIX,
+  FACT_INTEGRITY_BLOCKING_WARNING_PREFIX,
+  type ContentLayoutPlan,
+} from "../domain/content-layout-plan-contract";
 import type { BlogDraft, GenerateRequest } from "../domain/types";
+import { validateInputSummaryAgainstGenerationInput } from "../domain/category-input-summary";
 import type { ContentGenerationPort, GenerationMode } from "./content-generation-port";
 
 export type { GenerationMode } from "./content-generation-port";
@@ -20,10 +31,60 @@ function normalizeDraft(draft: BlogDraft, imageCount: number): BlogDraft {
   return ensureWarnings(normalized);
 }
 
-export async function generateBlogDraft(input: GenerateRequest, provider: ContentGenerationPort): Promise<GenerateBlogDraftResult> {
-  const generated = await provider.generate(input);
+/** Attach only the deterministic pre-generation plan that the provider output actually followed. */
+export function applyContentLayoutPlanToGeneratedDraft(
+  draft: BlogDraft,
+  imageCount: number,
+  contentLayoutPlan: ContentLayoutPlan,
+  inputWarnings: readonly string[] = [],
+  generationInput?: GenerateRequest,
+): BlogDraft {
+  const providerValidation = validateDraftPresentationAgainstContentLayoutPlan(draft, contentLayoutPlan);
+  const providerInputSummaryReasons = generationInput
+    ? validateInputSummaryAgainstGenerationInput(draft, generationInput, contentLayoutPlan)
+    : [];
+  const providerFacts = validateDraftFactIntegrity(draft, contentLayoutPlan);
+  const normalized = normalizeDraft(draft, imageCount);
+  const normalizedValidation = validateDraftPresentationAgainstContentLayoutPlan(normalized, contentLayoutPlan);
+  const normalizedInputSummaryReasons = generationInput
+    ? validateInputSummaryAgainstGenerationInput(normalized, generationInput, contentLayoutPlan)
+    : [];
+  const normalizedFacts = validateDraftFactIntegrity(normalized, contentLayoutPlan);
+  const validationReasons = [
+    ...providerValidation.reasons.map((reason) => `provider 출력: ${reason}`),
+    ...providerInputSummaryReasons.map((reason) => `provider input summary: ${reason}`),
+    ...normalizedValidation.reasons.map((reason) => `정규화 결과: ${reason}`),
+    ...normalizedInputSummaryReasons.map((reason) => `normalized input summary: ${reason}`),
+  ];
+  const planApplied = providerValidation.ok && providerInputSummaryReasons.length === 0
+    && normalizedValidation.ok && normalizedInputSummaryReasons.length === 0;
+  const factIntegrityPassed = providerFacts.ok && normalizedFacts.ok;
+  const planWarnings = planApplied
+    ? []
+    : [`${CONTENT_LAYOUT_PLAN_UNAPPLIED_WARNING_PREFIX} 생성된 원고가 계획과 일치하지 않았어요. ${validationReasons.join(" ")}`];
+  const factReasons = [
+    ...providerFacts.reasons.map((reason) => `provider output: ${reason}`),
+    ...normalizedFacts.reasons.map((reason) => `normalized output: ${reason}`),
+  ];
+  const factWarnings = factIntegrityPassed
+    ? []
+    : [`${FACT_INTEGRITY_BLOCKING_WARNING_PREFIX} 확인되지 않았거나 입력과 충돌하는 맛집 정보가 있어 본문 내보내기를 막았어요. ${factReasons.join(" ")}`];
   return {
-    draft: normalizeDraft(generated, input.imageCount),
+    ...normalized,
+    contentLayoutPlan: planApplied && factIntegrityPassed ? contentLayoutPlan : undefined,
+    factIntegrityPlan: contentLayoutPlan.factPlan,
+    warnings: [...new Set([...normalized.warnings, ...inputWarnings, ...planWarnings, ...factWarnings])],
+  };
+}
+
+export async function generateBlogDraft(
+  input: GenerateRequest,
+  provider: ContentGenerationPort,
+): Promise<GenerateBlogDraftResult> {
+  const { plan, generationInput, warnings } = buildContentLayoutPlan(input);
+  const generated = await provider.generate(generationInput, plan);
+  return {
+    draft: applyContentLayoutPlanToGeneratedDraft(generated, input.imageCount, plan, warnings, generationInput),
     mode: provider.mode,
   };
 }

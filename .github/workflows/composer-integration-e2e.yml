@@ -55,7 +55,27 @@ jobs:
           node scripts/qa/validate-dual-origin-draft-storage.mjs
           node scripts/qa/validate-pack-dual-origin.mjs
           node scripts/qa/validate-editorial-visual-dual-origin.mjs
+          node scripts/qa/validate-editorial-visual-grammar.mjs
+          BLOTORI_MOBILE_LAYOUT_DIAGNOSTIC_DIR=/tmp/blotori-mobile-layout-diagnostics node scripts/qa/validate-mobile-copy-toolbar.mjs
           node scripts/qa/validate-image-clipboard-dual-origin.mjs
+          node scripts/qa/validate-layout-plan-feedback-dual-origin.mjs
+          BLOTORI_FOOD_PREVIEW_DIAGNOSTIC_DIR=/tmp/blotori-food-preview-diagnostics node scripts/qa/validate-food-preview-decoration-browser.mjs
+      - name: Upload mobile layout diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blotori-mobile-layout-diagnostics-${{ github.run_attempt }}
+          path: /tmp/blotori-mobile-layout-diagnostics
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Upload food preview diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blotori-food-preview-diagnostics-${{ github.run_attempt }}
+          path: /tmp/blotori-food-preview-diagnostics
+          if-no-files-found: warn
+          retention-days: 7
       - name: Server diagnostics on failure
         if: failure()
         run: tail -120 /tmp/blotori-next.log || true

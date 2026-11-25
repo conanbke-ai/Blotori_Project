@@ -60,6 +60,8 @@
 .workspaceV2 .previewActionBar { display: flex; flex-wrap: wrap; }
 .workspaceV2 .previewActionBar > div { flex: 1; flex-wrap: wrap; }
 .workspaceV2 .previewActionBar button { min-height: 44px; }
+.workspaceV2 .previewCopyMoreToggle { display: none; }
+.workspaceV2 .previewCopyMoreActions { display: contents; }
 .workspaceV2 .blogPaper { overflow-wrap: anywhere; }
 .workspaceV2 .workspaceEmpty { overflow: auto; }
 .workspaceV2[data-review-layout="compact"] .workspaceEmpty { grid-template-columns: minmax(0, 1fr); }
@@ -129,5 +131,72 @@ body:has(.workspaceSingle) { overflow: auto; }
     max-height: calc(100dvh - 12px);
     border-radius: 22px 22px 0 0;
     padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 760px) {
+  /* Keep the primary copy action available without permanently shrinking the
+   * article review canvas to a two-row toolbar. Secondary copy actions expand
+   * in normal flow only when the user asks for them. */
+  .workspaceV2 .previewActionBar {
+    min-height: 48px;
+    padding: 2px 8px max(2px, env(safe-area-inset-bottom));
+  }
+
+  .workspaceV2 .previewActionBar > button { display: none; }
+
+  .workspaceV2 .previewActionBar > .previewCopyActions {
+    order: initial;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: stretch;
+    flex: 1 1 100%;
+  }
+
+  .workspaceV2 .previewCopyActions > .secondaryAction,
+  .workspaceV2 .previewCopyMoreToggle {
+    min-height: 44px;
+    min-width: 0;
+  }
+
+  .workspaceV2 .previewCopyMoreToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workspaceV2 .previewCopyMoreActions {
+    display: none;
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .workspaceV2 .previewCopyMoreActions.isOpen { display: grid; }
+  .workspaceV2 .previewCopyMoreActions button { min-height: 44px; }
+
+  /* Mobile touch targets: keep the compact desktop density while meeting the
+   * 44px target on the preview, inspector and image-editing workflows. */
+  .workspaceV2.workspaceSingle .segmentedMode button,
+  .workspaceV2.workspaceSingle .inspectorTabs button {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+
+  .workspaceV2.workspaceSingle .draftImageActions button,
+  .workspaceV2.workspaceSingle .draftImageActions a,
+  .workspaceV2.workspaceSingle .draftImageError button,
+  .workspaceV2.workspaceSingle .draftImagePlacement select,
+  .workspaceV2.workspaceSingle .slotUploadActions button,
+  .workspaceV2.workspaceSingle .slotInfo button,
+  .workspaceV2.workspaceSingle .copyButton,
+  .workspaceV2.workspaceSingle .sectionOrderControls button {
+    min-height: 44px !important;
+  }
+
+  .workspaceV2.workspaceSingle .draftImageActions a {
+    display: inline-flex;
+    align-items: center;
   }
 }

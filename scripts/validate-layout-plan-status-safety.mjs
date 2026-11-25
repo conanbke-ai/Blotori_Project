@@ -5,11 +5,14 @@ import Module, { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
 const originalTsx = Module._extensions[".tsx"];
+const originalTs = Module._extensions[".ts"];
 const originalCss = Module._extensions[".css"];
-Module._extensions[".tsx"] = (module, filename) => module._compile(ts.transpileModule(readFileSync(filename, "utf8"), {
+const compile = (module, filename) => module._compile(ts.transpileModule(readFileSync(filename, "utf8"), {
   fileName: filename,
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
 }).outputText, filename);
+Module._extensions[".tsx"] = compile;
+Module._extensions[".ts"] = compile;
 Module._extensions[".css"] = (module) => { module.exports = {}; };
 
 try {
@@ -56,5 +59,6 @@ try {
   console.log("Layout plan safety QA PASS: missing, legacy, incomplete, and planned values render without mutation.");
 } finally {
   if (originalTsx) Module._extensions[".tsx"] = originalTsx; else delete Module._extensions[".tsx"];
+  if (originalTs) Module._extensions[".ts"] = originalTs; else delete Module._extensions[".ts"];
   if (originalCss) Module._extensions[".css"] = originalCss; else delete Module._extensions[".css"];
 }

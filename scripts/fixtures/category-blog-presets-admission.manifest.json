@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "fixtures": [
+    {
+      "id": "preserved-category-blog-presets-v2-311817592919b060",
+      "classification": "source-derived",
+      "description": "Reviewed, immutable BlogChart TOP10 aggregate preset snapshot. The source file stays outside this candidate and is addressed only by content hash.",
+      "fileName": "category-blog-presets-v2.source-original.json",
+      "sha256": "311817592919b060961676c36bc455c313ade87f19fd3e1f5f1a6688dc7ffde3",
+      "expectedInputBlogs": 274,
+      "expectedCategoryMemberships": 319,
+      "expectedCategories": 19,
+      "expectedPresetRows": 62,
+      "expectedAdmittedRows": 58,
+      "expectedRejectedRows": 4,
+      "expectedExclusions": {
+        "FOOD_SHADOW_ACTIVATION_BLOCKED": 2,
+        "LOW_CONFIDENCE": 2
+      }
+    },
+    {
+      "id": "synthetic-admission-contract-v1",
+      "classification": "synthetic",
+      "description": "Programmatically generated schema/provenance fixture. It is not evidence of observed blogs or product quality."
+    }
+  ]
+}
