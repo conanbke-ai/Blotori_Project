@@ -312,6 +312,99 @@ body {
   letter-spacing: .18em;
 }
 
+.foodPreviewDecorationControl {
+  display: inline-grid;
+  grid-template-columns: auto 1fr 1.65fr;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid #dbe9eb;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .8);
+}
+
+.foodPreviewDecorationControl > span {
+  padding-inline: 7px 5px;
+  color: #6b7f89;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.foodPreviewDecorationControl button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #5f7382;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.foodPreviewDecorationControl button.active {
+  background: #eaf8f7;
+  color: var(--blotori-teal);
+  box-shadow: 0 2px 8px rgba(49, 91, 122, .08);
+}
+
+/* 음식 원고의 명시적 미리보기 꾸밈입니다. 원고·사진 앵커·내보내기 데이터는 바꾸지 않습니다. */
+.blogPaper.foodPreview--visitGuide {
+  max-width: 820px;
+  border-color: #cfe3df;
+  background: linear-gradient(180deg, #fffefd 0%, #fbfdfb 100%);
+}
+
+.blogPaper.foodPreview--visitGuide::before {
+  content: "BLOTORI · VISIT INFO GUIDE";
+  color: #438f88;
+}
+
+.blogPaper.foodPreview--visitGuide .previewTitle {
+  padding-bottom: 18px;
+  border-bottom: 2px solid #cee5df;
+}
+
+.blogPaper.foodPreview--visitGuide > .summary {
+  margin-block: 18px 28px;
+  padding: 15px 17px;
+  border-left: 4px solid #54a59c;
+  border-radius: 0 12px 12px 0;
+  background: #eef8f5;
+  color: #385d5a;
+}
+
+.blogPaper.foodPreview--visitGuide > .imageSlot {
+  margin-block: 26px 44px;
+  border: 2px solid #bcded8;
+  border-radius: 18px;
+  box-shadow: 0 14px 30px rgba(48, 104, 98, .11);
+}
+
+.blogPaper.foodPreview--visitGuide .articleSection {
+  margin-block: 42px;
+}
+
+.blogPaper.foodPreview--visitGuide .articleSection.visual-standard h3 {
+  padding: 0 0 11px;
+  border-left: 0;
+  border-bottom: 2px solid #d5e8e4;
+  color: #2e635e;
+}
+
+.blogPaper.foodPreview--visitGuide .articleSection[data-section-id="food-facts"] {
+  padding: 20px;
+  border: 1px solid #cfe3df;
+  border-radius: 16px;
+  background: #f3f9f7;
+}
+
+.blogPaper.foodPreview--visitGuide .articleSection .imageSlot {
+  margin-block: 24px 8px;
+  border-color: #d5e5e1;
+  background: #fff;
+}
+
 .visual-standard h3 {
   border-left-color: var(--blotori-sky);
 }
@@ -497,11 +590,98 @@ body {
 .articleSection.visual-key-point .sectionBody p:last-child,
 .articleSection.visual-callout .sectionBody p:last-child,
 .articleSection.visual-quote .sectionBody p:last-child { margin-bottom: 0; }
+
+/* The plan intent is projected only while the saved draft still matches its
+   ContentLayoutPlan. These grammars change reading rhythm, not brand color. */
+.blogPaper[data-visual-grammar="experience"] {
+  max-width: 760px;
+}
+.blogPaper[data-visual-density="airy"] .articleSection {
+  margin-block: 48px;
+}
+.blogPaper[data-heading-density="sparse"] .articleSection.visual-standard h3 {
+  padding-left: 0;
+  border-left: 0;
+  font-size: 18px;
+  letter-spacing: -.01em;
+}
+.blogPaper[data-visual-grammar="experience"] .articleSection.visual-quote {
+  margin-inline: clamp(0px, 4vw, 38px);
+  padding-block: 24px;
+}
+.blogPaper[data-visual-density="airy"] .imageSlot {
+  margin-block: 36px 46px;
+}
+
+.blogPaper[data-visual-grammar="information"] {
+  max-width: 860px;
+}
+.blogPaper[data-visual-density="dense"] .articleSection {
+  margin-block: 28px;
+}
+.blogPaper[data-heading-density="high"] .articleSection.visual-standard {
+  padding-bottom: 22px;
+  border-bottom: 1px solid #e2eef0;
+  border-radius: 0;
+}
+.blogPaper[data-heading-density="high"] .articleSection.visual-standard h3 {
+  border-left-width: 4px;
+}
+.blogPaper[data-visual-density="dense"] .imageSlot {
+  margin-block: 24px 30px;
+}
+
+.blogPaper[data-visual-density="balanced"] .articleSection {
+  margin-block: 34px;
+}
+.blogPaper[data-heading-density="regular"] .articleSection.visual-standard h3 {
+  padding: 0 0 10px;
+  border-left: 0;
+  border-bottom: 1px solid #dcebed;
+}
+.blogPaper[data-visual-grammar="curation"] .articleSection.visual-key-point,
+.blogPaper[data-visual-grammar="curation"] .articleSection.visual-callout {
+  width: min(94%, 720px);
+}
+.blogPaper[data-visual-grammar="curation"] .articleSection.visual-key-point {
+  margin-right: auto;
+}
+.blogPaper[data-visual-grammar="curation"] .articleSection.visual-callout {
+  margin-left: auto;
+}
+.blogPaper[data-visual-density="balanced"] .imageSlot {
+  margin-block: 30px 38px;
+}
+
 @media (max-width: 760px) {
+  .foodPreviewDecorationControl {
+    width: 100%;
+    grid-template-columns: auto 1fr 1.65fr;
+  }
+  .foodPreviewDecorationControl button { padding-inline: 7px; }
+  .blogPaper.foodPreview--visitGuide > .summary { padding: 13px 14px; }
+  .blogPaper.foodPreview--visitGuide .articleSection { margin-block: 30px; }
+  .blogPaper.foodPreview--visitGuide .articleSection[data-section-id="food-facts"] { padding: 15px 13px; }
   .articleSection.visual-key-point,
   .articleSection.visual-callout,
   .articleSection.visual-quote {
     padding: 15px 13px;
     margin-block: 20px;
   }
+  .blogPaper[data-visual-density="airy"] .articleSection {
+    margin-block: 30px;
+  }
+  .blogPaper[data-visual-density="balanced"] .articleSection { margin-block: 26px; }
+  .blogPaper[data-visual-density="dense"] .articleSection { margin-block: 22px; }
+  .blogPaper[data-visual-grammar="experience"] .articleSection.visual-quote,
+  .blogPaper[data-visual-grammar="curation"] .articleSection.visual-key-point,
+  .blogPaper[data-visual-grammar="curation"] .articleSection.visual-callout {
+    width: 100%;
+    margin-inline: 0;
+  }
+  .blogPaper[data-visual-density="airy"] .imageSlot { margin-block: 26px 32px; }
+  .blogPaper[data-visual-density="balanced"] .imageSlot {
+    margin-block: 24px 30px;
+  }
+  .blogPaper[data-visual-density="dense"] .imageSlot { margin-block: 20px 24px; }
 }
