@@ -1,5 +1,36 @@
 # ACTIVE_WORK
 
+## Provider, layout and generation reliability integration — 2026-11-25
+
+- Workstream `BLOTORI-PHASE2-20261125`. Standalone checkout `blotori-provider-integration-20261125`, branch `codex/provider-layout-integration`. Actual main at preflight `b1f79491ec44991324f9cc5541aba74c2d5afdb9`. Input heads [#26](https://github.com/conanbke-ai/Blotori_Project/pull/26/files) `7c432f7d419b2330bfc85394f99c9e5e71fea518` and [#28](https://github.com/conanbke-ai/Blotori_Project/pull/28/files) `566e47a236266904178962094a2c7e537978a4f2`. #26 changes 49 paths (+14,490/−105) by three-dot diff and GitHub metadata. Its description counts 13 from an earlier range.
+- Both PRs identify `conanbke-ai` as author. The Composer checkout has a local `app/responsive-inspector.css` edit and remains under its existing custody. The corresponding Codex thread is idle after a usage-limit error. No formal overlapping lease handoff was confirmed. This checkout owns only the isolated integration candidate and QA, with source PRs and the canonical local working tree outside its write scope.
+- Common operating policy applies through §31. Verified remote policy blob `bc417c93873971640ac4e600b38a77a9c273c31f`, SHA-256 `B1C6E419128A2EF30499F0AEDC094B8B6FC7201883615D9E045EA3668F54FD62`, Blueprint SHA-256 `D41D030E34241A2F649EDE882E8526ADEB94009CBBBBD0C232826BEEB99D8DA4`. Old local policy stops at §29.
+- Reconciliation commit `b276053b89214e9d4f4527df2bf5265ab3949de8` combines the two input heads. `generateBlogDraft` passes the same deterministic layout plan and admitted input to `ContentGenerationPort.generate` once, then runs the existing validation before and after normalization. Runtime composition retains key precedence and explicit Mock gating. The adapters, response envelope, existing RAG warning/HTTP behavior, token budget and request payload retain their existing contracts. Nine #26 fixture injections were migrated to the selected port, and #28 route fixture confirms layout traversal and the existing HTTP/RAG behavior.
+- Composer regression: same-task click dispatch before React's disabled state led to two actual loopback POSTs, with distinct trace IDs. `app/page.tsx` adds a synchronous per-component guard with `finally` release and displays an outcome-unknown message for timeout/network failures. The prior 200/502 validation deliberately awaited completion and clicked again after an edit. It represented two operations. New Chromium QA saw one first dispatch, zero pending dispatches, an allowed same-input request after completion, exact IndexedDB preservation on a timeout fixture and successful manual-edit restoration without replay.
+- Server request IDs are minted after each POST arrives for correlation. `variationNonce` guides draft variation. IndexedDB persists drafts rather than a shared generation-operation ledger. Same-body HTTP replays and separate tabs or page instances can start independent operations. Reload restores the draft without submitting again and leaves an already-sent request's upstream outcome unknown. Any future idempotency contract needs an authenticated owner scope, per-operation key, matching payload fingerprint, transactional claim and pending/completed/unknown state in shared persistence, and authorized retrieval of a completed result. Content equality cannot decide whether the user intentionally requested a new version. No process-memory deduplication or billing conclusion is claimed.
+- SDK loopback fixture (installed OpenAI SDK 7.10.0): current defaults `maxRetries=2`, timeout 600,000 ms. One logical call received 3 HTTP attempts for 503/429, 1 for terminal 400, 2 for connection reset after receiving the request, and 3 for body-received timeout. Fixture-only opt-out yielded 1. No idempotency header was observed. Upstream execution, billing and safe replay remain unknown after loss of a response. Provider defaults and result-cache behavior stay in their current contracts.
+- Existing Windows hash QA exposed CRLF conversion of four reviewed corpus JSON artifacts. `.gitattributes` pins these four paths to LF and keeps #26 blob bytes and pinned hashes identical. The Browser QA fixtures now assert #26's actual input-adjusted toast and generated section styling. They also reject the internal editorial boilerplate removed by #26 commit `b5cb0d2`.
+- Verification at the integration candidate (Windows, Node 24.11.1, Next 16.3.4) passed `npm run lint`, `npm run build`, `npm run qa:platform`, `tsc -p tsconfig.content-design-check.json`, Provider fixture 5/5, layout/food/provenance/design unit checks, SDK transport 6/6 and keyless Chromium regressions. Browser scope includes planned layout, facts/anchors, feedback and restore, mobile toolbar, draft storage, pack exchange, editorial layout, and image clipboard. Two local hostnames were used for local origin isolation. External Provider, real billing, network re-delivery across replicas and real Naver editor fidelity were not exercised.
+
+### RAG contract checkpoint
+
+The earlier local fail-closed change remains in the original worktree. The integration candidate retains the published optional behavior. Any introduction of a public REQUIRED mode, a mandatory category policy, or new public HTTP responses requires a separate C-grade decision.
+
+| Case | Current public behavior or evidence | REQUIRED candidate |
+| --- | --- | --- |
+| Missing fields | 400 before Provider | Keep 400 |
+| Unregistered pack | No registered pack input on this route | Reject selection before dispatch. Do not disclose access-controlled pack existence |
+| Server settings missing | Optional path can generate without File Search | 503 before dispatch if a mandatory service dependency is missing |
+| Search completed with no hits | HTTP 200 with unused-grounding metadata and server warning | An actionable no-source result may warrant 422 |
+| Search execution absent or failed | Evidence may be conflated with empty results | Require completed search evidence. 502 candidate for upstream contract failure |
+| Provider unavailable | Existing 502, recognized configuration/model 503 and rate-limit 429 | Preserve distinct classes |
+| Timeout | Existing timeout error path. Upstream outcome unknown | 504 is a separate approval candidate. No automatic application replay |
+| Grounding inadequate | Prior local 502 fixture covered absent evidence or missing names | Reject grounded-success claim pending adequate evidence |
+| Claim/source mismatch | No verified claim-level linkage | Hold grounding acceptance pending evidence or review |
+| Source license unsuitable | Ingestion policy exists. Runtime per-case rights are unverified | Admit approved sources in the active store and apply attribution obligations |
+
+Earlier local RAG fixtures remain separate evidence for status handling and draft preservation. A source filename or an indexed document alone does not establish claim support or rights to use it. A REQUIRED flow should decide ownership and configuration before dispatch, reuse hosted File Search inside the existing single logical generation, and record outcome without adding another model call.
+
 
 ## Environment contract refreeze — 2026-09-18
 

@@ -26,8 +26,7 @@ function publicDraftText(draft) {
 }
 
 const internalObservedTokenPattern = /compact paragraph rhythm|balanced paragraph rhythm|extended paragraph rhythm|very-high\s*\/|section-transition|\binterleaved\b/i;
-const casualObservedFlowSentence = "짧은 문단으로 빠르게 이어지는 호흡을 유지하고, 사진은 본문과 사진을 번갈아 잇는 흐름에 맞춰 배치해요.";
-const formalObservedFlowSentence = "짧고 중간 길이 문단을 섞은 호흡을 유지하고, 사진은 내용이 바뀌는 지점에 사진을 두는 흐름에 맞춰 배치합니다.";
+const editorialInstructionPattern = /호흡을 유지하고, 사진은 .*에 맞춰 배치/;
 
 try {
   await context.route("**/api/health**", (route) => route.fulfill({
@@ -67,10 +66,9 @@ try {
   assert.equal(draft.contentLayoutPlan.source.observedStyle?.runtimePresetId, "food-observed-01");
   assert.equal(draft.contentLayoutPlan.observedStyle?.voice.register, "casual");
   assert.doesNotMatch(publicDraftText(draft), internalObservedTokenPattern);
-  assert.equal(publicDraftText(draft).includes(casualObservedFlowSentence), true);
-  await page.getByText(casualObservedFlowSentence, { exact: true }).first().waitFor();
+  assert.doesNotMatch(publicDraftText(draft), editorialInstructionPattern);
 
-  await page.locator(".articleSection.visual-callout").waitFor({ timeout: 10000 });
+  await page.locator(".articleSection").first().waitFor({ timeout: 10000 });
   await page.locator(".articleSection .textEmphasis").first().waitFor();
   const sections = await page.locator(".articleSection").evaluateAll((nodes) => nodes.map((node) => ({
     id: node.getAttribute("data-section-id"),
@@ -83,6 +81,10 @@ try {
   })));
   assert.deepEqual(sections.map((item) => item.id), draft.contentLayoutPlan.sections.map((item) => item.id));
   assert.deepEqual(sections.map((item) => item.paragraphCount), draft.sections.map((item) => item.paragraphs.length));
+  assert.deepEqual(
+    sections.map((item) => item.className.match(/\bvisual-([\w-]+)/)?.[1]),
+    draft.sections.map((item) => item.presentation?.visualStyle ?? "standard"),
+  );
   const factCard = sections.find((item) => item.id === "food-facts");
   assert.ok(factCard?.className.includes("visual-key-point"));
   assert.ok(factCard.paragraphCount >= 2 && factCard.paragraphCount <= 4);
@@ -100,18 +102,14 @@ try {
   assert.match(layoutStatusText, /입력 정보 상태/);
   assert.match(layoutStatusText, /입력됨\(미검증\)/);
   assert.match(layoutStatusText, /확인되지 않아 생성하지 않은 정보.*방문 경험.*영업시간.*주소/s);
-  const card = sections.find((item) => item.className.includes("visual-callout"));
-  const visualRules = await page.evaluate(() => [...document.styleSheets].flatMap((sheet) => {
-    try { return [...sheet.cssRules].flatMap((rule) => "selectorText" in rule && rule.selectorText.includes("visual-callout") ? [rule.cssText] : []); }
-    catch { return []; }
-  }));
-  assert.ok(card && Number.parseFloat(card.headingBorderLeftWidth) > 0, JSON.stringify({ card, visualRules }));
-  assert.equal(card.background, "rgba(0, 0, 0, 0)", "Naver preview must not overstate full-card fidelity");
+  for (const card of sections.filter((item) => /\bvisual-(key-point|callout|quote)\b/.test(item.className))) {
+    assert.equal(card.background, "rgba(0, 0, 0, 0)", "Naver preview must not overstate full-card fidelity");
+  }
   assert.match(await page.locator("[data-naver-preview-boundary]").innerText(), /SmartEditor.*검증되지/);
   const exportedText = await page.locator('[data-export-preview="true"]').textContent() ?? "";
   assert.doesNotMatch(exportedText, /미확인|사용자 입력·미검증|사용자 확인|외부 자료 확인/);
   assert.doesNotMatch(exportedText, internalObservedTokenPattern);
-  assert.equal(exportedText.includes(casualObservedFlowSentence), true);
+  assert.doesNotMatch(exportedText, editorialInstructionPattern);
   const emphasisWeight = await page.locator(".articleSection .textEmphasis").first().evaluate((node) => Number.parseInt(getComputedStyle(node).fontWeight, 10));
   assert.ok(emphasisWeight >= 700);
 
@@ -152,16 +150,15 @@ try {
   assert.notDeepEqual(nonFoodDraft.contentLayoutPlan.paragraphChars, draft.contentLayoutPlan.paragraphChars);
   assert.notEqual(nonFoodDraft.contentLayoutPlan.observedStyle?.image.placement, draft.contentLayoutPlan.observedStyle?.image.placement);
   assert.doesNotMatch(publicDraftText(nonFoodDraft), internalObservedTokenPattern);
-  assert.equal(publicDraftText(nonFoodDraft).includes(formalObservedFlowSentence), true);
+  assert.doesNotMatch(publicDraftText(nonFoodDraft), editorialInstructionPattern);
   assert.equal(nonFoodDraft.contentLayoutPlan.factPlan, undefined);
   assert.equal(nonFoodDraft.sections.some((section) => section.id === "food-facts"), false);
   await page.waitForFunction(() => !document.querySelector('[data-section-id="food-facts"]')
     && document.querySelector('[data-section-id="layout-evidence"]'), null, { timeout: 10000 });
   await page.locator(".articleSection.visual-key-point").waitFor({ timeout: 10000 });
   await page.locator(".articleSection .textEmphasis").first().waitFor();
-  await page.getByText(formalObservedFlowSentence, { exact: true }).first().waitFor();
   const nonFoodExportedText = await page.locator('[data-export-preview="true"]').textContent() ?? "";
-  assert.equal(nonFoodExportedText.includes(formalObservedFlowSentence), true);
+  assert.doesNotMatch(nonFoodExportedText, editorialInstructionPattern);
   assert.doesNotMatch(nonFoodExportedText, internalObservedTokenPattern);
   const nonFoodSections = await page.locator(".articleSection").evaluateAll((nodes) => nodes.map((node) => ({
     id: node.getAttribute("data-section-id"),

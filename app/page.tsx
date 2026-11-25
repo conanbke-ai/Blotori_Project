@@ -140,6 +140,7 @@ export default function Home() {
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>("settings");
   const [generationContext, setGenerationContext] = useState<GenerationContext>(emptyGenerationContext);
   const previewScrollRef = useRef<HTMLDivElement>(null);
+  const generationInFlight = useRef(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
   const copyMoreToggleRef = useRef<HTMLButtonElement>(null);
   const { compact, single } = useWorkspaceLayout(workspaceRef, settingsOpen);
@@ -256,12 +257,14 @@ export default function Home() {
   }
 
   async function generate() {
+    if (generationInFlight.current) return;
     if (!form.platformId) return setError("게시할 플랫폼을 선택해 주세요.");
     if (form.platformId === "other" && !form.otherPlatform?.trim()) return setError("기타 플랫폼명을 입력해 주세요.");
     if (!hasTopic) return setError("추천 주제를 선택하거나 자유 주제를 입력해 주세요.");
 
-    setLoading(true); setLoadingStage(0); setSuccessVisible(false); setError("");
+    generationInFlight.current = true;
     try {
+      setLoading(true); setLoadingStage(0); setSuccessVisible(false); setError("");
       const base: GenerateRequest = { ...form, platformId: form.platformId };
       const variationNonce = generationContext.variationPrefix
         ? `${generationContext.variationPrefix}-${typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`}`
@@ -269,6 +272,9 @@ export default function Home() {
       const payload = composeGenerationRequest(base, generationContext, variationNonce);
       const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json().catch(() => ({ error: "서버 응답을 읽지 못했습니다." }));
+      if (!res.ok && data.code === "UPSTREAM_TIMEOUT") {
+        throw new Error("시간이 초과돼 생성 결과를 확인하지 못했어요. 같은 요청을 다시 보내면 생성이 중복될 수 있어요.");
+      }
       if (!res.ok) throw new Error(data.error || (res.status === 503 ? "API 연결 설정을 확인해 주세요." : "생성 요청에 실패했습니다."));
       startDraft(data.draft); setMode(data.mode); setEditMode(false); setSuccessVisible(true); setMobilePanel("preview");
       if (data?.draft?.warnings?.some((warning: unknown) => typeof warning === "string"
@@ -282,9 +288,12 @@ export default function Home() {
       }
       requestAnimationFrame(() => previewScrollRef.current?.scrollTo({ top: 0 }));
     } catch (e) {
-      setError(e instanceof TypeError ? "생성 서버에 연결하지 못했습니다. 네트워크와 개발 서버 상태를 확인한 뒤 다시 시도해 주세요." : e instanceof Error ? e.message : "오류가 발생했습니다.");
+      setError(e instanceof TypeError ? "서버 응답을 확인하지 못했어요. 같은 요청을 다시 보내면 생성이 중복될 수 있어요." : e instanceof Error ? e.message : "오류가 발생했습니다.");
       void loadApiHealth(false);
-    } finally { setLoading(false); }
+    } finally {
+      generationInFlight.current = false;
+      setLoading(false);
+    }
   }
 
   async function copyText(text: string, key: string) {

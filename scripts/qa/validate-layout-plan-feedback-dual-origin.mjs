@@ -161,7 +161,8 @@ async function runHiddenPurpose(originName, origin) {
     await selectWithOption(page, "restaurant-review").selectOption("food-introduction");
     const body = await generateAndRead(page);
     assert.deepEqual(body.draft.contentLayoutPlan.source.excludedPurposeFields, ["visitPurpose"]);
-    await assertToastInsideViewport(page, "complete");
+    const toast = await assertToastInsideViewport(page, "input-adjusted");
+    await toast.getByText("일부 상세 입력을 제외하고 원고를 완성했어요.", { exact: true }).waitFor();
     await page.locator("#inspector-tab-qa").click();
     await page.getByText(/사용하지 않는 목적 필드/, { exact: false }).waitFor();
     assert.ok(!(await page.locator("body").innerText()).includes(secret), "excluded raw purpose text must not leak into rendered draft or warning");

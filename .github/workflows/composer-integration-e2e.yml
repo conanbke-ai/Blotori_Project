@@ -59,6 +59,7 @@ jobs:
           BLOTORI_MOBILE_LAYOUT_DIAGNOSTIC_DIR=/tmp/blotori-mobile-layout-diagnostics node scripts/qa/validate-mobile-copy-toolbar.mjs
           node scripts/qa/validate-image-clipboard-dual-origin.mjs
           node scripts/qa/validate-layout-plan-feedback-dual-origin.mjs
+          node scripts/qa/validate-generation-single-flight-browser.mjs . "$BLOTORI_LOCAL_URL/"
           BLOTORI_FOOD_PREVIEW_DIAGNOSTIC_DIR=/tmp/blotori-food-preview-diagnostics node scripts/qa/validate-food-preview-decoration-browser.mjs
       - name: Upload mobile layout diagnostics
         if: always()
