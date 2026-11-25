@@ -1,0 +1,2629 @@
+{
+  "schemaVersion": 1,
+  "artifactClassification": "source-derived-aggregate-style-tokens",
+  "admissionVersion": 1,
+  "source": {
+    "sha256": "311817592919b060961676c36bc455c313ade87f19fd3e1f5f1a6688dc7ffde3",
+    "generatedAt": "2026-10-08T02:07:18.823Z",
+    "upstreamGeneratedAt": "2026-10-08T02:07:18.670Z",
+    "inputBlogs": 274,
+    "categoryMemberships": 319,
+    "biasCorrected": true,
+    "deduplicatedSources": true
+  },
+  "counts": {
+    "categories": 19,
+    "sourcePresets": 62,
+    "admitted": 58,
+    "rejected": 4
+  },
+  "categories": [
+    {
+      "categoryId": "health",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "health-observed-01",
+      "admitted": [
+        {
+          "id": "health-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 16,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 43,
+              "shortRatePercent": 80,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "section-transition",
+              "medianImages": 13,
+              "medianTransitions": 6,
+              "averageGroupLength": 0.5,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "health-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 20,
+              "shortRatePercent": 100,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "limited-tags",
+              "tag-bundle"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 16,
+              "medianTransitions": 18,
+              "averageGroupLength": 1.2,
+              "maxConsecutiveImages": 3
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "health-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 85,
+              "shortRatePercent": 49,
+              "band": "extended"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "heading-explanation-image",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 52,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "heading-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "food",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "food-observed-01",
+      "admitted": [
+        {
+          "id": "food-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 7,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 19,
+              "shortRatePercent": 100,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 23,
+              "medianTransitions": 29,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": [
+        {
+          "id": "food-observed-02",
+          "reason": "FOOD_SHADOW_ACTIVATION_BLOCKED"
+        },
+        {
+          "id": "food-observed-03",
+          "reason": "FOOD_SHADOW_ACTIVATION_BLOCKED"
+        }
+      ]
+    },
+    {
+      "categoryId": "daily",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "daily-observed-01",
+      "admitted": [
+        {
+          "id": "daily-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 11,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 32,
+              "shortRatePercent": 91,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 25,
+              "medianTransitions": 22,
+              "averageGroupLength": 0.9,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "daily-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 66,
+              "shortRatePercent": 64,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 21,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "daily-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 17,
+              "shortRatePercent": 100,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 20,
+              "medianTransitions": 29,
+              "averageGroupLength": 1.1,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "travel",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "travel-observed-01",
+      "admitted": [
+        {
+          "id": "travel-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 12,
+          "tokens": {
+            "voice": {
+              "register": "mixed",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 46,
+              "shortRatePercent": 75,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 33,
+              "medianTransitions": 29,
+              "averageGroupLength": 1.1,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "travel-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 7,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 23,
+              "shortRatePercent": 97,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 30,
+              "medianTransitions": 36,
+              "averageGroupLength": 1.1,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "travel-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 136,
+              "shortRatePercent": 40,
+              "band": "extended"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 35,
+              "medianTransitions": 27,
+              "averageGroupLength": 1.7,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "selective",
+              "whitespace": "dense",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "review",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "review-observed-01",
+      "admitted": [
+        {
+          "id": "review-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 24,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 58,
+              "shortRatePercent": 67,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 19,
+              "medianTransitions": 21,
+              "averageGroupLength": 1.1,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "review-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 24,
+              "shortRatePercent": 93,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "limited-tags",
+              "tag-bundle"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 24,
+              "medianTransitions": 29,
+              "averageGroupLength": 1.1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "review-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 2,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 54,
+              "shortRatePercent": 68,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 28,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "review-observed-04",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 67,
+              "shortRatePercent": 50,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 12,
+              "medianTransitions": 11,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "education",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "education-observed-01",
+      "admitted": [
+        {
+          "id": "education-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 15,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 43,
+              "shortRatePercent": 79,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 10,
+              "medianTransitions": 9,
+              "averageGroupLength": 0.8,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "education-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 16,
+              "shortRatePercent": 100,
+              "band": "compact"
+            },
+            "opening": [
+              "concise-title",
+              "explain-then-image"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 35,
+              "medianTransitions": 50,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "education-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "mixed",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 27,
+              "shortRatePercent": 98,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "heading-explanation-image",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "text-led",
+              "placement": "section-transition",
+              "medianImages": 2,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "heading-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "hobby",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "hobby-observed-01",
+      "admitted": [
+        {
+          "id": "hobby-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 14,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 27,
+              "shortRatePercent": 93,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 25,
+              "medianTransitions": 22,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "hobby-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 10,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 54,
+              "shortRatePercent": 74,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 16,
+              "medianTransitions": 2,
+              "averageGroupLength": 0.2,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "hobby-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 37,
+              "shortRatePercent": 92,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "limited-tags",
+              "tag-bundle"
+            ],
+            "image": {
+              "density": "balanced",
+              "placement": "section-transition",
+              "medianImages": 5,
+              "medianTransitions": 4,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "hobby-observed-04",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 41,
+              "shortRatePercent": 79,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "heading-explanation-image",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 60,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "heading-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "tech",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "tech-observed-01",
+      "admitted": [
+        {
+          "id": "tech-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 6,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 60,
+              "shortRatePercent": 59,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 17,
+              "medianTransitions": 22,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "tech-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "tokens": {
+            "voice": {
+              "register": "narrative",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 106,
+              "shortRatePercent": 33,
+              "band": "extended"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 15,
+              "medianTransitions": 21,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "dense",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "tech-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "narrative",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 79,
+              "shortRatePercent": 45,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 23,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "beauty-fashion",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "beauty-fashion-observed-01",
+      "admitted": [
+        {
+          "id": "beauty-fashion-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 14,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 28,
+              "shortRatePercent": 91,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 22,
+              "medianTransitions": 24,
+              "averageGroupLength": 1.1,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "beauty-fashion-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 2,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 29,
+              "shortRatePercent": 90,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "heading-explanation-image",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "section-transition",
+              "medianImages": 14,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "heading-led"
+            }
+          }
+        },
+        {
+          "id": "beauty-fashion-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 38,
+              "shortRatePercent": 84,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 16,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "parenting-family",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "parenting-family-observed-01",
+      "admitted": [
+        {
+          "id": "parenting-family-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 6,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 27,
+              "shortRatePercent": 96,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 16,
+              "medianTransitions": 19,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "parenting-family-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 29,
+              "shortRatePercent": 97,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 38,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "parenting-family-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 54,
+              "shortRatePercent": 65,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "search-tags",
+              "tag-bundle"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 11,
+              "medianTransitions": 12,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "pets",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "pets-observed-01",
+      "admitted": [
+        {
+          "id": "pets-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 7,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 26,
+              "shortRatePercent": 94,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 15,
+              "medianTransitions": 21,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "pets-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 2,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 63,
+              "shortRatePercent": 65,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "limited-tags",
+              "tag-bundle"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 8,
+              "medianTransitions": 11,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "pets-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 19,
+              "shortRatePercent": 100,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "limited-tags",
+              "tag-bundle"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 19,
+              "medianTransitions": 25,
+              "averageGroupLength": 1.2,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "real-estate",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "real-estate-observed-01",
+      "admitted": [
+        {
+          "id": "real-estate-observed-01",
+          "confidence": "medium",
+          "observedBlogCount": 8,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 44,
+              "shortRatePercent": 77,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 9,
+              "medianTransitions": 9,
+              "averageGroupLength": 0.8,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "real-estate-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "mixed",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 59,
+              "shortRatePercent": 65,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "balanced",
+              "placement": "grouped",
+              "medianImages": 6,
+              "medianTransitions": 2,
+              "averageGroupLength": 5,
+              "maxConsecutiveImages": 5
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "real-estate-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 22,
+              "shortRatePercent": 100,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 19,
+              "medianTransitions": 2,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "finance",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "finance-observed-01",
+      "admitted": [
+        {
+          "id": "finance-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 8,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 41,
+              "shortRatePercent": 73,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 10,
+              "medianTransitions": 14,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "finance-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 31,
+              "shortRatePercent": 97,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "heading-explanation-image",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "section-transition",
+              "medianImages": 14,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "heading-led"
+            }
+          }
+        },
+        {
+          "id": "finance-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "narrative",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 153,
+              "shortRatePercent": 13,
+              "band": "extended"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "search-tags",
+              "tag-bundle"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 9,
+              "medianTransitions": 15,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "dense",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "career",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "career-observed-01",
+      "admitted": [
+        {
+          "id": "career-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 4,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 53,
+              "shortRatePercent": 71,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "section-transition",
+              "medianImages": 8,
+              "medianTransitions": 6,
+              "averageGroupLength": 0.5,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "career-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 25,
+              "shortRatePercent": 98,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 8,
+              "medianTransitions": 7,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "career-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 29,
+              "shortRatePercent": 91,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 14,
+              "medianTransitions": 8,
+              "averageGroupLength": 1.9,
+              "maxConsecutiveImages": 5
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "auto",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "auto-observed-01",
+      "admitted": [
+        {
+          "id": "auto-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 8,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 55,
+              "shortRatePercent": 66,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 20,
+              "medianTransitions": 18,
+              "averageGroupLength": 1.1,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "auto-observed-02",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 139,
+              "shortRatePercent": 50,
+              "band": "extended"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 22,
+              "medianTransitions": 25,
+              "averageGroupLength": 1.3,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "dense",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "auto-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 29,
+              "shortRatePercent": 90,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 33,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "gaming-entertainment",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "gaming-entertainment-observed-01",
+      "admitted": [
+        {
+          "id": "gaming-entertainment-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 22,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 45,
+              "shortRatePercent": 75,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 18,
+              "medianTransitions": 20,
+              "averageGroupLength": 1.2,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "gaming-entertainment-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 10,
+          "tokens": {
+            "voice": {
+              "register": "mixed",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 33,
+              "shortRatePercent": 89,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 19,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "gaming-entertainment-observed-04",
+          "confidence": "high",
+          "observedBlogCount": 4,
+          "tokens": {
+            "voice": {
+              "register": "narrative",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 55,
+              "shortRatePercent": 71,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "search-tags",
+              "tag-bundle"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 7,
+              "medianTransitions": 9,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "gaming-entertainment-observed-05",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 41,
+              "shortRatePercent": 80,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "search-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 105,
+              "medianTransitions": 96,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": [
+        {
+          "id": "gaming-entertainment-observed-03",
+          "reason": "LOW_CONFIDENCE"
+        }
+      ]
+    },
+    {
+      "categoryId": "living-interior",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "living-interior-observed-01",
+      "admitted": [
+        {
+          "id": "living-interior-observed-01",
+          "confidence": "medium",
+          "observedBlogCount": 5,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 25,
+              "shortRatePercent": 95,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 19,
+              "medianTransitions": 15,
+              "averageGroupLength": 0.8,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "living-interior-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 71,
+              "shortRatePercent": 48,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 17,
+              "medianTransitions": 26,
+              "averageGroupLength": 1.1,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": [
+        {
+          "id": "living-interior-observed-02",
+          "reason": "LOW_CONFIDENCE"
+        }
+      ]
+    },
+    {
+      "categoryId": "marketing-business",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "marketing-business-observed-01",
+      "admitted": [
+        {
+          "id": "marketing-business-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 4,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 35,
+              "shortRatePercent": 86,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "high",
+              "placement": "interleaved",
+              "medianImages": 12,
+              "medianTransitions": 15,
+              "averageGroupLength": 1.2,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "marketing-business-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "tokens": {
+            "voice": {
+              "register": "mixed",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 37,
+              "shortRatePercent": 90,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 15,
+              "medianTransitions": 4,
+              "averageGroupLength": 0.7,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "marketing-business-observed-03",
+          "confidence": "high",
+          "observedBlogCount": 3,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 69,
+              "shortRatePercent": 65,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 18,
+              "medianTransitions": 18,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    },
+    {
+      "categoryId": "outdoor-sports",
+      "selectionPolicy": "largest-observed-sample-then-confidence-v1",
+      "defaultPresetId": "outdoor-sports-observed-01",
+      "admitted": [
+        {
+          "id": "outdoor-sports-observed-01",
+          "confidence": "high",
+          "observedBlogCount": 23,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 34,
+              "shortRatePercent": 87,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 26,
+              "medianTransitions": 24,
+              "averageGroupLength": 1.1,
+              "maxConsecutiveImages": 2
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "outdoor-sports-observed-02",
+          "confidence": "high",
+          "observedBlogCount": 15,
+          "tokens": {
+            "voice": {
+              "register": "mixed",
+              "reaction": "neutral"
+            },
+            "paragraph": {
+              "medianChars": 33,
+              "shortRatePercent": 90,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 21,
+              "medianTransitions": 3,
+              "averageGroupLength": 0.5,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "selective",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "outdoor-sports-observed-03",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "casual",
+              "reaction": "active"
+            },
+            "paragraph": {
+              "medianChars": 31,
+              "shortRatePercent": 99,
+              "band": "compact"
+            },
+            "opening": [
+              "brief-image-first",
+              "search-intent-title"
+            ],
+            "sections": [
+              "scene-caption-sequence",
+              "text-image-interleave"
+            ],
+            "closing": [
+              "brief-verdict",
+              "search-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "interleaved",
+              "medianImages": 26,
+              "medianTransitions": 21,
+              "averageGroupLength": 1,
+              "maxConsecutiveImages": 1
+            },
+            "visual": {
+              "alignment": "center-mixed",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "flow-led"
+            }
+          }
+        },
+        {
+          "id": "outdoor-sports-observed-04",
+          "confidence": "medium",
+          "observedBlogCount": 1,
+          "tokens": {
+            "voice": {
+              "register": "formal",
+              "reaction": "restrained"
+            },
+            "paragraph": {
+              "medianChars": 40,
+              "shortRatePercent": 88,
+              "band": "balanced"
+            },
+            "opening": [
+              "brief-image-first",
+              "concise-title"
+            ],
+            "sections": [
+              "heading-explanation-image",
+              "section-bundle"
+            ],
+            "closing": [
+              "brief-verdict",
+              "limited-tags"
+            ],
+            "image": {
+              "density": "very-high",
+              "placement": "section-transition",
+              "medianImages": 116,
+              "medianTransitions": 0,
+              "averageGroupLength": 0,
+              "maxConsecutiveImages": 0
+            },
+            "visual": {
+              "alignment": "left",
+              "emphasis": "frequent",
+              "whitespace": "airy",
+              "headingStyle": "heading-led"
+            }
+          }
+        }
+      ],
+      "rejected": []
+    }
+  ]
+}

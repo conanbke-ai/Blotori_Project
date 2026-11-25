@@ -1,5 +1,3 @@
-import materializedLibraryV1 from "../../data/blog-corpus/category-blog-presets-v1.json";
-import materializedLibraryV2 from "../../data/blog-corpus/category-blog-presets-v2.json";
 import type { BlogDNAProfile } from "./types";
 
 export interface CategoryBlogDNAPreset {
@@ -300,41 +298,19 @@ const CURATED_CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [
 
 ];
 
-type MaterializedLibrary = {
-  schemaVersion: number;
-  generatedAt: string | null;
-  source: string;
-  deduplicatedSources?: boolean;
-  deduplicationKey?: string;
-  inputBlogs: number;
-  categories: Record<string, { presets?: CategoryBlogDNAPreset[] }>;
-};
-
-const observedLibraryV1 = materializedLibraryV1 as unknown as MaterializedLibrary;
-const observedLibraryV2 = materializedLibraryV2 as unknown as MaterializedLibrary;
-const rawObservedPresetsV2 = Object.values(observedLibraryV2.categories ?? {}).flatMap((entry) => entry.presets ?? []);
-const v2Certified = observedLibraryV2.schemaVersion >= 2
-  && observedLibraryV2.deduplicatedSources === true
-  && rawObservedPresetsV2.length > 0;
-const observedPresetsV2 = v2Certified ? rawObservedPresetsV2 : [];
-const observedPresetsV1 = Object.values(observedLibraryV1.categories ?? {}).flatMap((entry) => entry.presets ?? []);
-const observedLibrary = v2Certified ? observedLibraryV2 : observedLibraryV1;
-const observedPresets = v2Certified ? observedPresetsV2 : observedPresetsV1;
-const observedCategories = new Set(observedPresets.map((preset) => preset.categoryId));
-
-export const CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [
-  ...CURATED_CATEGORY_BLOG_DNA_PRESETS.filter((preset) => !observedCategories.has(preset.categoryId)),
-  ...observedPresets,
-];
+// Corpus JSON is intentionally not imported by this UI-facing module. Only the
+// human-reviewed launch presets may enter custom style, pack, or local storage paths.
+// Observed aggregate defaults use the separate constrained server resolver.
+export const CATEGORY_BLOG_DNA_PRESETS: CategoryBlogDNAPreset[] = [...CURATED_CATEGORY_BLOG_DNA_PRESETS];
 
 export const CATEGORY_BLOG_DNA_LIBRARY_META = {
-  materialized: observedPresets.length > 0,
-  generatedAt: observedLibrary.generatedAt,
-  inputBlogs: observedLibrary.inputBlogs ?? 0,
-  source: observedLibrary.source,
-  schemaVersion: observedLibrary.schemaVersion,
-  biasCorrected: v2Certified,
-  sourceDeduplicated: v2Certified && observedLibraryV2.deduplicatedSources === true,
+  materialized: false,
+  generatedAt: null,
+  inputBlogs: 0,
+  source: "launch-curated",
+  schemaVersion: 1,
+  biasCorrected: false,
+  sourceDeduplicated: false,
 };
 
 export function getCategoryBlogDNAPresets(categoryId?: string) {
