@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { generateBlogDraft } from "../../../lib/application/generate-blog-draft";
 import type { GenerateRequest } from "../../../lib/domain/types";
 import { classifyError, createRequestId, logEvent } from "../../../lib/infrastructure/observability";
+import { resolveContentGenerationPort } from "../../../lib/infrastructure/content-generation-runtime";
 
 export const runtime = "nodejs";
 
@@ -57,7 +58,10 @@ export async function POST(request: Request) {
       model: process.env.OPENAI_MODEL || "gpt-5.6-luna",
     });
 
-    const result = await generateBlogDraft({ ...input, styleIntensity: input.styleIntensity ?? 3, attributes: input.attributes ?? {} });
+    const result = await generateBlogDraft(
+      { ...input, styleIntensity: input.styleIntensity ?? 3, attributes: input.attributes ?? {} },
+      resolveContentGenerationPort(),
+    );
     const grounding = result.draft.knowledgeGrounding;
 
     logEvent("info", {
